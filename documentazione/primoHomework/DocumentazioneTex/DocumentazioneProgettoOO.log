@@ -1,44 +1,44 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.9.24) (preloaded format=pdflatex 2023.10.4)  11 APR 2025 14:53
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.3.26)  14 APR 2025 17:00
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **./DocumentazioneProgettoOO.tex
 (DocumentazioneProgettoOO.tex
-LaTeX2e <2023-06-01> patch level 1
-L3 programming layer <2023-08-29>
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-01-04>
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
 Document Class: article 2023/05/17 v1.4n Standard LaTeX document class
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/base\size10.clo
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/base\size10.clo
 File: size10.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
 )
-\c@part=\count185
-\c@section=\count186
-\c@subsection=\count187
-\c@subsubsection=\count188
-\c@paragraph=\count189
-\c@subparagraph=\count190
-\c@figure=\count191
-\c@table=\count192
+\c@part=\count187
+\c@section=\count188
+\c@subsection=\count189
+\c@subsubsection=\count190
+\c@paragraph=\count191
+\c@subparagraph=\count192
+\c@figure=\count193
+\c@table=\count194
 \abovecaptionskip=\skip48
 \belowcaptionskip=\skip49
 \bibindent=\dimen140
 )
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
 Package: geometry 2020/01/02 v5.9 Page Geometry
 
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks17
 )
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
 Package: iftex 2022/02/03 v1.0f TeX engine tests
 ))
-\Gm@cnth=\count193
-\Gm@cntv=\count194
-\c@Gm@tempcnt=\count195
+\Gm@cnth=\count195
+\Gm@cntv=\count196
+\c@Gm@tempcnt=\count197
 \Gm@bindingoffset=\dimen141
 \Gm@wd@mp=\dimen142
 \Gm@odd@mp=\dimen143
@@ -49,42 +49,40 @@ Package: iftex 2022/02/03 v1.0f TeX engine tests
 \Gm@layoutvoffset=\dimen148
 \Gm@dimlist=\toks18
 
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/tabto-ltx\tabto.sty
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/tabto-ltx\tabto.sty
 Package: tabto 2018/12/28  v 1.4  Another tabbing mechanism
 \CurrentLineWidth=\dimen149
 \TabPrevPos=\dimen150
 )
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
 Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
 
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
 Package: graphics 2022/03/10 v1.4e Standard LaTeX Graphics (DPC,SPQR)
 
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
 Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
 )
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.c
-fg
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 107.
-
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
 File: pdftex.def 2022/09/22 v1.2b Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen151
 \Gin@req@width=\dimen152
-) (C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/tools\multicol.sty
+) (C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/tools\multicol.sty
 Package: multicol 2023/03/30 v1.9f multicolumn formatting (FMi)
-\c@tracingmulticols=\count196
+\c@tracingmulticols=\count198
 \mult@box=\box51
 \multicol@leftmargin=\dimen153
-\c@unbalance=\count197
-\c@collectmore=\count198
-\doublecol@number=\count199
-\multicoltolerance=\count266
-\multicolpretolerance=\count267
+\c@unbalance=\count199
+\c@collectmore=\count266
+\doublecol@number=\count267
+\multicoltolerance=\count268
+\multicolpretolerance=\count269
 \full@width=\dimen154
 \page@free=\dimen155
 \premulticols=\dimen156
@@ -135,16 +133,17 @@ Package: multicol 2023/03/30 v1.9f multicolumn formatting (FMi)
 \@tempa=\box92
 \@tempa=\box93
 \@tempa=\box94
-\c@minrows=\count268
-\c@columnbadness=\count269
-\c@finalcolumnbadness=\count270
+\c@minrows=\count270
+\c@columnbadness=\count271
+\c@finalcolumnbadness=\count272
 \last@try=\dimen159
 \multicolovershoot=\dimen160
 \multicolundershoot=\dimen161
 \mult@nat@firstbox=\box95
 \colbreak@box=\box96
-\mc@col@check@num=\count271
-) (C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/ragged2e\ragged2e.sty
+\mc@col@check@num=\count273
+)
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/ragged2e\ragged2e.sty
 Package: ragged2e 2023/06/22 v3.6 ragged2e Package
 \CenteringLeftskip=\skip52
 \RaggedLeftLeftskip=\skip53
@@ -160,18 +159,19 @@ Package: ragged2e 2023/06/22 v3.6 ragged2e Package
 \RaggedLeftParindent=\skip63
 \RaggedRightParindent=\skip64
 \JustifyingParindent=\skip65
-) (C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty
+)
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count272
+\c@float@type=\count274
 \float@exts=\toks19
 \float@box=\box97
 \@float@everytoks=\toks20
 \@floatcapt=\box98
 )
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
-tex.def
-File: l3backend-pdftex.def 2023-04-19 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count273
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex
+.def
+File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count275
 \l__pdf_internal_box=\box99
 )
 
@@ -231,36 +231,33 @@ LaTeX Font Info:    ... okay on input line 14.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
-ii
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count274
+\scratchcounter=\count276
 \scratchdimen=\dimen162
 \scratchbox=\box100
-\nofMPsegments=\count275
-\nofMParguments=\count276
+\nofMPsegments=\count277
+\nofMParguments=\count278
 \everyMPshowfont=\toks21
-\MPscratchCnt=\count277
+\MPscratchCnt=\count279
 \MPscratchDim=\dimen163
-\MPnumerator=\count278
-\makeMPintoPDFobject=\count279
+\MPnumerator=\count280
+\makeMPintoPDFobject=\count281
 \everyMPtoPDFconversion=\toks22
 )
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
-ase.sty
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-base
+.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 85.
 
-(C:\Users\gioma\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.c
-fg
+(C:\Users\Pc\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-<Immagini/coverpic.png, id=1, 1004.75375pt x 296.10625pt>
-File: Immagini/coverpic.png Graphic file (type png)
-<use Immagini/coverpic.png>
-Package pdftex.def Info: Immagini/coverpic.png  used on input line 17.
+<../Immagini/coverpic.png, id=1, 1004.75375pt x 296.10625pt>
+File: ../Immagini/coverpic.png Graphic file (type png)
+<use ../Immagini/coverpic.png>
+Package pdftex.def Info: ../Immagini/coverpic.png  used on input line 17.
 (pdftex.def)             Requested size: 412.56499pt x 121.58507pt.
 
 
@@ -269,8 +266,8 @@ LaTeX Font Warning: Font shape `OT1/cmr/bx/sc' undefined
 
 [1
 
-{C:/Users/gioma/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <./Immagini/c
-overpic.png>] (DocumentazioneProgettoOO.toc
+{C:/Users/Pc/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <../Immagini/cov
+erpic.png>] (DocumentazioneProgettoOO.toc
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <7> on input line 2.
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -280,17 +277,24 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 \openout3 = `DocumentazioneProgettoOO.toc'.
 
  [2]
-<Immagini/PossibileSoluzioneHackathon.jpg, id=17, 482.7636pt x 240.9pt>
-File: Immagini/PossibileSoluzioneHackathon.jpg Graphic file (type jpg)
-<use Immagini/PossibileSoluzioneHackathon.jpg>
-Package pdftex.def Info: Immagini/PossibileSoluzioneHackathon.jpg  used on inpu
-t line 41.
+<../Immagini/PossibileSoluzioneHackathon.jpg, id=17, 482.7636pt x 240.9pt>
+File: ../Immagini/PossibileSoluzioneHackathon.jpg Graphic file (type jpg)
+<use ../Immagini/PossibileSoluzioneHackathon.jpg>
+Package pdftex.def Info: ../Immagini/PossibileSoluzioneHackathon.jpg  used on i
+nput line 41.
 (pdftex.def)             Requested size: 412.56499pt x 205.87238pt.
- [3 <./Immagini/PossibileSoluzioneHackathon.jpg>] (DocumentazioneProgettoOO.aux
-)
+<../Immagini/Homework1_UMLObject.png, id=18, 513.71925pt x 354.123pt>
+File: ../Immagini/Homework1_UMLObject.png Graphic file (type png)
+<use ../Immagini/Homework1_UMLObject.png>
+Package pdftex.def Info: ../Immagini/Homework1_UMLObject.png  used on input lin
+e 45.
+(pdftex.def)             Requested size: 412.56499pt x 284.40648pt.
+ [3 <../Immagini/PossibileSoluzioneHackathon.jpg>] [4 <../Immagini/Homework1_UM
+LObject.png (PNG copy)>]
+(DocumentazioneProgettoOO.aux)
  ***********
-LaTeX2e <2023-06-01> patch level 1
-L3 programming layer <2023-08-29>
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-01-04>
  ***********
 
 
@@ -298,23 +302,23 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 2209 strings out of 475248
- 37857 string characters out of 5757813
- 1922785 words of memory out of 5000000
- 23744 multiletter control sequences out of 15000+600000
+ 2220 strings out of 474486
+ 38394 string characters out of 5745171
+ 1929542 words of memory out of 5000000
+ 24517 multiletter control sequences out of 15000+600000
  560488 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  57i,6n,65p,519b,292s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<C:/Users/gioma/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
-cmbx10.pfb><C:/Users/gioma/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
-fonts/cm/cmbx12.pfb><C:/Users/gioma/AppData/Local/Programs/MiKTeX/fonts/type1/p
-ublic/amsfonts/cm/cmcsc10.pfb><C:/Users/gioma/AppData/Local/Programs/MiKTeX/fon
-ts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/gioma/AppData/Local/Programs/Mi
-KTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/gioma/AppData/Local/Pro
-grams/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb>
-Output written on DocumentazioneProgettoOO.pdf (3 pages, 204391 bytes).
+<C:/Users/Pc/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmb
+x10.pfb><C:/Users/Pc/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/
+cm/cmbx12.pfb><C:/Users/Pc/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
+fonts/cm/cmcsc10.pfb><C:/Users/Pc/AppData/Local/Programs/MiKTeX/fonts/type1/pub
+lic/amsfonts/cm/cmr10.pfb><C:/Users/Pc/AppData/Local/Programs/MiKTeX/fonts/type
+1/public/amsfonts/cm/cmr12.pfb><C:/Users/Pc/AppData/Local/Programs/MiKTeX/fonts
+/type1/public/amsfonts/cm/cmr17.pfb>
+Output written on DocumentazioneProgettoOO.pdf (4 pages, 252727 bytes).
 PDF statistics:
- 46 PDF objects out of 1000 (max. 8388607)
+ 50 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 16 words of extra memory for PDF output out of 10000 (max. 10000000)
 
