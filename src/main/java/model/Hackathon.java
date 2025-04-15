@@ -1,6 +1,7 @@
 package model;
 
 public class Hackathon {
+    private String idNum;
     private String sede;
     private String dataInizio;
     private String dataFine;
@@ -11,7 +12,8 @@ public class Hackathon {
     private int maxNumIscritti;
     private String descrizioneProblema;
 
-    public Hackathon(String sede, String dataInizio, String dataFine, String dataInizioRegistrazioni, String dataFineRegistrazioni, String titolo, int maxMembriTeam, int maxNumIscritti, String descrizioneProblema) {
+    public Hackathon(String idNum, String sede, String dataInizio, String dataFine, String dataInizioRegistrazioni, String dataFineRegistrazioni, String titolo, int maxMembriTeam, int maxNumIscritti) {
+        this.idNum = idNum;
         this.sede = sede;
         this.dataInizio = dataInizio;
         this.dataFine = dataFine;
@@ -20,6 +22,9 @@ public class Hackathon {
         this.titolo = titolo;
         this.maxMembriTeam = maxMembriTeam;
         this.maxNumIscritti = maxNumIscritti;
+    }
+
+    public void setDescrizioneProblema(String descrizioneProblema) {
         this.descrizioneProblema = descrizioneProblema;
     }
 
