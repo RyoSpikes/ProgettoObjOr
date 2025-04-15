@@ -1,5 +1,8 @@
 package model;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class Hackathon {
     private String idNum;
     private String sede;
@@ -11,6 +14,7 @@ public class Hackathon {
     private int maxMembriTeam;
     private int maxNumIscritti;
     private String descrizioneProblema;
+    private ArrayList<Giudice> giudiciEvento;
 
     public Hackathon(String idNum, String sede, String dataInizio, String dataFine, String dataInizioRegistrazioni, String dataFineRegistrazioni, String titolo, int maxMembriTeam, int maxNumIscritti) {
         this.idNum = idNum;
@@ -22,6 +26,7 @@ public class Hackathon {
         this.titolo = titolo;
         this.maxMembriTeam = maxMembriTeam;
         this.maxNumIscritti = maxNumIscritti;
+        giudiciEvento = new ArrayList<>();
     }
 
     public void setDescrizioneProblema(String descrizioneProblema) {
@@ -42,5 +47,14 @@ public class Hackathon {
                 "\n- Data Fine iscrizioni: " + dataFineRegistrazioni +
                 "\n- Descrizione del problema: " +
                 "\t" + descrizioneProblema);
+    }
+
+    public void aggiungiGiudice(Giudice newGiudice)
+    {
+        giudiciEvento.add(newGiudice);
+    }
+
+    public String getIdNum() {
+        return idNum;
     }
 }

@@ -1,6 +1,7 @@
 package model;
 
 public class Giudice extends Utente{
+    Utente userGiudice;
     public Giudice(String login, String password) {
         super(login, password);
     }
