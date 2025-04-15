@@ -26,4 +26,8 @@ public class Utente {
     public String getLogin() {
         return login;
     }
+    public void registrazioneHackathon()
+    {
+
+    }
 }
