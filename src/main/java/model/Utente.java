@@ -24,8 +24,8 @@ public class Utente {
      *
      * @return the login
      */
-    public String getLogin() {
-        return login;
+    public boolean getLogin(String password) {
+        return this.password.equals(password);
     }
 
     public Giudice getInvite(String idEvento)

@@ -27,9 +27,9 @@ public class Team {
         else System.out.println("Attenzione, il team è pieno secondo i canoni di questa Hackathon.");
     }
 
-    public void uploadDocumento()
+    public void uploadDocumento(String doc)
     {
-        documentazione.add(new Documento(this, "documento"));
+        documentazione.add(new Documento(this, doc));
     }
 
     public void setVotoFinale(int votoFinale) {

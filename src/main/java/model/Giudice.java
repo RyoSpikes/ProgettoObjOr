@@ -6,7 +6,7 @@ public class Giudice extends Utente{
         super(login, password);
     }
 
-    public void pubblicaProblema(Hackathon evento, String descrizioneProblema)
+    public void pubblicazioneProblema(Hackathon evento, String descrizioneProblema)
     {
         evento.setDescrizioneProblema(descrizioneProblema);
     }
