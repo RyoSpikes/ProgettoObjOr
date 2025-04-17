@@ -8,6 +8,9 @@ import java.util.ArrayList;
  * Un organizzatore può creare hackathon e invitare giudici a partecipare.
  */
 public class Organizzatore extends Utente {
+    /**
+     * Lista di Hackathon realizzate dall'organizzatore.
+     */
     private ArrayList<Hackathon> hackathonOrganizzate;
 
     /**
