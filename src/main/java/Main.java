@@ -56,7 +56,7 @@ public class Main {
         // Stampa manuale informazioni documento
         System.out.println("Documento caricato:");
         // Da utente vorrei stampare un documento del mio team basandomi su ricerca tramite confronto di sottostringa (DA RIVEDERE)
-        user1.getTeam().stampaDocumento(team1.cercaDocumento("Prova"));
+        user1.getTeam().stampaDocumento(team1.cercaDocumento("prova"));
 
 
         // Giudice che vuole visualizzare l'ultimo documento caricato dal team e decidere se valutarlo

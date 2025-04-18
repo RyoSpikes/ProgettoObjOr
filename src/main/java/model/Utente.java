@@ -15,7 +15,6 @@ public class Utente {
      * Password dell'utente.
      */
     private String password;
-    //private Giudice statusGiudice;
 
     /**
      * Team di appartenenza dell'utente.
@@ -60,9 +59,6 @@ public class Utente {
         return this.login;
     }
 
-<<<<<<< Updated upstream
-    // TODO: 18/04/2025  
-=======
     /**
      * Ritorna il team dell'utente.
      *
@@ -107,11 +103,14 @@ public class Utente {
         this.setNewTeam(null);
     }
 
-    //TO DO
->>>>>>> Stashed changes
+    /**
+     * Metodo placeholder per gestire inviti come giudice.
+     *
+     * @param idEvento ID dell'evento per cui si riceve l'invito.
+     * @return Oggetto Giudice (attualmente null).
+     */
     public Giudice getInvite(String idEvento) {
-        /*System.out.println("Invito come giudice per l'Hackathon con ID: " + idEvento);
-        return statusGiudice = new Giudice(login, password);*/
+        // Placeholder per implementazione futura
         return null;
     }
 }
