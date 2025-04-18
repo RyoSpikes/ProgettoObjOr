@@ -1,5 +1,6 @@
 package model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 /**
@@ -40,20 +41,70 @@ public class Team {
     }
 
     /**
-     * Aggiunge un membro al team se ci sono posti disponibili.
-     * @param user Utente da aggiungere (non nullo).
-     * @throws IllegalArgumentException Se user è null.
-     * @throws IllegalStateException Se il team è al completo.
+     * Restituisce la lista dei membri.
+     *
+     * @return Lista di membri del team.
+     */
+    public ArrayList<Utente> getMembo() {
+        return membro;
+    }
+
+    /**
+     * Controllo se la data corrente è valida per la registrazione.
+     *
+     * @return true se la data corrente è valida
+     */
+    public Boolean controlloValiditaRegistrazione() {
+        // Ricavo la data di oggi
+        LocalDateTime now = LocalDateTime.now();
+
+        // Controllo se la data di oggi è compresa tra la data di inizio e la data di fine registrazioni
+        if (eventoPartecipazione.getDataInizioRegistrazioni().isBefore(now) &&
+                eventoPartecipazione.getDataFineRegistrazioni().isAfter(now)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    /**
+     * Aggiunta dell'utente in input a this team.
+     *
+     * @param user Utente da aggiungere al team.
+     * @throws IllegalArgumentException Se l'utente è null.
+     * @throws IllegalStateException Se il team è già al completo.
+     * @throws IllegalStateException Se la data di registrazione non è valida.
      */
     public void aggiungiMembro(Utente user) {
         if (user == null) {
             throw new IllegalArgumentException("L'utente non può essere null");
         }
+
         if (membro.size() >= eventoPartecipazione.getMaxMembriTeam()) {
             throw new IllegalStateException("Team al completo. Massimo membri: "
                     + eventoPartecipazione.getMaxMembriTeam());
         }
-        membro.add(user);
+
+        // Chiamo la funzione per il controllo della validità della data di registrazione
+        if (controlloValiditaRegistrazione()) {
+            // TODO: Controllo se l'utente non sia già registrato ad un team o a questo stesso team
+
+            // TODO: Se l'utente è già registrato ad un
+            //  team potremmo voler chiedere allo stesso utente se vuole
+            //  abbandonare il team corrente per iscriversi a questo team.
+            //  N.B.: questo controllo potrebbe essere implementato direttamente
+            //  nella funzione entrataTeam nella classe Utente per coerenza.
+
+            // Registro l'utente
+            membro.add(user);
+            user.setNewTeam(this);
+        } else {
+            // Se la data non è compresa nell'intervallo di registrazione
+            throw new IllegalStateException("Impossibile registrarsi in questa data: " + LocalDateTime.now() +
+                    "\nData di inizio registrazioni: " + eventoPartecipazione.getDataInizioRegistrazioni() +
+                    "\nData di fine registrazioni: " + eventoPartecipazione.getDataFineRegistrazioni());
+        }
     }
 
     /**
@@ -70,6 +121,7 @@ public class Team {
 
     /**
      * Carica un nuovo documento all'interno della piattaforma
+     *
      * @param title Inserisce il titolo del documento.
      * @param text Inserisce il corpo del documento.
      */
@@ -80,6 +132,7 @@ public class Team {
 
     /**
      * Restituisce la lista dei documenti caricati dal team.
+     *
      * @return Lista di documenti (non nulla).
      */
     public ArrayList<Documento> getDocumentazione() {

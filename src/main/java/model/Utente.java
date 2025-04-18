@@ -6,10 +6,11 @@ package model;
  */
 public class Utente {
     /**
-     * Nome dell'utente.
+     * Username dell'utente.
      * Definito come costante per aumentare la sicurezza della struttura.
      */
     private final String login;
+
     /**
      * Password dell'utente.
      */
@@ -17,9 +18,14 @@ public class Utente {
     //private Giudice statusGiudice;
 
     /**
+     * Team di appartenenza dell'utente.
+     */
+    private Team teamCorrente;
+
+    /**
      * Costruttore per creare un nuovo utente.
      *
-     * @param login    Il nome univoco dell'utente.
+     * @param login L'username univoco dell'utente.
      * @param password La password in chiaro.
      * @throws IllegalArgumentException Se login o password sono null/vuoti.
      */
@@ -46,15 +52,63 @@ public class Utente {
     }
 
     /**
-     * Stampa il nome dell'utente.
+     * Ritorna l'username dell'utente.
+     *
      * @return Restituisce il nome dell'utente
      */
-    public String getName()
-    {
+    public String getName() {
         return this.login;
     }
 
+<<<<<<< Updated upstream
     // TODO: 18/04/2025  
+=======
+    /**
+     * Ritorna il team dell'utente.
+     *
+     * @return Restituisce il team dell'utente
+     */
+    public Team getTeam() {
+        return this.teamCorrente;
+    }
+
+    /**
+     * Aggiorna il team di appartenenza quando l'utente cambia team.
+     *
+     * @param team Il nuovo team di appartenenza.
+     */
+    public void setNewTeam(Team team) {
+        this.teamCorrente = team;
+    }
+
+    /**
+     * Permette all'utente di unirsi a un nuovo team.
+     *
+     * @param team Il team a cui unirsi.
+     */
+    public void entrataTeam(Team team) {
+        if (team == null) {
+            throw new IllegalArgumentException("Il team non può essere null.");
+        }
+
+        team.aggiungiMembro(this);
+    }
+
+    /**
+     * Permette all'utente di abbandonare il team corrente di cui fa parte.
+     */
+    public void abbandonaTeam() {
+        if (teamCorrente == null) {
+            throw new IllegalArgumentException("L'utente non appartiene a nessun team.");
+        }
+        // Rimuovo l'utente dalla lista dei membri del team
+        teamCorrente.getMembo().remove(this);
+        // Setto a null il team corrente dell'utente
+        this.setNewTeam(null);
+    }
+
+    //TO DO
+>>>>>>> Stashed changes
     public Giudice getInvite(String idEvento) {
         /*System.out.println("Invito come giudice per l'Hackathon con ID: " + idEvento);
         return statusGiudice = new Giudice(login, password);*/
