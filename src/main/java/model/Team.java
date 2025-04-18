@@ -166,7 +166,10 @@ public class Team {
     {
         for(Documento doc : documentazione)
         {
-            if(doc.getTitle().contains(titolo))
+            if(doc.getTitle().toLowerCase().contains(titolo.toLowerCase()))
+            {
+                return doc;
+            }
             {
                 return doc;
             }
