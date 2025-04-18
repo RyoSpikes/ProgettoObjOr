@@ -15,7 +15,7 @@ public class Team {
     private final String nomeTeam;
 
     /** Hackathon a cui il team è iscritto. */
-    private Hackathon eventoPartecipazione;
+    private final Hackathon eventoPartecipazione;
 
     /** Lista dei documenti caricati dal team. */
     private ArrayList<Documento> documentazione;
@@ -68,6 +68,11 @@ public class Team {
         }
     }
 
+    /**
+     * Carica un nuovo documento all'interno della piattaforma
+     * @param title Inserisce il titolo del documento.
+     * @param text Inserisce il corpo del documento.
+     */
     public void uploadDocumento(String title, String text)
     {
         documentazione.add(new Documento(this, title, text));
@@ -81,7 +86,40 @@ public class Team {
         return documentazione;
     }
 
+    /**
+     * Stampa il documento scelto.
+     * @param doc Documento da recuperare per la stampa.
+     * @throws NullPointerException Lancia eccezione nel caso in cui il
+     *                              documento non ha nessun riferimento ad
+     *                              un oggetto esistente.
+     */
+    public void stampaDocumento(Documento doc) throws NullPointerException
+    {
+        if(doc == null)
+        {
+            throw new NullPointerException("Non è stato trovato alcun documento!");
+        }
+            System.out.println("Titolo: " + doc.getTitle() + "\n" +
+                    "Testo: " + doc.getText());
+    }
 
+    /**
+     * Stampa il documento scelto.
+     * @param titolo Titolo del documento da cercare.
+     * @return doc Restituisce documento da cercare se il titolo
+     * corrisponde. Altrimenti restituisce null.
+     */
+    public Documento cercaDocumento(String titolo)
+    {
+        for(Documento doc : documentazione)
+        {
+            if(doc.getTitle().contains(titolo))
+            {
+                return doc;
+            }
+        }
+        return null;
+    }
 
     //TO DO
     public void setVotoFinale(int votoFinale) {

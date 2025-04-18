@@ -37,11 +37,18 @@ public class Giudice extends Utente {
 
     /**
      * Pubblica la descrizione del problema da risolvere durante l'hackathon.
+     * @param descrizioneProblema Descrizione del problema da pubblicare.
      */
     public void pubblicazioneProblema(String descrizioneProblema) {
         eventoGiudicato.setDescrizioneProblema(descrizioneProblema);
     }
 
+    /**
+     * Pubblica la descrizione del problema da risolvere durante l'hackathon.
+     * @param team Team dal quale ricavare il documento da valutare.
+     * @return valutazione restituisce una valutazione su assenso del giudice.
+     *                     restituisce null altrimenti.
+     */
     public Valutazione visualizzaValutaUltimoDocumento(Team team) {
         // Controlla se il team ha caricato documenti
         if (team.getDocumentazione().isEmpty()) {

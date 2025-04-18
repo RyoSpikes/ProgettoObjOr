@@ -107,7 +107,7 @@ public class Organizzatore extends Utente {
      *
      * @param index L'indice dell'hackathon nella lista
      * @return L'hackathon corrispondente
-     * @throws IndexOutOfBoundsException Se l'indice è fuori dai limiti della lista (index < 0 || index >= size)
+     * @throws IndexOutOfBoundsException Se l'indice è fuori dai limiti della lista
      */
     public Hackathon getHackathonOrganizzata(int index) throws IndexOutOfBoundsException {
         if (index < 0 || index >= hackathonOrganizzate.size()) {

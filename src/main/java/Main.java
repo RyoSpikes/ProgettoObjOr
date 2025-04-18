@@ -43,8 +43,6 @@ public class Main {
 
         giudice1.printGiudice();
 
-
-
         // Ulteriore testing
         giudice1.pubblicazioneProblema("I partecipanti dovranno tifare Napoli!");
         org1.getHackathonOrganizzata(
@@ -55,8 +53,9 @@ public class Main {
 
         // Stampa manuale informazioni documento
         System.out.println("Documento caricato:");
-        System.out.println("Titolo: " + team1.getDocumentazione().get(0).getTitle());
-        System.out.println("Testo: " + team1.getDocumentazione().get(0).getText());
+        //Stampa documento basandosi su ricerca tramite confronto di sottostringa (DA RIVEDERE)
+        team1.stampaDocumento(team1.cercaDocumento("Prova"));
+
 
         // Giudice che vuole visualizzare l'ultimo documento caricato dal team e decidere se valutarlo
         giudice1.visualizzaValutaUltimoDocumento(team1);
