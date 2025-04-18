@@ -121,7 +121,7 @@ public class Team {
         return null;
     }
 
-    //TO DO
+    // TODO: 18/04/2025
     public void setVotoFinale(int votoFinale) {
         this.votoFinale += votoFinale;
     }

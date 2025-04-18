@@ -54,7 +54,7 @@ public class Utente {
         return this.login;
     }
 
-    //TO DO
+    // TODO: 18/04/2025  
     public Giudice getInvite(String idEvento) {
         /*System.out.println("Invito come giudice per l'Hackathon con ID: " + idEvento);
         return statusGiudice = new Giudice(login, password);*/
