@@ -1,5 +1,7 @@
 import model.*;
 
+import javax.print.Doc;
+
 public class Main {
     public static void main(String[] args) {
         Organizzatore org1 = new Organizzatore("Gioele", "4316");
@@ -35,10 +37,32 @@ public class Main {
         team1.printMembers();
 
         Giudice giudice1 = new Giudice(
-          "Dario", "4313",
+                "Dario", "4313",
                 org1.getHackathonOrganizzata(org1.getIndexHackathonOrganizzata("1"))
         );
 
         giudice1.printGiudice();
+
+
+
+        // Ulteriore testing
+        giudice1.pubblicazioneProblema("I partecipanti dovranno tifare Napoli!");
+        org1.getHackathonOrganizzata(
+                org1.getIndexHackathonOrganizzata("1")
+        ).printInfoEvento();
+
+        team1.uploadDocumento("Prova documento", "Sarebbe inutile testare questo metodo perchè il documento dovrebbe essere effettivamente un file e non una stringa ma non abbiamo ancora un database.");
+
+        // Stampa manuale informazioni documento
+        System.out.println("Documento caricato:");
+        System.out.println("Titolo: " + team1.getDocumentazione().get(0).getTitle());
+        System.out.println("Testo: " + team1.getDocumentazione().get(0).getText());
+
+        // Giudice che vuole visualizzare l'ultimo documento caricato dal team e decidere se valutarlo
+        giudice1.visualizzaValutaUltimoDocumento(team1);
+        // Inseriamo un commento casuale per testare il metodo
+
+        // Da utente ora vorrei visualizzare le valutazioni di un qualsiasi documento caricato da un team
+        team1.getDocumentazione().get(0).stampaValutazioni();
     }
 }

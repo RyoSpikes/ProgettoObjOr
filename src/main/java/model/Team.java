@@ -12,7 +12,7 @@ public class Team {
     private ArrayList<Utente> membro;
 
     /** Nome identificativo del team (univoco per hackathon). */
-    private String nomeTeam;
+    private final String nomeTeam;
 
     /** Hackathon a cui il team è iscritto. */
     private Hackathon eventoPartecipazione;
@@ -68,11 +68,20 @@ public class Team {
         }
     }
 
-    //TO DO
-    public void uploadDocumento(String doc)
+    public void uploadDocumento(String title, String text)
     {
-        documentazione.add(new Documento(this, doc));
+        documentazione.add(new Documento(this, title, text));
     }
+
+    /**
+     * Restituisce la lista dei documenti caricati dal team.
+     * @return Lista di documenti (non nulla).
+     */
+    public ArrayList<Documento> getDocumentazione() {
+        return documentazione;
+    }
+
+
 
     //TO DO
     public void setVotoFinale(int votoFinale) {
