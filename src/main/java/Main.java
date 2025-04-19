@@ -26,15 +26,16 @@ public class Main {
                 org1.getIndexHackathonOrganizzata("1")
         ).printInfoEvento();
 
-        Team team1 = new Team(
-                org1.getHackathonOrganizzata(org1.getIndexHackathonOrganizzata("1")),
-                "Napoli"
-        );
+        Team team1 = user1.creaTeam(org1.getHackathonOrganizzata(org1.getIndexHackathonOrganizzata("1")),
+                "Napoli");
 
         team1.aggiungiMembro(new Utente("Carlo", "0103"));
         team1.aggiungiMembro(new Utente("Stefania", "0209"));
 
+        user1.abbandonaTeam();
+
         user1.entrataTeam(team1);
+        team1.getMembro().get(1).abbandonaTeam();
 
         team1.printMembers();
 
@@ -51,16 +52,16 @@ public class Main {
                 org1.getIndexHackathonOrganizzata("1")
         ).printInfoEvento();
 
-        team1.uploadDocumento("Prova documento", "Sarebbe inutile testare questo metodo perchè il documento dovrebbe essere effettivamente un file e non una stringa ma non abbiamo ancora un database.");
+        user1.getTeam().uploadDocumento("Prova documento", "Sarebbe inutile testare questo metodo perchè il documento dovrebbe essere effettivamente un file e non una stringa ma non abbiamo ancora un database.");
 
         // Stampa manuale informazioni documento
         System.out.println("Documento caricato:");
         // Da utente vorrei stampare un documento del mio team basandomi su ricerca tramite confronto di sottostringa (DA RIVEDERE)
-        user1.getTeam().stampaDocumento(team1.cercaDocumento("prova"));
+        user1.getTeam().stampaDocumento(user1.getTeam().cercaDocumento("prova"));
 
 
         // Giudice che vuole visualizzare l'ultimo documento caricato dal team e decidere se valutarlo
-        giudice1.visualizzaValutaUltimoDocumento(team1);
+        giudice1.visualizzaValutaUltimoDocumento(user1.getTeam());
         // Inseriamo un commento casuale per testare il metodo
 
         // Da utente vorrei visualizzare le valutazioni di un qualsiasi documento caricato da un team
@@ -86,13 +87,13 @@ public class Main {
                 12
         );
 
-        Team team2 = new Team(
-                org1.getHackathonOrganizzata(org1.getIndexHackathonOrganizzata("2")),
-                "Salerno"
-        );
+        Utente user3 = new Utente("Mimmo", "11037");
+
+        user3.creaTeam(org1.getHackathonOrganizzata(org1.getIndexHackathonOrganizzata("2")),
+                "Salerno");
 
         Utente user2 = new Utente("Marco", "7489");
-        user2.entrataTeam(team2);
+        user2.entrataTeam(user3.getTeam());
         // L'eccezione viene chiamata correttamente
     }
 }
