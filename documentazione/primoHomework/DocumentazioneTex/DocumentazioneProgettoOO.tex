@@ -49,6 +49,7 @@
 	\end{itemize}
 	\newpage
 	\subsection{Ricerca Attributi e Associazioni}
+	\subsubsection{Attributi}
 		\begin{table}[H]
 			\begin{tabular}{lllllll}
 				\cline{1-3}
@@ -114,9 +115,62 @@
 				\multicolumn{1}{|l|}{source}             & \multicolumn{1}{l|}{Team}                    & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}Collegamento al team che ha scritto\\ il documento\end{tabular}} &  &  &  &  \\ \cline{1-3}
 			\end{tabular}
 		\end{table}
+	\subsubsection{Associazioni}
+	% Please add the following required packages to your document preamble:
+	% \usepackage{graphicx}
+	% Please add the following required packages to your document preamble:
+	% \usepackage{graphicx}
+	\begin{table}[H]
+		\centering
+		\resizebox{\textwidth}{!}{%
+			\begin{tabular}{|c|c|c|c|c|}
+				\hline
+				\multicolumn{1}{|l|}{\textbf{Nome Associazione}} & \textbf{Classi Coinvolte} & \textbf{Molteplicità Associazione} & \textbf{Descrizione} & \multicolumn{1}{l|}{\textbf{Attributi (se classe associativa)}} \\ \hline
+				Partecipazione & Hackathon - Team & (1 - 2..*) & \begin{tabular}[c]{@{}c@{}}Un Hackathon deve avere un minimo di Team fino\\ ad un massimo di N. Un Team può partecipare\\ soltando ad un Hackathon.\end{tabular} &  \\ \hline
+				Organizzazione & Hackathon - Organizzatore & (* - 1) & \begin{tabular}[c]{@{}c@{}}Un Hackathon può avere un singolo Organizzatore.\\ Un Organizzatore può organizzare N Hackathon.\end{tabular} &  \\ \hline
+				Invito & Organizzatore - Giudice & (1..* - *) & \begin{tabular}[c]{@{}c@{}}Un Organizzatore può invitare più Giudici.\\ Un Giudice può essere invitato da 1 a N Giudici.\end{tabular} &  \\ \hline
+				Supervisione & Hackathon - Giudice & (1..* - *) & \begin{tabular}[c]{@{}c@{}}Un Hackathon può essere supervisionato da\\ 1 a N Giudici. Un Giudice può supervisionare\\ da 1 a N Hackathon.\end{tabular} &  \\ \hline
+				Pubblicazione & Team - Documento & (1 - 1..*) & \begin{tabular}[c]{@{}c@{}}Un Documento può essere pubblicato solo\\ da un Team. Un Team può pubblicare fino ad\\ N Documenti.\end{tabular} &  \\ \hline
+				\begin{tabular}[c]{@{}c@{}}Team\\ (Aggregazione di\\ Utenti in Team)\end{tabular} & Team - Utente & (0..1 - 1..*) & \begin{tabular}[c]{@{}c@{}}Un Team deve avere da 1 a N Utenti a\\ far parte di sé stesso, dando per scontato che\\ l'Utente che creerà un Team \\ ne faccia automaticamente parte.\\ Un Utente può pure non far parte di un Team,\\ ma può far parte soltanto di un Team \\ per Hackathon.\end{tabular} &  \\ \hline
+				Valutazione & Giudice - Documento & (1..* - 1..*) & \begin{tabular}[c]{@{}c@{}}Un Giudice deve valutare da 1 a N Documento.\\ Un Documento deve essere valutato da\\ 1 a N Giudici.\end{tabular} & \begin{tabular}[c]{@{}c@{}}giudizio: stringa di testo\\ contenente il parere espresso\\ dal Giudice in relazione al Documento\\ valutato.\end{tabular} \\ \hline
+				Voto & Giudice - Team & (1..* - 1..*) & \begin{tabular}[c]{@{}c@{}}Un Giudice deve dare un voto ad 1 fino a N Team.\\ Un Team deve ricevere un voto da 1 a N Giudici.\end{tabular} & \begin{tabular}[c]{@{}c@{}}voto: somma di tutti i voti dei Giudici \\ ricevuti dal Team.\end{tabular} \\ \hline
+			\end{tabular}%
+		}
+	\end{table}
 	\subsection{Ricerca delle Generalizzazioni}
+	\subsubsection{Utente}
+	La classe padre \textbf{Utente} rappresenta tutte le persone registrate alla piattaforma. Un Utente può unirsi ad un Hackathon come tale, creando anche un Team.
+	Nel caso di ruoli che abbiano una qualche sorta di amministrazione, l'Utente può essere specializzato in due classi figlie:
+	\begin{itemize}
+		\item \textbf{Organizzatore}: la piattaforma può decidere di dare ad un Utente il ruolo di Organizzatore per gestire le Hackathon. Un Organizzatore può essere tale alla nascita stessa della piattaforma, ma rimarrà sempre registrato nella stessa come Utente, in quanto classe principale predisposta alla gestione dei login.
+		\item \textbf{Giudice}: Un Utente può ricevere un invito da un Organizzatore a diventare Giudice di un Hackathon. Questa classe avrà il solo scopo di supervisionare l'andamento di un evento e di offrire i propri giudizi sui progetti dei Team.
+	\end{itemize}
 	\subsection{Ricerca delle Responsabilità}
-	\newpage
+	\subsubsection{Hackathon}
+	\begin{itemize}
+		\item aggiungiGiudice(giudice): Aggiunge tra i giudici di quell'evento un nuovo giudice invitato da un organizzatore;
+		\item pubblicaClassifica(): Pubblica la classifica con i risultati finali.
+	\end{itemize}
+	\subsubsection{Utente}
+	\begin{itemize}
+		\item registrazioneHackathon(Hackathon): l'utente si registra ad un Hackathon;
+		\item getLogin(password): controlla l'accesso a tutte le azioni che richiedono la password dell'utente;
+		\item creaTeam(nomeTeam): crea un nuovo team.
+	\end{itemize}
+	\subsubsection{Team}
+	\begin{itemize}
+		\item aggiungiMembro(Utente): aggiungi un nuovo membro al team;
+		\item uploadDocumento(testo): carica una nuova documentzione nella piattaforma.
+	\end{itemize}
+	\subsubsection{Organizzatore}
+	\begin{itemize}
+		\item creazioneHackathon(Hackathon): crea un nuovo evento;
+		\item invitoGiudice(Utente): invita un utente a diventare giudice.
+	\end{itemize}
+	\subsubsection{Giudice}
+	\begin{itemize}
+		\item pubblicazioneProblema(): pubblica il problema da risolvere dell'Hackathon.
+	\end{itemize}
 	\subsection{Grafico UML del Dominio del Problema}
 	\begin{figure}[H]
 		\includegraphics[width=1\textwidth]{../Immagini/Homework1_UMLObject}
