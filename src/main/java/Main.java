@@ -14,7 +14,7 @@ public class Main {
         org1.registrazioneHackathon(
                 "1",
                 "Napoli",
-                LocalDateTime.of(2025, 4, 17, 0, 0),
+                LocalDateTime.of(2025, 4, 24, 0, 0),
                 LocalDateTime.of(2026, 12, 30, 0, 0),
                 LocalDateTime.of(2025, 4, 10, 0, 0),
                 "Forza napoli",
@@ -74,25 +74,25 @@ public class Main {
             System.out.println("Utente non abbandonato il team");
         }
 
-//        // Testing su un hackaton con data di registrazione non valida (WORKING)
-//        org1.registrazioneHackathon(
-//                "2",
-//                "Napoli",
-//                LocalDateTime.of(2025, 4, 10, 0, 0),
-//                LocalDateTime.of(2025, 4, 19, 0, 0),
-//                LocalDateTime.of(2025, 4, 5, 0, 0),
-//                "Forza napoli 2",
-//                3,
-//                12
-//        );
-//
-//        Team team2 = new Team(
-//                org1.getHackathonOrganizzata(org1.getIndexHackathonOrganizzata("2")),
-//                "Salerno"
-//        );
-//
-//        Utente user2 = new Utente("Marco", "7489");
-//        user2.entrataTeam(team2);
-//        // L'eccezione viene chiamata correttamente
+        // Testing su un hackaton con data di registrazione non valida (WORKING)
+        org1.registrazioneHackathon(
+                "2",
+                "Napoli",
+                LocalDateTime.of(2025, 4, 28, 0, 0),
+                LocalDateTime.of(2025, 4, 20, 0, 0),
+                LocalDateTime.of(2025, 4, 5, 0, 0),
+                "Forza napoli 2",
+                3,
+                12
+        );
+
+        Team team2 = new Team(
+                org1.getHackathonOrganizzata(org1.getIndexHackathonOrganizzata("2")),
+                "Salerno"
+        );
+
+        Utente user2 = new Utente("Marco", "7489");
+        user2.entrataTeam(team2);
+        // L'eccezione viene chiamata correttamente
     }
 }
