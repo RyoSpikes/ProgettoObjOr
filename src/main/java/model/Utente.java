@@ -69,6 +69,19 @@ public class Utente {
     }
 
     /**
+     * Crea un nuovo Team.
+     * @param evento Hackathon al quale il Team parteciperà.
+     * @param nomeTeam Nome del Team.
+     * @return teamCorrente Restituisce il team creato.
+     */
+    public Team creaTeam(Hackathon evento, String nomeTeam)
+    {
+        teamCorrente = new Team(evento, nomeTeam);
+        teamCorrente.aggiungiMembro(this);
+        return teamCorrente;
+    }
+
+    /**
      * Aggiorna il team di appartenenza quando l'utente cambia team.
      *
      * @param team Il nuovo team di appartenenza.
@@ -98,7 +111,7 @@ public class Utente {
             throw new IllegalArgumentException("L'utente non appartiene a nessun team.");
         }
         // Rimuovo l'utente dalla lista dei membri del team
-        teamCorrente.getMembo().remove(this);
+        teamCorrente.getMembro().remove(this);
         // Setto a null il team corrente dell'utente
         this.setNewTeam(null);
     }
