@@ -45,7 +45,7 @@ public class Team {
      *
      * @return Lista di membri del team.
      */
-    public ArrayList<Utente> getMembo() {
+    public ArrayList<Utente> getMembro() {
         return membro;
     }
 
