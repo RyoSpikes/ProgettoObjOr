@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 
 /**
  * Classe che rappresenta un evento Hackathon con tutte le informazioni relative
@@ -12,13 +13,13 @@ public class Hackathon {
     /** Luogo di svolgimento dell'hackathon */
     private String sede;
     /** Data di inizio dell'evento */
-    private String dataInizio;
+    private LocalDateTime dataInizio;
     /** Data di conclusione dell'evento */
-    private String dataFine;
+    private LocalDateTime dataFine;
     /** Data di apertura registrazioni */
-    private String dataInizioRegistrazioni;
+    private LocalDateTime dataInizioRegistrazioni;
     /** Data di chiusura registrazioni */
-    private String dataFineRegistrazioni;
+    private LocalDateTime dataFineRegistrazioni;
     /** Titolo dell'evento */
     private String titolo;
     /** Numero massimo di membri per team */
@@ -38,20 +39,20 @@ public class Hackathon {
      * @param dataInizio              Data inizio evento
      * @param dataFine                Data fine evento
      * @param dataInizioRegistrazioni Data apertura iscrizioni
-     * @param dataFineRegistrazioni   Data chiusura iscrizioni
      * @param titolo                  Titolo dell'evento
      * @param maxMembriTeam           Massimo membri per team
      * @param maxNumIscritti          Massimo partecipanti totali
      */
-    public Hackathon(String idNum, String sede, String dataInizio, String dataFine,
-                     String dataInizioRegistrazioni, String dataFineRegistrazioni,
-                     String titolo, int maxMembriTeam, int maxNumIscritti) {
+    public Hackathon(String idNum, String sede, LocalDateTime dataInizio, LocalDateTime dataFine,
+                     LocalDateTime dataInizioRegistrazioni, String titolo,
+                     int maxMembriTeam, int maxNumIscritti) {
         this.idNum = idNum;
         this.sede = sede;
         this.dataInizio = dataInizio;
         this.dataFine = dataFine;
         this.dataInizioRegistrazioni = dataInizioRegistrazioni;
-        this.dataFineRegistrazioni = dataFineRegistrazioni;
+        // Le registrazioni finiscono esattamente 2 giorni prima dell'inizio dell'evento
+        this.dataFineRegistrazioni = dataFine.minusDays(2);
         this.titolo = titolo;
         this.maxMembriTeam = maxMembriTeam;
         this.maxNumIscritti = maxNumIscritti;
@@ -106,5 +107,23 @@ public class Hackathon {
      */
     public String getIdNum() {
         return idNum;
+    }
+
+    /**
+     * Restituisce la data dalla quale sarà possibile registrarsi.
+     *
+     * @return Data di inizio delle registrazioni
+     */
+    public LocalDateTime getDataInizioRegistrazioni() {
+        return dataInizioRegistrazioni;
+    }
+
+    /**
+     * Restituisce la data della scadenza delle registrazioni.
+     *
+     * @return Data di scadenza delle registrazioni
+     */
+    public LocalDateTime getDataFineRegistrazioni() {
+        return dataFineRegistrazioni;
     }
 }

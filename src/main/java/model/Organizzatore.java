@@ -2,6 +2,7 @@ package model;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 
 /**
  * Classe che rappresenta un organizzatore di hackathon, estendendo la classe Utente.
@@ -32,7 +33,6 @@ public class Organizzatore extends Utente {
      * @param dataInizio              la data di inizio dell'hackathon
      * @param dataFine                la data di fine dell'hackathon
      * @param dataInizioRegistrazioni la data di inizio delle registrazioni
-     * @param dataFineRegistrazioni   la data di fine delle registrazioni
      * @param titolo                  il titolo dell'hackathon
      * @param maxMembriTeam           il numero massimo di membri per team
      * @param maxNumIscritti          il numero massimo di partecipanti
@@ -40,17 +40,16 @@ public class Organizzatore extends Utente {
     public void registrazioneHackathon(
             String idNum,
             String sede,
-            String dataInizio,
-            String dataFine,
-            String dataInizioRegistrazioni,
-            String dataFineRegistrazioni,
+            LocalDateTime dataInizio,
+            LocalDateTime dataFine,
+            LocalDateTime dataInizioRegistrazioni,
             String titolo,
             int maxMembriTeam,
             int maxNumIscritti
     ) {
         hackathonOrganizzate.add(new Hackathon(
                 idNum, sede, dataInizio,
-                dataFine, dataInizioRegistrazioni, dataFineRegistrazioni,
+                dataFine, dataInizioRegistrazioni,
                 titolo, maxMembriTeam, maxNumIscritti
         ));
     }
