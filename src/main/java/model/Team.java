@@ -67,7 +67,6 @@ public class Team {
         }
     }
 
-
     /**
      * Aggiunta dell'utente in input a this team.
      *
@@ -167,9 +166,6 @@ public class Team {
         for(Documento doc : documentazione)
         {
             if(doc.getTitle().toLowerCase().contains(titolo.toLowerCase()))
-            {
-                return doc;
-            }
             {
                 return doc;
             }
