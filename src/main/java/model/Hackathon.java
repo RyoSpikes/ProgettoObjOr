@@ -1,5 +1,6 @@
 package model;
 
+import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
 
@@ -42,6 +43,8 @@ public class Hackathon {
      * @param titolo                  Titolo dell'evento
      * @param maxMembriTeam           Massimo membri per team
      * @param maxNumIscritti          Massimo partecipanti totali
+     * @throws DateTimeException      Messaggio di errore nel caso in cui la data di fine evento
+     *                                preceda la data di inizio evento.
      */
     public Hackathon(String idNum, String sede, LocalDateTime dataInizio, LocalDateTime dataFine,
                      LocalDateTime dataInizioRegistrazioni, String titolo,
@@ -49,10 +52,18 @@ public class Hackathon {
         this.idNum = idNum;
         this.sede = sede;
         this.dataInizio = dataInizio;
-        this.dataFine = dataFine;
-        this.dataInizioRegistrazioni = dataInizioRegistrazioni;
+        //Controllo sulla validità della data di fine evento: Non può essere prima dell'inizio dell'evento.
+        if((this.dataFine = dataFine).isBefore(this.dataInizio)) {
+            throw new DateTimeException("Data non valida\nLa data di fine evento deve essere dopo la data di inizio.");
+        }
+        //Controllo sulla validità della data di inizio registrazioni:
+        //      - Non può corrispondere ad una data da 2 giorni prima della data di inizio evento;
+        if((this.dataInizioRegistrazioni = dataInizioRegistrazioni).isAfter(this.dataInizio.minusDays(2)))
+        {
+            throw new DateTimeException("Data non valida!");
+        }
         // Le registrazioni finiscono esattamente 2 giorni prima dell'inizio dell'evento
-        this.dataFineRegistrazioni = dataFine.minusDays(2);
+        this.dataFineRegistrazioni = dataInizio.minusDays(2);
         this.titolo = titolo;
         this.maxMembriTeam = maxMembriTeam;
         this.maxNumIscritti = maxNumIscritti;
