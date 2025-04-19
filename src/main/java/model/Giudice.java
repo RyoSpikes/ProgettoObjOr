@@ -1,6 +1,6 @@
 package model;
 
-import javax.swing.event.DocumentEvent;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -25,6 +25,7 @@ public class Giudice extends Utente {
     public Giudice(String login, String password, Hackathon evento) {
         super(login, password);
         this.eventoGiudicato = evento;
+        eventoGiudicato.getGiudiciEvento().add(this);
     }
 
     /**
@@ -45,9 +46,10 @@ public class Giudice extends Utente {
 
     /**
      * Pubblica la descrizione del problema da risolvere durante l'hackathon.
+     *
      * @param team Team dal quale ricavare il documento da valutare.
      * @return valutazione restituisce una valutazione su assenso del giudice.
-     *                     restituisce null altrimenti.
+     *                     Restituisce null altrimenti.
      */
     public Valutazione visualizzaValutaUltimoDocumento(Team team) {
         // Controlla se il team ha caricato documenti
@@ -59,7 +61,7 @@ public class Giudice extends Utente {
         // Recupera l'ultimo documento caricato dal team
         // Ignora il fatto che il team potrebbe avere più documenti ancora non valutati da un giudice, basta valutare l'ultimo
         // Recupera l'ultimo documento caricato dal team recuperando la size dell'arraylist dei documenti e sottraendole 1
-        Documento documento = team.getDocumentazione().get(team.getDocumentazione().size() - 1);
+        Documento documento = team.getDocumentazione().getLast();
 
         System.out.println("Titolo: " + documento.getTitle() +
                 "\nTesto documento: " +
@@ -84,5 +86,36 @@ public class Giudice extends Utente {
             // Se il giudice non vuole valutare il documento, restituisci null
             return null;
         }
+    }
+
+    /**
+     * Assegna un voto a un team e verifica se la votazione è terminata.
+     * Se tutti i giudici hanno votato per tutti i team, ordina e stampa la classifica.
+     *
+     * @param team Il team a cui assegnare il voto.
+     * @param voto Il valore numerico del voto (compreso tra 0 e 10).
+     * @return L'istanza di Voto creata.
+     * @throws IllegalArgumentException Se l'evento non è ancora terminato o il voto non è valido.
+     */
+    public Voto assegnaVoto(Team team, int voto) {
+        // Controllo validità del voto e della data
+        if (eventoGiudicato.getDataFine().isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Non puoi votare finché l'evento non è finito.");
+        }
+        if (voto < 0 || voto > 10) {
+            throw new IllegalArgumentException("Il voto deve essere compreso tra 0 e 10.");
+        }
+
+        // Incrementa il numero di voti del team e crea il voto
+        team.incrementaNumeroVoti();
+        Voto nuovoVoto = new Voto(team, this, voto);
+
+        // Controlla se la votazione è finita e stampa la classifica
+        if (team.getNumeroVoti() == eventoGiudicato.getGiudiciEvento().size() &&
+                eventoGiudicato.getClassifica().stream().allMatch(t -> t.getNumeroVoti() == eventoGiudicato.getGiudiciEvento().size())) {
+            eventoGiudicato.ordinaStampaClassifica();
+        }
+
+        return nuovoVoto;
     }
 }
