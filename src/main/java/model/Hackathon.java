@@ -34,7 +34,7 @@ public class Hackathon {
     /** Lista dei giudici assegnati all'evento */
     private ArrayList<Giudice> giudiciEvento;
     /** Numero corrente degli iscritti all'hackathon */
-    private int numIscritti;
+    private int numIscritti;        //Ricavabile tramite Team
     /** Lista dei team iscritti all'evento che verrà ordinata per punteggio a fine evento */
     private ArrayList<Team> classifica;
 

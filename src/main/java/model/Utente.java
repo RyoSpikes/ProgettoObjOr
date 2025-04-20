@@ -134,6 +134,7 @@ public class Utente {
      * Permette all'utente di creare un nuovo team.
      *
      * @param hackathon Evento a cui il team parteciperà.
+     * @return nuovoTeam Restituisce il team appena creato.
      */
     public Team creaTeam(Hackathon hackathon, String nomeTeam) {
         if (hackathon == null) {
