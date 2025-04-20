@@ -47,11 +47,13 @@ public class Organizzatore extends Utente {
             int maxMembriTeam,
             int maxNumIscritti
     ) {
-        hackathonOrganizzate.add(new Hackathon(
-                idNum, sede, dataInizio,
-                dataFine, dataInizioRegistrazioni,
-                titolo, maxMembriTeam, maxNumIscritti
-        ));
+        hackathonOrganizzate.add(
+                new Hackathon(
+                    idNum, sede, dataInizio,
+                    dataFine, dataInizioRegistrazioni,
+                    titolo, maxMembriTeam, maxNumIscritti
+                )
+        );
     }
 
     /**

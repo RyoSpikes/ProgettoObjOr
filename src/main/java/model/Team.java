@@ -42,38 +42,38 @@ public class Team {
      *
      * @return Lista di membri del team.
      */
-    public ArrayList<Utente> getMembro() {return membro;}
+    public ArrayList<Utente> getMembro() { return membro; }
 
     /**
      * Restituisce l'hackathon a cui il team è registrato.
      *
      * @return Hackathon a cui è registrato il team.
      */
-    public Hackathon getHackathon() {return eventoPartecipazione;}
+    public Hackathon getHackathon() { return eventoPartecipazione; }
 
     /**
      * Restituisce i voti ricevuti dal team.
      *
      * @return Voti ricevuti dal team.
      */
-    public int getNumeroVoti() {return numeroVoti;}
+    public int getNumeroVoti() { return numeroVoti; }
 
     /**
      * Incrementa di uno il numero di voti ricevuti dal team.
      */
-    public void incrementaNumeroVoti() {this.numeroVoti++;}
+    public void incrementaNumeroVoti() { this.numeroVoti++; }
 
     /**
      * Restituisce il punteggio finale del team.
      */
-    public int getVotoFinale() {return votoFinale;}
+    public int getVotoFinale() { return votoFinale; }
 
     /**
      * Restituisce il nome del team.
      *
      * @return Nome del team.
      */
-    public String getNomeTeam() {return nomeTeam;}
+    public String getNomeTeam() { return nomeTeam; }
 
     /**
      * Aggiunta dell'utente in input a this team.
@@ -143,14 +143,14 @@ public class Team {
      * @param title Inserisce il titolo del documento.
      * @param text Inserisce il corpo del documento.
      */
-    public void uploadDocumento(String title, String text) {documentazione.add(new Documento(this, title, text));}
+    public void uploadDocumento(String title, String text) { documentazione.add(new Documento(this, title, text)); }
 
     /**
      * Restituisce la lista dei documenti caricati dal team.
      *
      * @return Lista di documenti (non nulla).
      */
-    public ArrayList<Documento> getDocumentazione() {return documentazione;}
+    public ArrayList<Documento> getDocumentazione() { return documentazione; }
 
     /**
      * Stampa il documento scelto.
