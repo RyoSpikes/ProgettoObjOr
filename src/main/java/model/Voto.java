@@ -23,13 +23,21 @@ public class Voto {
     /**
      * Costruttore che crea un nuovo voto e lo aggiunge automaticamente al team.
      *
-     * @param teamGiudicato Team destinatario del voto (non nullo)
+     * @param teamGiudicato  Team destinatario del voto (non nullo)
      * @param giudiceVotante Giudice che assegna il voto (non nullo)
-     * @param voto Valore numerico del voto
+     * @param voto           Valore numerico del voto
      */
     public Voto(Team teamGiudicato, Giudice giudiceVotante, int voto) {
         this.teamGiudicato = teamGiudicato;
         this.giudiceVotante = giudiceVotante;
         teamGiudicato.setVotoFinale(this.voto = voto);
     }
+
+    /**
+     * Restituisce il valore del voto.
+     *
+     * @return Valore del voto (intero)
+     */
+    public int getVoto() {return voto;}
+    // Forse non serve
 }

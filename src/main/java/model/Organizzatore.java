@@ -2,6 +2,7 @@ package model;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 
 /**
  * Classe che rappresenta un organizzatore di hackathon, estendendo la classe Utente.
@@ -32,7 +33,6 @@ public class Organizzatore extends Utente {
      * @param dataInizio              la data di inizio dell'hackathon
      * @param dataFine                la data di fine dell'hackathon
      * @param dataInizioRegistrazioni la data di inizio delle registrazioni
-     * @param dataFineRegistrazioni   la data di fine delle registrazioni
      * @param titolo                  il titolo dell'hackathon
      * @param maxMembriTeam           il numero massimo di membri per team
      * @param maxNumIscritti          il numero massimo di partecipanti
@@ -40,19 +40,20 @@ public class Organizzatore extends Utente {
     public void registrazioneHackathon(
             String idNum,
             String sede,
-            String dataInizio,
-            String dataFine,
-            String dataInizioRegistrazioni,
-            String dataFineRegistrazioni,
+            LocalDateTime dataInizio,
+            LocalDateTime dataFine,
+            LocalDateTime dataInizioRegistrazioni,
             String titolo,
             int maxMembriTeam,
             int maxNumIscritti
     ) {
-        hackathonOrganizzate.add(new Hackathon(
-                idNum, sede, dataInizio,
-                dataFine, dataInizioRegistrazioni, dataFineRegistrazioni,
-                titolo, maxMembriTeam, maxNumIscritti
-        ));
+        hackathonOrganizzate.add(
+                new Hackathon(
+                    idNum, sede, dataInizio,
+                    dataFine, dataInizioRegistrazioni,
+                    titolo, maxMembriTeam, maxNumIscritti
+                )
+        );
     }
 
     /**
@@ -107,7 +108,7 @@ public class Organizzatore extends Utente {
      *
      * @param index L'indice dell'hackathon nella lista
      * @return L'hackathon corrispondente
-     * @throws IndexOutOfBoundsException Se l'indice è fuori dai limiti della lista (index < 0 || index >= size)
+     * @throws IndexOutOfBoundsException Se l'indice è fuori dai limiti della lista
      */
     public Hackathon getHackathonOrganizzata(int index) throws IndexOutOfBoundsException {
         if (index < 0 || index >= hackathonOrganizzate.size()) {
@@ -117,7 +118,7 @@ public class Organizzatore extends Utente {
         return hackathonOrganizzate.get(index);
     }
 
-    //TO DO
+    // TODO: 18/04/2025  
     public void invitoGiudice(Utente giudiceAggiunto, String idNum) {
         //getHackathonOrganizzata(getIndexHackathonOrganizzata(idNum)).aggiungiGiudice(giudiceAggiunto.getInvite(idNum));
     }

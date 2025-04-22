@@ -33,4 +33,22 @@ public class Valutazione {
         this.giudiceValutante = giudiceValutante;
         this.giudizio = valutazione;
     }
+
+    /**
+     * Restituisce il giudizio autore della valutazione.
+     *
+     * @return Giudice valutante (non nullo)
+     */
+    public Giudice getGiudiceValutante() {
+        return giudiceValutante;
+    }
+
+    /**
+     * Restituisce il giudizio testuale.
+     *
+     * @return Giudizio testuale (non nullo)
+     */
+    public String getGiudizio() {
+        return giudizio;
+    }
 }
