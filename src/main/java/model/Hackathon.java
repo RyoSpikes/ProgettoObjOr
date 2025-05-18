@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 
+import java.util.Random;
+import utilities.RandomStringGenerator;
+
 /**
  * Classe che rappresenta un evento Hackathon con tutte le informazioni relative
  * all'organizzazione, tempistiche e partecipanti.
@@ -74,6 +77,29 @@ public class Hackathon {
         this.maxNumIscritti = maxNumIscritti;
         giudiciEvento = new ArrayList<>();
         this.classifica = new ArrayList<>();
+    }
+
+    //Constructor for testing purposes
+    public Hackathon()
+    {
+        Random random = new Random();
+        this.idNum = RandomStringGenerator.generateRandomString(5);
+        this.sede = RandomStringGenerator.generateRandomString(12);
+        this.titolo = RandomStringGenerator.generateRandomString(12);
+
+        this.dataInizio = LocalDateTime.of(random.nextInt(2025, 2027),
+                                            random.nextInt(1, 12),
+                                            random.nextInt(1, 29),
+                                            0, 0);
+        this.dataFine = dataInizio.plusDays(90);
+        this.dataInizioRegistrazioni = dataInizio.minusDays(45);
+        this.dataFineRegistrazioni = dataInizio.minusDays(2);
+
+        this.maxMembriTeam = 4;
+        this.maxNumIscritti = random.nextInt(10, 100);
+        giudiciEvento = new ArrayList<>();
+        this.classifica = new ArrayList<>();
+
     }
 
     /**
