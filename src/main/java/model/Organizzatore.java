@@ -25,6 +25,11 @@ public class Organizzatore extends Utente {
         hackathonOrganizzate = new ArrayList<Hackathon>();
     }
 
+    public Organizzatore(String login) {
+        super(login, "admin");
+        hackathonOrganizzate = new ArrayList<Hackathon>();
+    }
+
     /**
      * Registra un nuovo hackathon organizzato da questo organizzatore.
      *

@@ -1,12 +1,9 @@
 package model;
 
 import java.time.DateTimeException;
-import java.util.ArrayList;
+import java.util.*;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Comparator;
 
-import java.util.Random;
 import utilities.RandomStringGenerator;
 
 /**
@@ -40,6 +37,7 @@ public class Hackathon {
     private int numIscritti;        //Ricavabile tramite Team
     /** Lista dei team iscritti all'evento che verrà ordinata per punteggio a fine evento */
     private ArrayList<Team> classifica;
+    private static Integer i = 0;
 
     /**
      * Costruttore principale per creare un nuovo evento Hackathon.
@@ -80,19 +78,20 @@ public class Hackathon {
     }
 
     //Constructor for testing purposes
-    public Hackathon()
+    public Hackathon(String id)
     {
         Random random = new Random();
-        this.idNum = RandomStringGenerator.generateRandomString(5);
+        //this.idNum = RandomStringGenerator.generateRandomString(5);
+
+        this.idNum = id;
+
+
         this.sede = RandomStringGenerator.generateRandomString(12);
         this.titolo = RandomStringGenerator.generateRandomString(12);
 
-        this.dataInizio = LocalDateTime.of(random.nextInt(2025, 2027),
-                                            random.nextInt(1, 12),
-                                            random.nextInt(1, 29),
-                                            0, 0);
-        this.dataFine = dataInizio.plusDays(90);
-        this.dataInizioRegistrazioni = dataInizio.minusDays(45);
+        this.dataInizio = LocalDateTime.of(2025, 12, 2 ,0, 0);
+        this.dataFine = dataInizio.plusDays(365);
+        this.dataInizioRegistrazioni = dataInizio.minusDays(365);
         this.dataFineRegistrazioni = dataInizio.minusDays(2);
 
         this.maxMembriTeam = 4;
@@ -158,6 +157,14 @@ public class Hackathon {
      */
     public LocalDateTime getDataFine() {return dataFine;}
 
+    /** Restituisce la data dell'inizio dell'evento.
+     *
+     * @return Data di inizio evento
+     */
+    public LocalDateTime getDataInizio() {
+        return dataInizio;
+    }
+
     /**
      * Restituisce la data dalla quale sarà possibile registrarsi.
      *
@@ -203,14 +210,18 @@ public class Hackathon {
      *
      * @return true se la data corrente è valida
      */
-    public Boolean controlloValiditaDataReg() {
+    public Boolean controlloValiditaDataReg() throws DateTimeException {
         // Ricavo la data di oggi
         LocalDateTime now = LocalDateTime.now();
 
         // Controllo se la data di oggi è compresa tra la data di inizio e la data di fine registrazioni
-        if (!this.getDataInizioRegistrazioni().isBefore(now) ||
-                !this.getDataFineRegistrazioni().isAfter(now)) {
-            throw new DateTimeException("Data non valida!");
+        if (now.isBefore(this.getDataInizioRegistrazioni()))
+        {
+            throw new DateTimeException("La data di inizio registrazione è registrata dopo la data attuale!");
+        }
+        else if (now.isAfter(this.getDataFineRegistrazioni()))
+        {
+            throw new DateTimeException("La data di fine registrazione è registrata prima della data attuale!");
         }
 
         // Se passa i controlli ritorna true

@@ -2,35 +2,49 @@ package controller;
 import model.*;
 import utilities.RandomStringGenerator;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 public class Controller {
-
-    private ArrayList<Hackathon> listaHackathon;
     private ArrayList<Utente> listaUtenti;
 
     public Controller()
     {
-        listaHackathon = new ArrayList<>();
         listaUtenti = new ArrayList<>();
     }
 
-    public void aggiungiHackathon()
+    public void aggiungiUtente(String username)
     {
-        listaHackathon.add(new Hackathon());
-    }
-
-    public void aggiungiUtente(String userType)
-    {
-        if(userType.equalsIgnoreCase(Utente.class.getName().toLowerCase()))
-        {
-            listaUtenti.add(new Utente(RandomStringGenerator.generateRandomString(10), "admin"));
+        try {
+            listaUtenti.add(new Utente(username, "admin"));
         }
-        else if(userType.equalsIgnoreCase(Organizzatore.class.getName().toLowerCase()))
+        catch (IllegalArgumentException ex)
         {
-            listaUtenti.add(new Organizzatore(RandomStringGenerator.generateRandomString(10), "admin"));
+            JOptionPane.showMessageDialog(null, ex);
         }
     }
 
+    public boolean checkLogin(String user, String password)
+    {
+        for(Utente u : listaUtenti)
+        {
+            try
+            {
+                if(u.getName().equals(user) && u.getLogin(password))
+                {
+                    return true;
+                }
+            }
+            catch(IllegalArgumentException e)
+            {
+                JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), e);
+            }
+        }
+        return false;
+    }
 
+    public ArrayList<Utente> getListaUtenti()
+    {
+        return listaUtenti;
+    }
 }

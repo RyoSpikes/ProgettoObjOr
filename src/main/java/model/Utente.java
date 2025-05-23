@@ -28,7 +28,7 @@ public class Utente {
      * @param password La password in chiaro.
      * @throws IllegalArgumentException Se login o password sono null/vuoti.
      */
-    public Utente(String login, String password) {
+    public Utente(String login, String password) throws IllegalArgumentException {
         if (login == null || login.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("Login e password non possono essere null o vuoti.");
         }
@@ -43,7 +43,7 @@ public class Utente {
      * @return true se la password è corretta, false altrimenti.
      * @throws IllegalArgumentException Se la password fornita è null o vuota.
      */
-    public boolean getLogin(String password) {
+    public boolean getLogin(String password) throws IllegalArgumentException {
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("La password non può essere null o vuota.");
         }
@@ -82,21 +82,22 @@ public class Utente {
      *
      * @param team Il team a cui unirsi.
      */
-    public void entrataTeam(Team team) {
+    public void entrataTeam(Team team) throws IllegalArgumentException {
         if (team == null) {
             throw new IllegalArgumentException("Il team non può essere null.");
         }
-
         team.aggiungiMembro(this);
     }
 
     /**
      * Permette all'utente di abbandonare il team corrente di cui fa parte.
      */
-    public void abbandonaTeam() {
+    public void abbandonaTeam() throws IllegalArgumentException, IllegalStateException {
+
         if (teamCorrente == null) {
             throw new IllegalArgumentException("L'utente non appartiene a nessun team.");
         }
+
         // Controllo se l'utente è ancora in tempo per abbandonare il team
         if (teamCorrente.getHackathon().controlloValiditaDataReg()) {
             // Rimuovo l'utente dalla lista dei membri del team
@@ -136,7 +137,7 @@ public class Utente {
      * @param hackathon Evento a cui il team parteciperà.
      * @return nuovoTeam Restituisce il team appena creato.
      */
-    public Team creaTeam(Hackathon hackathon, String nomeTeam) {
+    public Team creaTeam(Hackathon hackathon, String nomeTeam) throws IllegalArgumentException, IllegalStateException {
         if (hackathon == null) {
             throw new IllegalArgumentException("L'hackathon non può essere null.");
         }
