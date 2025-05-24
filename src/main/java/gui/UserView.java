@@ -65,8 +65,7 @@ public class UserView {
         mostraInvitiButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                userTextArea.append("");
-                userTextArea.append("Non ci sono inviti da mostrare.");
+                userTextArea.setText("Non ci sono inviti da mostrare.");
             }
         });
 
@@ -90,7 +89,7 @@ public class UserView {
                                     "\nHackathon: \n" + userLogged.getTeam().getHackathon().printInfoEvento()
                     );
                 } catch (NullPointerException ex) {
-                    userTextArea.append("Non sei in nessun team.");
+                    userTextArea.setText("Non sei in nessun team.");
                 }
             }
         });
