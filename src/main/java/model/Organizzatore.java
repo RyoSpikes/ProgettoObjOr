@@ -25,6 +25,11 @@ public class Organizzatore extends Utente {
         hackathonOrganizzate = new ArrayList<Hackathon>();
     }
 
+    public Organizzatore(String login) {
+        super(login, "admin");
+        hackathonOrganizzate = new ArrayList<Hackathon>();
+    }
+
     /**
      * Registra un nuovo hackathon organizzato da questo organizzatore.
      *
@@ -116,6 +121,23 @@ public class Organizzatore extends Utente {
                     + hackathonOrganizzate.size() + " elementi.");
         }
         return hackathonOrganizzate.get(index);
+    }
+
+    public Hackathon getHackathonOrganizzata()
+    {
+        return hackathonOrganizzate.getLast();
+    }
+
+    public ArrayList<Hackathon> getHackathonOrganizzate() { return hackathonOrganizzate; }
+
+    public String printListaHackathon()
+    {
+        StringBuilder listaStampata = new StringBuilder();
+        for(Hackathon h : hackathonOrganizzate)
+        {
+            listaStampata.append(h.printInfoEvento());
+        }
+        return listaStampata.toString();
     }
 
     // TODO: 18/04/2025  
