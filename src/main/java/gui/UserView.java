@@ -65,8 +65,7 @@ public class UserView {
         mostraInvitiButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                userTextArea.append("");
-                userTextArea.append("Non ci sono inviti da mostrare.");
+                userTextArea.setText("Non ci sono inviti da mostrare.");
             }
         });
 
