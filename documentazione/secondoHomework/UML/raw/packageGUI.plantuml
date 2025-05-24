@@ -1,0 +1,40 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype polyline
+
+class AdminView {
+  + AdminView(Organizzatore, JFrame): 
+}
+class CreaHackathonForm {
+  + CreaHackathonForm(Organizzatore, JFrame, JFrame): 
+  - aggiornaGiorni(JComboBox<Integer>, JComboBox<String>, JComboBox<Integer>): void
+}
+class CreaTeamForm {
+  + CreaTeamForm(Utente, JFrame, ControllerOrganizzatore): 
+}
+class Home {
+  + Home(): 
+  + main(String[]): void
+}
+class Login {
+  + Login(ControllerOrganizzatore, Controller, JFrame): 
+  + Login(ControllerOrganizzatore, JFrame): 
+  - foundLogin(ArrayList<Utente>, String, String): Utente?
+  - foundLoginOrg(ArrayList<Organizzatore>, String, String): Organizzatore?
+}
+class ScegliTeam {
+  + ScegliTeam(Utente, JFrame, ControllerOrganizzatore, Controller): 
+}
+class UserView {
+  + UserView(Utente, JFrame, ControllerOrganizzatore, Controller): 
+}
+
+AdminView          -[#595959,dashed]->  CreaHackathonForm : "«create»"
+Home               -[#595959,dashed]->  Login             : "«create»"
+Login              -[#595959,dashed]->  AdminView         : "«create»"
+Login              -[#595959,dashed]->  UserView          : "«create»"
+UserView           -[#595959,dashed]->  CreaTeamForm      : "«create»"
+UserView           -[#595959,dashed]->  ScegliTeam        : "«create»"
+@enduml

@@ -1,0 +1,125 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype polyline
+
+class Documento {
+  - valutazioni: ArrayList<Valutazione>
+  - text: String
+  - title: String
+  - source: Team
+  + stampaValutazioni(): void
+   text: String
+   valutazioni: ArrayList<Valutazione>
+   title: String
+   source: Team
+}
+class Giudice {
+  + pubblicazioneProblema(String): void
+  + assegnaVoto(Team, int): Voto
+  + printGiudice(): void
+  + visualizzaValutaUltimoDocumento(Team): Valutazione
+}
+class Hackathon {
+  - maxMembriTeam: int
+  - dataFine: LocalDateTime
+  - idNum: String
+  - descrizioneProblema: String
+  - giudiciEvento: ArrayList<Giudice>
+  - dataInizioRegistrazioni: LocalDateTime
+  - titolo: String
+  - dataFineRegistrazioni: LocalDateTime
+  - classifica: ArrayList<Team>
+  - dataInizio: LocalDateTime
+  + aggiungiGiudice(Giudice): void
+  + controlloValiditaDataReg(): Boolean
+  + printInfoEvento(): String
+  + incrementaNumIscritti(): void
+  + ordinaStampaClassifica(): void
+  + controlloMaxIscritti(): Boolean
+  + decrementaNumIscritti(): void
+   dataInizio: LocalDateTime
+   dataInizioRegistrazioni: LocalDateTime
+   descrizioneProblema: String
+   maxMembriTeam: int
+   dataFine: LocalDateTime
+   giudiciEvento: ArrayList<Giudice>
+   idNum: String
+   titolo: String
+   dataFineRegistrazioni: LocalDateTime
+   classifica: ArrayList<Team>
+}
+class Organizzatore {
+  - hackathonOrganizzate: ArrayList<Hackathon>
+  + getIndexHackathonOrganizzata(String): int
+  + getHackathonOrganizzata(int): Hackathon
+  + printListaHackathon(): String
+  + invitoGiudice(Utente, String): void
+  + registrazioneHackathon(String, String, LocalDateTime, LocalDateTime, LocalDateTime, String, int, int): void
+  + getLoginOrganizzatore(String): void
+   hackathonOrganizzata: Hackathon
+   hackathonOrganizzate: ArrayList<Hackathon>
+}
+class Team {
+  - membro: ArrayList<Utente>
+  - numeroVoti: int
+  - nomeTeam: String
+  - documentazione: ArrayList<Documento>
+  - votoFinale: int
+  + incrementaNumeroVoti(): void
+  + cercaDocumento(String): Documento
+  + aggiungiMembro(Utente): void
+  + printMembers(): void
+  + uploadDocumento(String, String): void
+  + stampaDocumento(Documento): void
+   numeroVoti: int
+   hackathon: Hackathon
+   documentazione: ArrayList<Documento>
+   membro: ArrayList<Utente>
+   votoFinale: int
+   nomeTeam: String
+}
+class Utente {
+  + getLogin(String): boolean
+  + getInvite(String): Giudice
+  + entrataTeam(Team): void
+  + abbandonaTeam(): void
+  + creaTeam(Hackathon, String): Team
+   name: String
+   team: Team
+   newTeam: Team
+}
+class Valutazione {
+  - giudizio: String
+  - giudiceValutante: Giudice
+   giudizio: String
+   giudiceValutante: Giudice
+}
+class Voto {
+  - voto: int
+   voto: int
+}
+
+Documento     "1" *-[#595959,plain]-> "source\n1" Team          
+Documento     "1" *-[#595959,plain]-> "valutazioni\n*" Valutazione   
+Giudice       "1" *-[#595959,plain]-> "eventoGiudicato\n1" Hackathon     
+Giudice        -[#000082,plain]-^  Utente        
+Giudice        -[#595959,dashed]->  Valutazione   : "«create»"
+Giudice        -[#595959,dashed]->  Voto          : "«create»"
+Hackathon     "1" *-[#595959,plain]-> "giudiciEvento\n*" Giudice       
+Hackathon     "1" *-[#595959,plain]-> "classifica\n*" Team          
+Organizzatore "1" *-[#595959,plain]-> "hackathonOrganizzate\n*" Hackathon     
+Organizzatore  -[#595959,dashed]->  Hackathon     : "«create»"
+Organizzatore  -[#000082,plain]-^  Utente        
+Team           -[#595959,dashed]->  Documento     : "«create»"
+Team          "1" *-[#595959,plain]-> "documentazione\n*" Documento     
+Team          "1" *-[#595959,plain]-> "eventoPartecipazione\n1" Hackathon     
+Team          "1" *-[#595959,plain]-> "membro\n*" Utente        
+Utente         -[#595959,dashed]->  Team          : "«create»"
+Utente        "1" *-[#595959,plain]-> "teamCorrente\n1" Team          
+Valutazione   "1" *-[#595959,plain]-> "documentoInValutazione\n1" Documento     
+Valutazione   "1" *-[#595959,plain]-> "giudiceValutante\n1" Giudice       
+Voto          "1" *-[#595959,plain]-> "giudiceVotante\n1" Giudice       
+Voto          "1" *-[#595959,plain]-> "teamGiudicato\n1" Team          
+@enduml
