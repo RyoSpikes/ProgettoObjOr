@@ -13,14 +13,13 @@ public class Controller {
         listaUtenti = new ArrayList<>();
     }
 
-    public void aggiungiUtente(String username)
-    {
+    public void aggiungiUtente(String username) throws IllegalArgumentException {
         try {
             listaUtenti.add(new Utente(username, "admin"));
         }
         catch (IllegalArgumentException ex)
         {
-            JOptionPane.showMessageDialog(null, ex);
+            throw ex;
         }
     }
 

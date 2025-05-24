@@ -13,8 +13,8 @@ public class Home {
     private JTextArea homeTextArea;
     private JButton stampaUtentiBtn;
     private JScrollPane textAreaScrollPane;
-    private JButton aggiungiUtenteBtn;
-    private JButton aggiungiOrganizzatoreBtn;
+    private JButton accessoUtenteBtn;
+    private JButton accessoOrganizzatoreBtn;
     private JButton stampaOrganizzatoriBtn;
     public static JFrame frame;
     private Controller userController;
@@ -28,6 +28,7 @@ public class Home {
         frame.setSize(800, 800);
         frame.setResizable(false);
         frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
     }
 
     public Home() {
@@ -51,16 +52,16 @@ public class Home {
             }
         });
 
-        aggiungiUtenteBtn.addActionListener(new ActionListener() {
+        accessoUtenteBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 homeTextArea.setText("");
                 frame.setVisible(false);
-                new Login(userController, frame);
+                new Login(orgController, userController, frame);
             }
         });
 
-        aggiungiOrganizzatoreBtn.addActionListener(new ActionListener() {
+        accessoOrganizzatoreBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 homeTextArea.setText("");

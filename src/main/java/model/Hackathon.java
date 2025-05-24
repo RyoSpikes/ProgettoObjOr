@@ -55,18 +55,18 @@ public class Hackathon {
      */
     public Hackathon(String idNum, String sede, LocalDateTime dataInizio, LocalDateTime dataFine,
                      LocalDateTime dataInizioRegistrazioni, String titolo,
-                     int maxMembriTeam, int maxNumIscritti) {
+                     int maxMembriTeam, int maxNumIscritti) throws DateTimeException {
         this.idNum = idNum;
         this.sede = sede;
         this.dataInizio = dataInizio;
         //Controllo sulla validità della data di fine evento: Non può essere prima dell'inizio dell'evento.
         if((this.dataFine = dataFine).isBefore(this.dataInizio)) {
-            throw new DateTimeException("Data non valida\nLa data di fine evento deve essere dopo la data di inizio.");
+            throw new DateTimeException("Data non valida!\nLa data di fine evento deve essere dopo la data di inizio.");
         }
         //Controllo sulla validità della data di inizio registrazioni:
         //      - Non può corrispondere ad una data da 2 giorni prima della data di inizio evento;
         if((this.dataInizioRegistrazioni = dataInizioRegistrazioni).isAfter(this.dataInizio.minusDays(2))) {
-            throw new DateTimeException("Data non valida!");
+            throw new DateTimeException("Data non valida!\nLa data di inizio registrazioni non può essere 2 giorni prima dell'inizio dell'evento.");
         }
         // Le registrazioni finiscono esattamente 2 giorni prima dell'inizio dell'evento
         this.dataFineRegistrazioni = dataInizio.minusDays(2);
@@ -101,6 +101,10 @@ public class Hackathon {
 
     }
 
+    public String getTitolo() {
+        return titolo;
+    }
+
     /**
      * Imposta la descrizione del problema per l'hackathon.
      *
@@ -122,15 +126,16 @@ public class Hackathon {
     /**
      * Stampa a console tutte le informazioni dell'evento formattate.
      */
-    public void printInfoEvento() {
-        System.out.println("- Titolo: " + titolo +
+    public String printInfoEvento() {
+        return "- ID: " + idNum +
+                "\n- Titolo: " + titolo +
                 "\n- Sede dell'evento: " + sede +
                 "\n- Data Inizio dell'evento: " + dataInizio +
                 "\n- Data Fine dell'evento: " + dataFine +
                 "\n- Data Inizio iscrizioni: " + dataInizioRegistrazioni +
                 "\n- Data Fine iscrizioni: " + dataFineRegistrazioni +
                 "\n- Descrizione del problema: " +
-                "\t" + descrizioneProblema);
+                "\n" + descrizioneProblema + "\n";
     }
 
     /**

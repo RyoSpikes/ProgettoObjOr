@@ -7,7 +7,10 @@ import utilities.RandomStringGenerator;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.DateTimeException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Login {
@@ -17,50 +20,84 @@ public class Login {
     private JButton getLoginBtn;
     public JFrame logFrame;
 
-    public Login(Controller controller, JFrame frameCalling) {
+    private Utente foundLogin(ArrayList<Utente> utenti, String username, String password) throws IllegalArgumentException {
+        if(!utenti.isEmpty()) {
+            for(Utente u : utenti) {
+                if(username == null || username.isEmpty())
+                    throw new IllegalArgumentException("Non è stato inserito alcun nome utente.");
+
+                if(username.equals(u.getName())) {
+                    if(!u.getLogin(password))
+                        throw new IllegalArgumentException("Password errata.");
+                    else {
+                        return u;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private Organizzatore foundLoginOrg(ArrayList<Organizzatore> utenti, String username, String password) throws IllegalArgumentException {
+        if(!utenti.isEmpty()) {
+            for(Organizzatore u : utenti) {
+                if(username == null || username.isEmpty())
+                    throw new IllegalArgumentException("Non è stato inserito alcun nome utente.");
+
+                if(username.equals(u.getName())) {
+                    if(!u.getLogin(password))
+                        throw new IllegalArgumentException("Password errata.");
+                    else {
+                        return u;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public Login(ControllerOrganizzatore controllerOrganizzatore, Controller controller, JFrame frameCalling) {
         logFrame = new JFrame("Login");
         logFrame.setContentPane(loginPanel);
-        logFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        logFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                frameCalling.setVisible(true);
+                logFrame.dispose();
+            }
+        });
+
         logFrame.pack();
         logFrame.setVisible(true);
         logFrame.setSize(600, 300);
         logFrame.setResizable(false);
+        logFrame.setLocationRelativeTo(null);
 
         getLoginBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String username = fieldUsername.getText();
                 String password = new String(fieldPassword.getPassword());
-                boolean trovato = false;
 
-                if(controller.getListaUtenti().isEmpty())
+                try
                 {
-                    controller.aggiungiUtente(username);
-                    //frameCalling.setVisible(true);
-                    new UserView(controller.getListaUtenti().getLast(), frameCalling);
-                    logFrame.dispose();
-                }
-                else {
-                    for (Utente u : controller.getListaUtenti()) {
-                        if (u.getName().equals(username)) {
-                            trovato = true;
-                            try {
-                                if (!u.getLogin(password)) {
-                                    JOptionPane.showMessageDialog(null, "Password Errata.");
-                                } else {
-                                    frameCalling.setVisible(true);
-                                    logFrame.dispose();
-                                }
-                            } catch (IllegalArgumentException ex) {
-                                JOptionPane.showMessageDialog(null, ex);
-                            }
-                        }
-                    }
-                    if(!trovato) {
+                    Utente u = foundLogin(controller.getListaUtenti(), username, password);
+                    if(u == null)
+                    {
                         controller.aggiungiUtente(username);
-                        frameCalling.setVisible(true);
+                        new UserView(controller.getListaUtenti().getLast(), frameCalling, controllerOrganizzatore, controller);
                         logFrame.dispose();
                     }
+                    else
+                    {
+                        new UserView(u,frameCalling, controllerOrganizzatore, controller);
+                        logFrame.dispose();
+                    }
+                }
+                catch (IllegalArgumentException ex)
+                {
+                    JOptionPane.showMessageDialog(null, ex);
                 }
             }
         });
@@ -69,48 +106,47 @@ public class Login {
     public Login(ControllerOrganizzatore controller, JFrame frameCalling) {
         logFrame = new JFrame("Login");
         logFrame.setContentPane(loginPanel);
-        logFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        logFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                frameCalling.setVisible(true);
+                logFrame.dispose();
+            }
+        });
+
         logFrame.pack();
         logFrame.setVisible(true);
         logFrame.setSize(600, 300);
         logFrame.setResizable(false);
+        logFrame.setLocationRelativeTo(null);
 
         getLoginBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                boolean trovato = false;
                 String username = fieldUsername.getText();
                 String password = new String(fieldPassword.getPassword());
 
-                if(controller.getListaOrganizzatori().isEmpty())
+                try
                 {
-                    controller.aggiungiUtente(username);
-                    frameCalling.setVisible(true);
-                    logFrame.dispose();
-                }
-                else {
-                    for (Organizzatore u : controller.getListaOrganizzatori()) {
-                        if (u.getName().equals(username)) {
-                            trovato = true;
-                            try {
-                                if (!u.getLogin(password)) {
-                                    JOptionPane.showMessageDialog(null, "Password Errata.");
-                                }
-                                else {
-                                    frameCalling.setVisible(true);
-                                    logFrame.dispose();
-                                }
-                            } catch (IllegalArgumentException ex) {
-                                JOptionPane.showMessageDialog(null, ex);
-                            }
-                        }
-                    }
-                    if(!trovato) {
+                    Organizzatore org = foundLoginOrg(controller.getListaOrganizzatori(), username, password);
+                    if(org == null)
+                    {
                         controller.aggiungiUtente(username);
-                        frameCalling.setVisible(true);
+                        new AdminView(controller.getListaOrganizzatori().getLast(), frameCalling);
+                        logFrame.dispose();
+                    }
+                    else
+                    {
+                        new AdminView(org,frameCalling);
                         logFrame.dispose();
                     }
                 }
+                catch (IllegalArgumentException ex)
+                {
+                    JOptionPane.showMessageDialog(null, ex);
+                }
+
             }
         });
     }

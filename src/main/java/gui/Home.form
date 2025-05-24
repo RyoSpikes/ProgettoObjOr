@@ -70,7 +70,7 @@
           <text value="Stampa Organizzatori"/>
         </properties>
       </component>
-      <component id="35359" class="javax.swing.JButton" binding="aggiungiOrganizzatoreBtn">
+      <component id="35359" class="javax.swing.JButton" binding="accessoOrganizzatoreBtn">
         <constraints>
           <grid row="4" column="4" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -78,7 +78,7 @@
           <text value="Accesso Organizzatore"/>
         </properties>
       </component>
-      <component id="80e04" class="javax.swing.JButton" binding="aggiungiUtenteBtn">
+      <component id="80e04" class="javax.swing.JButton" binding="accessoUtenteBtn">
         <constraints>
           <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>

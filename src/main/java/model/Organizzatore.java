@@ -123,6 +123,23 @@ public class Organizzatore extends Utente {
         return hackathonOrganizzate.get(index);
     }
 
+    public Hackathon getHackathonOrganizzata()
+    {
+        return hackathonOrganizzate.getLast();
+    }
+
+    public ArrayList<Hackathon> getHackathonOrganizzate() { return hackathonOrganizzate; }
+
+    public String printListaHackathon()
+    {
+        StringBuilder listaStampata = new StringBuilder();
+        for(Hackathon h : hackathonOrganizzate)
+        {
+            listaStampata.append(h.printInfoEvento());
+        }
+        return listaStampata.toString();
+    }
+
     // TODO: 18/04/2025  
     public void invitoGiudice(Utente giudiceAggiunto, String idNum) {
         //getHackathonOrganizzata(getIndexHackathonOrganizzata(idNum)).aggiungiGiudice(giudiceAggiunto.getInvite(idNum));
