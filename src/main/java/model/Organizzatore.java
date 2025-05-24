@@ -135,7 +135,7 @@ public class Organizzatore extends Utente {
         StringBuilder listaStampata = new StringBuilder();
         for(Hackathon h : hackathonOrganizzate)
         {
-            listaStampata.append(h.printInfoEvento()).append("\n================================================\n");
+            listaStampata.append(h.printInfoEvento());
         }
         return listaStampata.toString();
     }
