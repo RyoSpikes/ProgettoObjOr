@@ -8,18 +8,29 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * La classe Home rappresenta l'interfaccia grafica principale dell'applicazione.
+ * Consente l'accesso alle funzionalità per gli utenti e gli organizzatori,
+ * oltre alla visualizzazione delle liste di utenti e organizzatori.
+ */
 public class Home {
-    private JPanel mainPanel;
-    private JTextArea homeTextArea;
-    private JButton stampaUtentiBtn;
-    private JScrollPane textAreaScrollPane;
-    private JButton accessoUtenteBtn;
-    private JButton accessoOrganizzatoreBtn;
-    private JButton stampaOrganizzatoriBtn;
-    public static JFrame frame;
-    private Controller userController;
-    private ControllerOrganizzatore orgController;
+    private JPanel mainPanel; // Pannello principale della finestra.
+    private JTextArea homeTextArea; // Area di testo per visualizzare informazioni.
+    private JButton stampaUtentiBtn; // Pulsante per stampare la lista degli utenti.
+    private JScrollPane textAreaScrollPane; // ScrollPane per l'area di testo.
+    private JButton accessoUtenteBtn; // Pulsante per accedere come utente.
+    private JButton accessoOrganizzatoreBtn; // Pulsante per accedere come organizzatore.
+    private JButton stampaOrganizzatoriBtn; // Pulsante per stampare la lista degli organizzatori.
+    public static JFrame frame; // Finestra principale dell'applicazione.
+    private Controller userController; // Controller per la gestione degli utenti.
+    private ControllerOrganizzatore orgController; // Controller per la gestione degli organizzatori.
 
+    /**
+     * Metodo principale dell'applicazione.
+     * Inizializza e visualizza la finestra principale.
+     *
+     * @param args Argomenti della riga di comando.
+     */
     public static void main(String[] args) {
         frame = new JFrame("Home");
         frame.setContentPane(new Home().mainPanel);
@@ -31,11 +42,16 @@ public class Home {
         frame.setLocationRelativeTo(null);
     }
 
+    /**
+     * Costruttore della classe Home.
+     * Inizializza i controller e configura i listener per i pulsanti.
+     */
     public Home() {
         userController = new Controller();
         orgController = new ControllerOrganizzatore();
         homeTextArea.setEditable(false);
 
+        // Listener per il pulsante "Stampa Utenti".
         stampaUtentiBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -52,6 +68,7 @@ public class Home {
             }
         });
 
+        // Listener per il pulsante "Accesso Utente".
         accessoUtenteBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -61,6 +78,7 @@ public class Home {
             }
         });
 
+        // Listener per il pulsante "Accesso Organizzatore".
         accessoOrganizzatoreBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -70,6 +88,7 @@ public class Home {
             }
         });
 
+        // Listener per il pulsante "Stampa Organizzatori".
         stampaOrganizzatoriBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -87,6 +106,4 @@ public class Home {
             }
         });
     }
-
-
 }
