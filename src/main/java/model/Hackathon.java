@@ -1,10 +1,10 @@
 package model;
 
 import java.time.DateTimeException;
-import java.util.ArrayList;
+import java.util.*;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Comparator;
+
+import utilities.RandomStringGenerator;
 
 /**
  * Classe che rappresenta un evento Hackathon con tutte le informazioni relative
@@ -37,6 +37,7 @@ public class Hackathon {
     private int numIscritti;        //Ricavabile tramite Team
     /** Lista dei team iscritti all'evento che verrà ordinata per punteggio a fine evento */
     private ArrayList<Team> classifica;
+    private static Integer i = 0;
 
     /**
      * Costruttore principale per creare un nuovo evento Hackathon.
@@ -54,18 +55,18 @@ public class Hackathon {
      */
     public Hackathon(String idNum, String sede, LocalDateTime dataInizio, LocalDateTime dataFine,
                      LocalDateTime dataInizioRegistrazioni, String titolo,
-                     int maxMembriTeam, int maxNumIscritti) {
+                     int maxMembriTeam, int maxNumIscritti) throws DateTimeException {
         this.idNum = idNum;
         this.sede = sede;
         this.dataInizio = dataInizio;
         //Controllo sulla validità della data di fine evento: Non può essere prima dell'inizio dell'evento.
         if((this.dataFine = dataFine).isBefore(this.dataInizio)) {
-            throw new DateTimeException("Data non valida\nLa data di fine evento deve essere dopo la data di inizio.");
+            throw new DateTimeException("Data non valida!\nLa data di fine evento deve essere dopo la data di inizio.");
         }
         //Controllo sulla validità della data di inizio registrazioni:
         //      - Non può corrispondere ad una data da 2 giorni prima della data di inizio evento;
         if((this.dataInizioRegistrazioni = dataInizioRegistrazioni).isAfter(this.dataInizio.minusDays(2))) {
-            throw new DateTimeException("Data non valida!");
+            throw new DateTimeException("Data non valida!\nLa data di inizio registrazioni non può essere 2 giorni prima dell'inizio dell'evento.");
         }
         // Le registrazioni finiscono esattamente 2 giorni prima dell'inizio dell'evento
         this.dataFineRegistrazioni = dataInizio.minusDays(2);
@@ -74,6 +75,34 @@ public class Hackathon {
         this.maxNumIscritti = maxNumIscritti;
         giudiciEvento = new ArrayList<>();
         this.classifica = new ArrayList<>();
+    }
+
+    //Constructor for testing purposes
+    public Hackathon(String id)
+    {
+        Random random = new Random();
+        //this.idNum = RandomStringGenerator.generateRandomString(5);
+
+        this.idNum = id;
+
+
+        this.sede = RandomStringGenerator.generateRandomString(12);
+        this.titolo = RandomStringGenerator.generateRandomString(12);
+
+        this.dataInizio = LocalDateTime.of(2025, 12, 2 ,0, 0);
+        this.dataFine = dataInizio.plusDays(365);
+        this.dataInizioRegistrazioni = dataInizio.minusDays(365);
+        this.dataFineRegistrazioni = dataInizio.minusDays(2);
+
+        this.maxMembriTeam = 4;
+        this.maxNumIscritti = random.nextInt(10, 100);
+        giudiciEvento = new ArrayList<>();
+        this.classifica = new ArrayList<>();
+
+    }
+
+    public String getTitolo() {
+        return titolo;
     }
 
     /**
@@ -97,15 +126,16 @@ public class Hackathon {
     /**
      * Stampa a console tutte le informazioni dell'evento formattate.
      */
-    public void printInfoEvento() {
-        System.out.println("- Titolo: " + titolo +
+    public String printInfoEvento() {
+        return "- ID: " + idNum +
+                "\n- Titolo: " + titolo +
                 "\n- Sede dell'evento: " + sede +
                 "\n- Data Inizio dell'evento: " + dataInizio +
                 "\n- Data Fine dell'evento: " + dataFine +
                 "\n- Data Inizio iscrizioni: " + dataInizioRegistrazioni +
                 "\n- Data Fine iscrizioni: " + dataFineRegistrazioni +
                 "\n- Descrizione del problema: " +
-                "\t" + descrizioneProblema);
+                "\n" + descrizioneProblema + "\n";
     }
 
     /**
@@ -131,6 +161,14 @@ public class Hackathon {
      * @return Data di fine evento
      */
     public LocalDateTime getDataFine() {return dataFine;}
+
+    /** Restituisce la data dell'inizio dell'evento.
+     *
+     * @return Data di inizio evento
+     */
+    public LocalDateTime getDataInizio() {
+        return dataInizio;
+    }
 
     /**
      * Restituisce la data dalla quale sarà possibile registrarsi.
@@ -177,14 +215,18 @@ public class Hackathon {
      *
      * @return true se la data corrente è valida
      */
-    public Boolean controlloValiditaDataReg() {
+    public Boolean controlloValiditaDataReg() throws DateTimeException {
         // Ricavo la data di oggi
         LocalDateTime now = LocalDateTime.now();
 
         // Controllo se la data di oggi è compresa tra la data di inizio e la data di fine registrazioni
-        if (!this.getDataInizioRegistrazioni().isBefore(now) ||
-                !this.getDataFineRegistrazioni().isAfter(now)) {
-            throw new DateTimeException("Data non valida!");
+        if (now.isBefore(this.getDataInizioRegistrazioni()))
+        {
+            throw new DateTimeException("La data di inizio registrazione è registrata dopo la data attuale!");
+        }
+        else if (now.isAfter(this.getDataFineRegistrazioni()))
+        {
+            throw new DateTimeException("La data di fine registrazione è registrata prima della data attuale!");
         }
 
         // Se passa i controlli ritorna true

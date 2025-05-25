@@ -1,0 +1,22 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype polyline
+
+class Controller {
+  - listaUtenti: ArrayList<Utente>
+  + aggiungiUtente(String, String): void
+  + checkLogin(String, String): boolean
+   listaUtenti: ArrayList<Utente>
+}
+class ControllerOrganizzatore {
+  ~ listaOrganizzatori: ArrayList<Organizzatore>
+  + aggiungiUtente(String, String): void
+  + aggiungiHackathon(Organizzatore, String, String, LocalDateTime, LocalDateTime, LocalDateTime, String, int, int): void
+   listaOrganizzatori: ArrayList<Organizzatore>
+   listaHackathon: ArrayList<Hackathon>
+}
+
+ControllerOrganizzatore  -[#000082,plain]-^  Controller              
+@enduml
