@@ -18,7 +18,9 @@ public class Login {
     private JPanel loginPanel; // Pannello principale della finestra di login.
     private JTextField fieldUsername; // Campo di testo per l'inserimento del nome utente.
     private JPasswordField fieldPassword; // Campo di testo per l'inserimento della password.
-    private JButton getLoginBtn; // Pulsante per effettuare il login.
+    private JButton accediBtn; // Pulsante per effettuare il login.
+    private JButton registratiBtn;
+    private JCheckBox adminCheckBox;
     public JFrame logFrame; // Finestra principale della vista di login.
 
     /**
@@ -106,96 +108,95 @@ public class Login {
         logFrame.setResizable(false);
         logFrame.setLocationRelativeTo(null);
 
-        getLoginBtn.addActionListener(new ActionListener() {
+
+        adminCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String username = fieldUsername.getText();
-                String password = new String(fieldPassword.getPassword());
+                if(adminCheckBox.isSelected()){
+                    accediBtn.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            String username = fieldUsername.getText();
+                            String password = new String(fieldPassword.getPassword());
 
-                try {
-                    // Usa il nuovo metodo loginUtente che restituisce l'utente
-                    Utente utenteLoggato = controller.loginUtente(username, password);
-                    
-                    if (utenteLoggato != null) {
-                        // Login riuscito
-                        System.out.println("Login riuscito per utente: " + username);
-                        new UserView(utenteLoggato, frameCalling, controllerOrganizzatore, controller);
-                        logFrame.dispose();
-                    } else {
-                        // Login fallito
-                        JOptionPane.showMessageDialog(null, 
-                            "Credenziali non valide. Riprova.", 
-                            "Login Fallito", 
-                            JOptionPane.ERROR_MESSAGE);
-                    }
+                            try {
+                                // Usa il nuovo metodo loginUtente che restituisce l'utente
+                                Utente utenteLoggato = controller.loginUtente(username, password);
+
+                                if (utenteLoggato != null) {
+                                    // Login riuscito
+                                    System.out.println("Login riuscito per utente: " + username);
+                                    new UserView(utenteLoggato, frameCalling, controllerOrganizzatore, controller);
+                                    logFrame.dispose();
+                                } else {
+                                    // Login fallito
+                                    JOptionPane.showMessageDialog(null,
+                                            "Credenziali non valide. Riprova.",
+                                            "Login Fallito",
+                                            JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
+                            catch (Exception ex) {
+                                JOptionPane.showMessageDialog(null,
+                                        "Errore durante il login: " + ex.getMessage(),
+                                        "Errore",
+                                        JOptionPane.ERROR_MESSAGE);
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
                 }
-                catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, 
-                        "Errore durante il login: " + ex.getMessage(), 
-                        "Errore", 
-                        JOptionPane.ERROR_MESSAGE);
-                    ex.printStackTrace();
+                else {
+                    accediBtn.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            String username = fieldUsername.getText();
+                            String password = new String(fieldPassword.getPassword());
+
+                            try {
+                                // Usa il nuovo metodo loginUtente che restituisce l'utente
+                                Utente utenteLoggato = controller.loginUtente(username, password);
+
+                                if (utenteLoggato != null) {
+                                    // Login riuscito
+                                    System.out.println("Login riuscito per utente: " + username);
+                                    new UserView(utenteLoggato, frameCalling, controllerOrganizzatore, controller);
+                                    logFrame.dispose();
+                                } else {
+                                    // Login fallito
+                                    JOptionPane.showMessageDialog(null,
+                                            "Credenziali non valide. Riprova.",
+                                            "Login Fallito",
+                                            JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
+                            catch (Exception ex) {
+                                JOptionPane.showMessageDialog(null,
+                                        "Errore durante il login: " + ex.getMessage(),
+                                        "Errore",
+                                        JOptionPane.ERROR_MESSAGE);
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
+                    registratiBtn.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            String username = fieldUsername.getText();
+                            String password = new String(fieldPassword.getPassword());
+                            try {
+                                // Usa il nuovo metodo loginUtente che restituisce l'utente
+                                controller.aggiungiUtente(username, password);
+                            }
+                            catch (IllegalArgumentException ex) {
+                                JOptionPane.showMessageDialog(null,
+                                        "Errore durante la registrazione: " + ex.getMessage(),
+                                        "Errore",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    });
                 }
-            }
-        });
-    }
-
-    /**
-     * Costruttore della classe Login per gli organizzatori.
-     * Inizializza l'interfaccia grafica e gestisce le azioni per il login degli organizzatori.
-     *
-     * @param controller Il controller per la gestione degli organizzatori.
-     * @param frameCalling Il frame chiamante che ha aperto questa finestra.
-     */
-    public Login(ControllerOrganizzatore controller, JFrame frameCalling) {
-        // Inizializza i componenti GUI se non sono stati inizializzati automaticamente
-        if (loginPanel == null) {
-            initializeComponents();
-        }
-        
-        logFrame = new JFrame("Login");
-        logFrame.setContentPane(loginPanel);
-
-        logFrame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                frameCalling.setVisible(true);
-                logFrame.dispose();
-            }
-        });
-
-        logFrame.pack();
-        logFrame.setVisible(true);
-        logFrame.setSize(600, 300);
-        logFrame.setResizable(false);
-        logFrame.setLocationRelativeTo(null);
-
-        getLoginBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String username = fieldUsername.getText();
-                String password = new String(fieldPassword.getPassword());
-
-                try
-                {
-                    Organizzatore org = foundLoginOrg(controller.getListaOrganizzatori(), username, password);
-                    if(org == null)
-                    {
-                        controller.aggiungiUtente(username, password);
-                        new AdminView(controller.getListaOrganizzatori().getLast(), frameCalling);
-                        logFrame.dispose();
-                    }
-                    else
-                    {
-                        new AdminView(org,frameCalling);
-                        logFrame.dispose();
-                    }
-                }
-                catch (IllegalArgumentException ex)
-                {
-                    JOptionPane.showMessageDialog(null, ex);
-                }
-
             }
         });
     }
@@ -207,7 +208,8 @@ public class Login {
         loginPanel = new JPanel();
         fieldUsername = new JTextField(20);
         fieldPassword = new JPasswordField(20);
-        getLoginBtn = new JButton("Login");
+        accediBtn = new JButton("Login");
+        adminCheckBox = new JCheckBox();
         
         // Imposta layout del pannello
         loginPanel.setLayout(new java.awt.GridBagLayout());
@@ -232,6 +234,6 @@ public class Login {
         // Aggiunge pulsante login
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; 
         gbc.insets = new java.awt.Insets(15, 10, 10, 10);
-        loginPanel.add(getLoginBtn, gbc);
+        loginPanel.add(accediBtn, gbc);
     }
 }

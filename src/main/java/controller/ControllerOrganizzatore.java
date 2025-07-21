@@ -4,11 +4,12 @@ import model.*;
 
 import javax.print.attribute.standard.JobMessageFromOperator;
 import javax.swing.*;
+import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+import Database.DAO.Impl.OrganizzatoreDAOImpl;
 /**
  * La classe ControllerOrganizzatore estende la classe Controller e gestisce una lista di organizzatori.
  * Fornisce metodi per la gestione degli organizzatori e degli hackathon associati.
@@ -19,6 +20,12 @@ public class ControllerOrganizzatore extends Controller {
      * Lista degli organizzatori gestiti dal controller.
      */
     ArrayList<Organizzatore> listaOrganizzatori;
+
+    /**
+     * DAO per l'accesso agli organizzatori nel database.
+     * Può essere utilizzato per operazioni di login e gestione degli organizzatori.
+     */
+    private OrganizzatoreDAOImpl organizzatoreDAO;
 
     /**
      * Costruttore della classe ControllerOrganizzatore.
@@ -69,6 +76,41 @@ public class ControllerOrganizzatore extends Controller {
         } catch (IllegalArgumentException ex) {
             throw ex;
         }
+    }
+
+    /**
+     * Aggiunge un nuovo organizzatore alla lista e lo salva nel database.
+     *
+     * @param username Il nome utente del nuovo organizzatore.
+     * @param password La password del nuovo organizzatore.
+     * @throws IllegalArgumentException se l'organizzatore non può essere creato (ad esempio, input non valido).
+     */
+    public Organizzatore loginOrganizzatore(String username, String password) {
+        try {
+            if (organizzatoreDAO != null) {
+                return organizzatoreDAO.login(username, password);
+            } else {
+                // Modalità offline
+                for (Organizzatore o : listaOrganizzatori) {
+                    if (o.getName().equals(username) && o.getLogin(password)) {
+                        return o;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Errore durante il login: " + e.getMessage());
+            // Fallback alla verifica locale
+            for (Organizzatore o : listaOrganizzatori) {
+                try {
+                    if (o.getName().equals(username) && o.getLogin(password)) {
+                        return o;
+                    }
+                } catch (IllegalArgumentException ex) {
+                    // Continua con il prossimo utente
+                }
+            }
+        }
+        return null;
     }
 
     /**

@@ -95,7 +95,8 @@ public class UtenteDAOImpl implements UtenteDAO {
         String sql = "SELECT Username, Password FROM UTENTE ORDER BY Username";
         
         try (PreparedStatement stmt = connection.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+             ResultSet rs = stmt.executeQuery()
+        ) {
             
             while (rs.next()) {
                 Utente utente = new Utente(
