@@ -1,6 +1,7 @@
 package gui;
 
 import model.Organizzatore;
+import controller.ControllerOrganizzatore;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -9,6 +10,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
+import java.sql.SQLException;
 
 /**
  * La classe CreaHackathonForm rappresenta un'interfaccia grafica per la creazione di un nuovo hackathon.
@@ -51,9 +53,10 @@ public class CreaHackathonForm {
      * @param adminLogged L'organizzatore attualmente loggato.
      * @param frameCalling Il frame chiamante che ha aperto questa finestra.
      * @param frameMain Il frame principale dell'applicazione.
+     * @param controllerOrganizzatore Il controller per la gestione degli hackathon.
      */
-    public CreaHackathonForm(Organizzatore adminLogged, JFrame frameCalling, JFrame frameMain) {
-        JFrame frame = new JFrame("Creazione Team");
+    public CreaHackathonForm(Organizzatore adminLogged, JFrame frameCalling, JFrame frameMain, ControllerOrganizzatore controllerOrganizzatore) {
+        JFrame frame = new JFrame("Creazione Hackathon");
         frame.setContentPane(panelCreaHackathon);
         frame.pack();
 
@@ -125,43 +128,100 @@ public class CreaHackathonForm {
         aggiornaGiorni(comboBoxGiornoFineEvento, comboBoxMeseFineEvento, comboBoxAnnoFineEvento);
         aggiornaGiorni(comboBoxGiornoInizioRegistrazioniEvento, comboBoxMeseInizioRegistrazioniEvento, comboBoxAnnoInizioRegistrazioniEvento);
 
-        // Listener per il pulsante "Crea Hackathon".
+        // Listener per il pulsante "Crea Hackathon" - ora utilizza la DAO per salvare nel database.
         btnCreaHackathon.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // Validazione dei campi obbligatori
+                if (fieldTitolo.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Il titolo dell'hackathon è obbligatorio.", "Errore", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (fieldSede.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "La sede dell'hackathon è obbligatoria.", "Errore", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (textAreaDescrizioneProblema.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "La descrizione del problema è obbligatoria.", "Errore", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 try {
-                    LocalDateTime inizioEvento = LocalDateTime.of((Integer) comboBoxAnnoInizioEvento.getSelectedItem(),
+                    // Costruzione delle date dal form
+                    LocalDateTime dataInizioEvento = LocalDateTime.of(
+                            (Integer) comboBoxAnnoInizioEvento.getSelectedItem(),
                             (Integer) comboBoxMeseInizioEvento.getSelectedItem(),
                             (Integer) comboBoxGiornoInizioEvento.getSelectedItem(),
-                            0,
-                            0,
-                            0);
-                    LocalDateTime fineEvento = LocalDateTime.of((Integer) comboBoxAnnoFineEvento.getSelectedItem(),
+                             0, 0, 0);
+
+                    LocalDateTime dataFineEvento = LocalDateTime.of(
+                            (Integer) comboBoxAnnoFineEvento.getSelectedItem(),
                             (Integer) comboBoxMeseFineEvento.getSelectedItem(),
                             (Integer) comboBoxGiornoFineEvento.getSelectedItem(),
-                            0,
-                            0,
-                            0);
-                    LocalDateTime inizioRegistrazioni = LocalDateTime.of((Integer) comboBoxAnnoInizioRegistrazioniEvento.getSelectedItem(),
+                            23, 59, 59);
+
+                    LocalDateTime dataInizioRegistrazione = LocalDateTime.of(
+                            (Integer) comboBoxAnnoInizioRegistrazioniEvento.getSelectedItem(),
                             (Integer) comboBoxMeseInizioRegistrazioniEvento.getSelectedItem(),
                             (Integer) comboBoxGiornoInizioRegistrazioniEvento.getSelectedItem(),
-                            0,
-                            0,
-                            0);
+                             0, 0, 0);
 
-                    adminLogged.registrazioneHackathon(
-                            fieldId.getText(),
-                            fieldSede.getText(),
-                            inizioEvento, fineEvento, inizioRegistrazioni,
-                            fieldTitolo.getText(),
-                            (int) comboBoxNumMaxMembri.getSelectedItem(),
-                            (int) comboBoxNumMaxIscritti.getSelectedItem()
+                    // La data di fine registrazione è automaticamente calcolata: 2 giorni prima dell'evento
+                    LocalDateTime dataFineRegistrazione = dataInizioEvento.minusDays(2);
+
+                    // Dati dal form
+                    String titoloIdentificativo = fieldTitolo.getText().trim();
+                    String sede = fieldSede.getText().trim();
+                    String descrizioneProblema = textAreaDescrizioneProblema.getText().trim();
+                    int maxNumMembriTeam = (Integer) comboBoxNumMaxMembri.getSelectedItem();
+                    int maxNumIscritti = (Integer) comboBoxNumMaxIscritti.getSelectedItem();
+
+                    // Utilizza il controller per creare l'hackathon nel database
+                    boolean successo = controllerOrganizzatore.creaHackathon(
+                            titoloIdentificativo,
+                            adminLogged,
+                            sede,
+                            dataInizioRegistrazione,
+                            dataFineRegistrazione,
+                            dataInizioEvento,
+                            dataFineEvento,
+                            descrizioneProblema,
+                            maxNumIscritti,
+                            maxNumMembriTeam
                     );
-                    adminLogged.getHackathonOrganizzata().setDescrizioneProblema(textAreaDescrizioneProblema.getText());
-                    frameCalling.setVisible(true);
-                    frame.dispose();
+
+                    if (successo) {
+                        JOptionPane.showMessageDialog(frame,
+                                "Hackathon '" + titoloIdentificativo + "' creato con successo!",
+                                "Successo",
+                                JOptionPane.INFORMATION_MESSAGE);
+
+                        // Torna alla finestra precedente
+                        frameCalling.setVisible(true);
+                        frame.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(frame,
+                                "Errore durante la creazione dell'hackathon.",
+                                "Errore",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Errore nel database: " + ex.getMessage(),
+                            "Errore Database",
+                            JOptionPane.ERROR_MESSAGE);
                 } catch (DateTimeException ex) {
-                    JOptionPane.showMessageDialog(null, ex);
+                    JOptionPane.showMessageDialog(frame,
+                            "Errore nelle date inserite: " + ex.getMessage(),
+                            "Errore Date",
+                            JOptionPane.ERROR_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Errore imprevisto: " + ex.getMessage(),
+                            "Errore",
+                            JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
                 }
             }
         });

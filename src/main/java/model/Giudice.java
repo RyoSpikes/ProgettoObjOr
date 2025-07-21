@@ -17,6 +17,8 @@ public class Giudice extends Utente {
 
     /**
      * Costruttore del giudice.
+     * NOTA: L'aggiunta dei giudici agli hackathon è ora gestita tramite database.
+     * Utilizzare il sistema di inviti (INVITO_GIUDICE) per assegnare giudici.
      *
      * @param login    Credenziale di accesso (ereditata da Utente)
      * @param password Credenziale di accesso (ereditata da Utente)
@@ -25,7 +27,12 @@ public class Giudice extends Utente {
     public Giudice(String login, String password, Hackathon evento) {
         super(login, password);
         this.eventoGiudicato = evento;
-        eventoGiudicato.getGiudiciEvento().add(this);
+
+        // RIMOSSO: eventoGiudicato.getGiudiciEvento().add(this);
+        // La gestione dei giudici è ora delegata al database tramite:
+        // 1. Tabella INVITO_GIUDICE per gestire gli inviti
+        // 2. Trigger aggiungi_giudice() per l'aggiunta automatica alla tabella GIUDICE
+        // 3. Utilizzo di GiudiceDAO
     }
 
     /**
@@ -89,33 +96,24 @@ public class Giudice extends Utente {
     }
 
     /**
-     * Assegna un voto a un team e verifica se la votazione è terminata.
-     * Se tutti i giudici hanno votato per tutti i team, ordina e stampa la classifica.
+     * Assegna un voto a un team.
+     * NOTA: La logica di controllo e generazione classifica è ora gestita dal database.
      *
      * @param team Il team a cui assegnare il voto.
      * @param voto Il valore numerico del voto (compreso tra 0 e 10).
      * @return L'istanza di Voto creata.
-     * @throws IllegalArgumentException Se l'evento non è ancora terminato o il voto non è valido.
+     * @throws IllegalArgumentException Se il voto non è valido.
      */
     public Voto assegnaVoto(Team team, int voto) {
-        // Controllo validità del voto e della data
-        if (eventoGiudicato.getDataFine().isAfter(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Non puoi votare finché l'evento non è finito.");
-        }
+        // Il controllo sulla data dell'evento è ora gestito dal database
         if (voto < 0 || voto > 10) {
             throw new IllegalArgumentException("Il voto deve essere compreso tra 0 e 10.");
         }
 
-        // Incrementa il numero di voti del team e crea il voto
-        team.incrementaNumeroVoti();
-        Voto nuovoVoto = new Voto(team, this, voto);
+        // La logica di controllo per la fine della votazione e la generazione
+        // della classifica è ora gestita dalla funzione del database:
+        // genera_classifica_hackathon(titolo_hack)
 
-        // Controlla se la votazione è finita e stampa la classifica
-        if (team.getNumeroVoti() == eventoGiudicato.getGiudiciEvento().size() &&
-                eventoGiudicato.getClassifica().stream().allMatch(t -> t.getNumeroVoti() == eventoGiudicato.getGiudiciEvento().size())) {
-            eventoGiudicato.ordinaStampaClassifica();
-        }
-
-        return nuovoVoto;
+        return new Voto(team, this, voto);
     }
 }

@@ -2,6 +2,7 @@ package gui;
 
 import model.Hackathon;
 import model.Organizzatore;
+import controller.ControllerOrganizzatore;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -26,10 +27,11 @@ public class AdminView {
      *
      * @param adminLogged L'organizzatore attualmente loggato.
      * @param frameCalling Il frame chiamante che ha aperto questa vista.
+     * @param controllerOrganizzatore Il controller per la gestione degli hackathon.
      */
-    public AdminView(Organizzatore adminLogged, JFrame frameCalling) {
+    public AdminView(Organizzatore adminLogged, JFrame frameCalling, ControllerOrganizzatore controllerOrganizzatore) {
 
-        frameAdminView = new JFrame("User View");
+        frameAdminView = new JFrame("Admin View");
         frameAdminView.setContentPane(panelAdmin);
         frameAdminView.pack();
 
@@ -51,11 +53,11 @@ public class AdminView {
         adminTextArea.setWrapStyleWord(true);
         adminTextArea.setEditable(false);
 
-        // Listener per il pulsante "Crea Hackathon".
+        // Listener per il pulsante "Crea Hackathon" - ora passa il controller.
         creaHackathonButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new CreaHackathonForm(adminLogged, frameAdminView, frameCalling);
+                new CreaHackathonForm(adminLogged, frameAdminView, frameCalling, controllerOrganizzatore);
                 frameAdminView.setVisible(false);
             }
         });

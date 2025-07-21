@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import Database.DAO.Impl.OrganizzatoreDAOImpl;
+import Database.DAO.Impl.HackathonDAOImpl;
+
 /**
  * La classe ControllerOrganizzatore estende la classe Controller e gestisce una lista di organizzatori.
  * Fornisce metodi per la gestione degli organizzatori e degli hackathon associati.
@@ -28,11 +30,28 @@ public class ControllerOrganizzatore extends Controller {
     private OrganizzatoreDAOImpl organizzatoreDAO;
 
     /**
+     * DAO per l'accesso agli hackathon nel database.
+     * Utilizzato per operazioni CRUD sugli hackathon.
+     */
+    private HackathonDAOImpl hackathonDAO;
+
+    /**
      * Costruttore della classe ControllerOrganizzatore.
-     * Inizializza la lista degli organizzatori.
+     * Inizializza la lista degli organizzatori e le DAO.
      */
     public ControllerOrganizzatore() {
         listaOrganizzatori = new ArrayList<>();
+        try {
+            organizzatoreDAO = new OrganizzatoreDAOImpl();
+            hackathonDAO = new HackathonDAOImpl();
+            // Carica tutti gli organizzatori dal database all'avvio
+            listaOrganizzatori.addAll(organizzatoreDAO.findAll());
+            System.out.println("ControllerOrganizzatore inizializzato con " + listaOrganizzatori.size() + " organizzatori dal database.");
+        } catch (SQLException e) {
+            System.err.println("Errore durante l'inizializzazione del ControllerOrganizzatore: " + e.getMessage());
+            organizzatoreDAO = null; // Modalità offline
+            hackathonDAO = new HackathonDAOImpl();
+        }
     }
 
     /**
@@ -133,6 +152,91 @@ public class ControllerOrganizzatore extends Controller {
             org.registrazioneHackathon(idNum, sede, dataInizio, dataFine, dataInizioRegistrazioni, titolo, maxMembriTeam, maxNumIscritti);
         } catch (DateTimeException ex) {
             JOptionPane.showMessageDialog(null, ex);
+        }
+    }
+
+    /**
+     * Crea un nuovo hackathon e lo salva nel database.
+     *
+     * @param titoloIdentificativo Titolo identificativo dell'hackathon
+     * @param organizzatore L'organizzatore che crea l'hackathon
+     * @param sede Sede dell'evento
+     * @param dataInizioRegistrazione Data inizio registrazioni
+     * @param dataFineRegistrazione Data fine registrazioni
+     * @param dataInizioEvento Data inizio evento
+     * @param dataFineEvento Data fine evento
+     * @param descrizioneProblema Descrizione del problema da risolvere
+     * @param maxNumIscritti Numero massimo di iscritti
+     * @param maxNumMembriTeam Numero massimo di membri per team
+     * @return true se la creazione è riuscita
+     * @throws SQLException in caso di errore nel database o validazione
+     */
+    public boolean creaHackathon(String titoloIdentificativo, Organizzatore organizzatore, String sede,
+                                LocalDateTime dataInizioRegistrazione, LocalDateTime dataFineRegistrazione,
+                                LocalDateTime dataInizioEvento, LocalDateTime dataFineEvento,
+                                String descrizioneProblema, int maxNumIscritti, int maxNumMembriTeam) throws SQLException {
+
+        return hackathonDAO.creaHackathon(titoloIdentificativo, organizzatore.getName(), sede,
+                                        dataInizioRegistrazione, dataFineRegistrazione,
+                                        dataInizioEvento, dataFineEvento,
+                                        descrizioneProblema, maxNumIscritti, maxNumMembriTeam);
+    }
+
+    /**
+     * Recupera tutti gli hackathon di un organizzatore specifico dal database.
+     *
+     * @param organizzatore L'organizzatore di cui recuperare gli hackathon
+     * @return Lista degli hackathon dell'organizzatore
+     */
+    public List<Hackathon> getHackathonDiOrganizzatore(Organizzatore organizzatore) {
+        try {
+            return hackathonDAO.getHackathonByOrganizzatore(organizzatore.getName());
+        } catch (SQLException e) {
+            System.err.println("Errore nel recupero degli hackathon: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Recupera tutti gli hackathon disponibili dal database.
+     *
+     * @return Lista di tutti gli hackathon
+     */
+    public List<Hackathon> getTuttiGliHackathon() {
+        try {
+            return hackathonDAO.getAllHackathon();
+        } catch (SQLException e) {
+            System.err.println("Errore nel recupero di tutti gli hackathon: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Recupera gli hackathon con registrazioni attualmente aperte.
+     *
+     * @return Lista degli hackathon con registrazioni aperte
+     */
+    public List<Hackathon> getHackathonConRegistrazioniAperte() {
+        try {
+            return hackathonDAO.getHackathonConRegistrazioniAperte();
+        } catch (SQLException e) {
+            System.err.println("Errore nel recupero degli hackathon con registrazioni aperte: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Recupera un hackathon specifico per titolo identificativo.
+     *
+     * @param titoloIdentificativo Il titolo identificativo dell'hackathon
+     * @return L'hackathon trovato, null se non esiste
+     */
+    public Hackathon getHackathonPerTitolo(String titoloIdentificativo) {
+        try {
+            return hackathonDAO.getHackathonByTitolo(titoloIdentificativo);
+        } catch (SQLException e) {
+            System.err.println("Errore nel recupero dell'hackathon: " + e.getMessage());
+            return null;
         }
     }
 }

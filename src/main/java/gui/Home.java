@@ -19,7 +19,7 @@ public class Home {
     private JButton stampaUtentiBtn; // Pulsante per stampare la lista degli utenti.
     private JScrollPane textAreaScrollPane; // ScrollPane per l'area di testo.
     private JButton registratiBtn; // Pulsante per accedere come utente.
-    private JButton accediBtn; // Pulsante per accedere come organizzatore.
+    private JButton accediBtn; // Pulsante per accedere.
     private JButton stampaOrganizzatoriBtn; // Pulsante per stampare la lista degli organizzatori.
     public static JFrame frame; // Finestra principale dell'applicazione.
     private Controller userController; // Controller per la gestione degli utenti.
@@ -74,13 +74,13 @@ public class Home {
             }
         });
 
-        // Listener per il pulsante "Login".
+        // Listener per il pulsante "Accedi".
         accediBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 homeTextArea.setText("");
                 frame.setVisible(false);
-                new Login(orgController, userController,frame);
+                new Login(orgController, userController, frame);
             }
         });
 
@@ -112,7 +112,7 @@ public class Home {
         textAreaScrollPane = new JScrollPane(homeTextArea);
         stampaUtentiBtn = new JButton("Stampa Utenti");
         registratiBtn = new JButton("Accesso Utente");
-        accediBtn = new JButton("Accesso Organizzatore");
+        accediBtn = new JButton("Accedi");
         stampaOrganizzatoriBtn = new JButton("Stampa Organizzatori");
         
         // Set basic properties
@@ -134,7 +134,7 @@ public class Home {
         buttonPanel.add(stampaOrganizzatoriBtn);
         buttonPanel.add(registratiBtn);
         buttonPanel.add(accediBtn);
-        
+
         mainPanel.add(topPanel, java.awt.BorderLayout.NORTH);
         mainPanel.add(centerPanel, java.awt.BorderLayout.CENTER);
         mainPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);

@@ -1,5 +1,9 @@
 package model;
 
+import Database.ConnessioneDatabase;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -65,6 +69,8 @@ public class Team {
 
     /**
      * Restituisce il punteggio finale del team.
+     *
+     * @return Punteggio finale.
      */
     public int getVotoFinale() { return votoFinale; }
 
@@ -76,54 +82,49 @@ public class Team {
     public String getNomeTeam() { return nomeTeam; }
 
     /**
-     * Aggiunta dell'utente in input a this team.
+     * Aggiunge un nuovo membro al team.
+     * Inserisce una nuova riga nella tabella MEMBERSHIP del database.
+     * I trigger del database gestiranno automaticamente le validazioni:
+     * - Verifica che le registrazioni siano ancora aperte
+     * - Verifica che il team non abbia raggiunto il numero massimo di membri
+     * - Verifica che l'hackathon non abbia superato il limite di partecipanti
      *
-     * @param user Utente da aggiungere al team.
-     * @throws IllegalArgumentException Se l'utente è null.
-     * @throws IllegalStateException Se il team è già al completo.
-     * @throws IllegalStateException Se la data di registrazione non è valida.
+     * @param utente L'utente da aggiungere al team
+     * @throws IllegalArgumentException Se l'aggiunta non è possibile per i vincoli del database
+     * @throws IllegalStateException Se l'utente è già in un team per questo hackathon
      */
-    public void aggiungiMembro(Utente user) {
-        if (user == null) {
+    public void aggiungiMembro(Utente utente) throws IllegalArgumentException, IllegalStateException {
+        if (utente == null) {
             throw new IllegalArgumentException("L'utente non può essere null");
         }
-        // Controllo se l'utente è già iscritto a questo team
-        if (user.getTeam() == this) {
-            System.out.print("Sei già iscritto a questo team, vuoi abbandonarlo? (si/no): ");
-            String risposta = new Scanner(System.in).nextLine();
-            if (risposta.equalsIgnoreCase("si")) {
-                user.abbandonaTeam();
+
+        String sql = "INSERT INTO MEMBERSHIP (Username_utente, Team_appartenenza, Titolo_hackathon, Data_adesione) VALUES (?, ?, ?, CURRENT_DATE)";
+
+        try (Connection conn = ConnessioneDatabase.getInstance().connection;
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, utente.getName());
+            stmt.setString(2, this.nomeTeam);
+            stmt.setString(3, this.eventoPartecipazione.getTitolo());
+
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                // Aggiorna la lista locale dei membri
+                this.membro.add(utente);
+                // Aggiorna il team corrente dell'utente
+                utente.setNewTeam(this);
+                System.out.println("Utente " + utente.getName() + " aggiunto al team " + this.nomeTeam);
             } else {
-                throw new IllegalStateException("Sei già iscritto a questo team, non puoi iscriverti a un altro team.");
+                throw new IllegalArgumentException("Non è stato possibile aggiungere l'utente al team");
             }
-        }
-        // Controllo se l'utente è già iscritto a un altro team della stessa hackathon
-        if (user.getTeam() != null && user.getTeam().getHackathon() == this.getHackathon()) {
-            System.out.print("Sei già iscritto a un team, vuoi abbandonarlo? (si/no): ");
-            String risposta = new Scanner(System.in).nextLine();
-            if (risposta.equalsIgnoreCase("si")) {
-                user.abbandonaTeam();
-            } else {
-                throw new IllegalStateException("Sei già iscritto a un team della stessa hackaton, non puoi iscriverti a un altro team.");
+
+        } catch (SQLException e) {
+            // Il database restituisce errori specifici tramite i trigger
+            if (e.getMessage().contains("duplicate key")) {
+                throw new IllegalStateException("L'utente è già membro di un team per questo hackathon");
             }
-        }
-        if (membro.size() >= eventoPartecipazione.getMaxMembriTeam()) {
-            throw new IllegalStateException("Team al completo. Massimo membri: "
-                    + eventoPartecipazione.getMaxMembriTeam());
-        }
-        // Chiamo la funzione per il controllo della validità della data di registrazione e se
-        //  il numero massimo di iscritti non è stato ancora raggiunto
-        if (eventoPartecipazione.controlloValiditaDataReg() && eventoPartecipazione.controlloMaxIscritti()) {
-            // Registro l'utente
-            membro.add(user);
-            user.setNewTeam(this);
-            // Incremento il numero di iscritti
-            eventoPartecipazione.incrementaNumIscritti();
-        } else {
-            // Se la data non è compresa nell'intervallo di registrazione
-            throw new IllegalStateException("Impossibile registrarsi in questa data: " + LocalDateTime.now() +
-                    "\nData di inizio registrazioni: " + eventoPartecipazione.getDataInizioRegistrazioni() +
-                    "\nData di fine registrazioni: " + eventoPartecipazione.getDataFineRegistrazioni());
+            throw new IllegalArgumentException("Errore nell'aggiunta dell'utente al team: " + e.getMessage());
         }
     }
 

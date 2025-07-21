@@ -33,7 +33,7 @@ public class OrganizzatoreDAOImpl implements OrganizzatoreDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Organizzatore(
-                        rs.getString("Username"),
+                        rs.getString("Username_org"),
                         rs.getString("Password")
                 );
             }
@@ -45,27 +45,25 @@ public class OrganizzatoreDAOImpl implements OrganizzatoreDAO {
 
     @Override
     public Organizzatore findByNome(String nome) throws SQLException {
-        // Logica per trovare un organizzatore per nome
-        return findByKey(nome); // Placeholder
+        return findByKey(nome);
     }
 
     @Override
-    public Organizzatore findByHackathon(int hackathonId) throws SQLException {
-        // Logica per trovare l'organizzatore di un hackathon specifico
+    public Organizzatore findByHackathon(String hackathonTitolo) throws SQLException {
         String sql = """
-                SELECT o.Username, o.Password
+                SELECT o.Username_org, o.Password
                 FROM ORGANIZZATORE o
                 JOIN HACKATHON h ON o.Username_org = h.Organizzatore
                 WHERE h.Titolo_identificativo = ?
                 """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, String.valueOf(hackathonId));
+            stmt.setString(1, hackathonTitolo);
 
             try(ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new Organizzatore(
-                            rs.getString("Username"),
+                            rs.getString("Username_org"),
                             rs.getString("Password")
                     );
                 }
@@ -73,7 +71,8 @@ public class OrganizzatoreDAOImpl implements OrganizzatoreDAO {
         } catch (SQLException e) {
             throw new SQLException("Errore durante la ricerca dell'organizzatore per hackathon: " + e.getMessage(), e);
         }
-        return null; // Placeholder
+
+        return null;
     }
 
     @Override
@@ -127,7 +126,7 @@ public class OrganizzatoreDAOImpl implements OrganizzatoreDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Organizzatore(
-                        rs.getString("Username"),
+                        rs.getString("Username_org"),
                         rs.getString("Password")
                 );
             }
@@ -143,7 +142,7 @@ public class OrganizzatoreDAOImpl implements OrganizzatoreDAO {
         String sql = "SELECT Username_org, Password FROM ORGANIZZATORE";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery(sql)
+             ResultSet rs = stmt.executeQuery()
         ) {
 
             while (rs.next()) {

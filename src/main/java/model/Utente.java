@@ -1,5 +1,10 @@
 package model;
 
+import Database.ConnessioneDatabase;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 /**
  * Classe base che rappresenta un utente del sistema, con funzionalità di autenticazione.
  * Può essere estesa per creare tipi specifici di utenti (Organizzatore, Giudice).
@@ -88,45 +93,97 @@ public class Utente {
     }
 
     /**
-     * Permette all'utente di unirsi a un nuovo team.
+     * Permette all'utente di aderire a un team esistente.
+     * Inserisce una nuova riga nella tabella MEMBERSHIP del database.
+     * I trigger del database gestiranno automaticamente le validazioni:
+     * - Verifica che le registrazioni siano ancora aperte
+     * - Verifica che il team non sia al completo
+     * - Verifica che l'hackathon non abbia raggiunto il limite di partecipanti
      *
-     * @param team Il team a cui unirsi.
+     * @param team Il team a cui l'utente vuole aderire
+     * @throws IllegalArgumentException Se l'adesione non è possibile per i vincoli del database
      */
     public void entrataTeam(Team team) throws IllegalArgumentException {
         if (team == null) {
-            throw new IllegalArgumentException("Il team non può essere null.");
+            throw new IllegalArgumentException("Il team non può essere null");
         }
-        team.aggiungiMembro(this);
+
+        String sql = "INSERT INTO MEMBERSHIP (Username_utente, Team_appartenenza, Titolo_hackathon, Data_adesione) VALUES (?, ?, ?, CURRENT_DATE)";
+
+        try (Connection conn = ConnessioneDatabase.getInstance().connection;
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, this.login);
+            stmt.setString(2, team.getNomeTeam());
+            stmt.setString(3, team.getHackathon().getTitolo());
+
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                // Aggiorna il team corrente dell'utente
+                this.teamCorrente = team;
+                System.out.println("Utente " + this.login + " è entrato nel team " + team.getNomeTeam());
+            } else {
+                throw new IllegalArgumentException("Non è stato possibile aderire al team");
+            }
+
+        } catch (SQLException e) {
+            // Il database restituisce errori specifici tramite i trigger
+            throw new IllegalArgumentException("Errore nell'adesione al team: " + e.getMessage());
+        }
     }
 
     /**
-     * Permette all'utente di abbandonare il team corrente di cui fa parte.
+     * Permette all'utente di creare un nuovo team per un hackathon specifico.
+     * Inserisce il team nella tabella TEAM e l'utente nella tabella MEMBERSHIP.
+     *
+     * @param hackathon L'hackathon per cui creare il team
+     * @param nomeTeam Il nome del team da creare
+     * @return Il team appena creato
+     * @throws IllegalArgumentException Se la creazione non è possibile
+     * @throws IllegalStateException Se l'utente è già in un team per questo hackathon
      */
-    public void abbandonaTeam() throws IllegalArgumentException, IllegalStateException {
-
-        if (teamCorrente == null) {
-            throw new IllegalArgumentException("L'utente non appartiene a nessun team.");
+    public Team creaTeam(Hackathon hackathon, String nomeTeam) throws IllegalArgumentException, IllegalStateException {
+        if (hackathon == null || nomeTeam == null || nomeTeam.trim().isEmpty()) {
+            throw new IllegalArgumentException("Hackathon e nome team non possono essere null o vuoti");
         }
 
-        // Controllo se l'utente è ancora in tempo per abbandonare il team
-        if (teamCorrente.getHackathon().controlloValiditaDataReg()) {
-            // Rimuovo l'utente dalla lista dei membri del team
-            teamCorrente.getMembro().remove(this);
-            // Decremento il numero di iscritti
-            teamCorrente.getHackathon().decrementaNumIscritti();
-            // Se il team è vuoto, lo rimuovo dalla lista dei team
-            if (teamCorrente.getMembro().isEmpty()) {
-                for (int i = 0; i < teamCorrente.getHackathon().getClassifica().size(); i++) {
-                    if (teamCorrente.getHackathon().getClassifica().get(i).equals(teamCorrente)) {
-                        teamCorrente.getHackathon().getClassifica().remove(i);
-                        break;
-                    }
-                }
+        String sqlTeam = "INSERT INTO TEAM (Nome_team, Titolo_hackathon) VALUES (?, ?)";
+        String sqlMembership = "INSERT INTO MEMBERSHIP (Username_utente, Team_appartenenza, Titolo_hackathon, Data_adesione) VALUES (?, ?, ?, CURRENT_DATE)";
+
+        try (Connection conn = ConnessioneDatabase.getInstance().connection) {
+            conn.setAutoCommit(false); // Inizia transazione
+
+            try (PreparedStatement stmtTeam = conn.prepareStatement(sqlTeam);
+                 PreparedStatement stmtMembership = conn.prepareStatement(sqlMembership)) {
+
+                // Inserisci il team
+                stmtTeam.setString(1, nomeTeam);
+                stmtTeam.setString(2, hackathon.getTitolo());
+                stmtTeam.executeUpdate();
+
+                // Inserisci l'utente nel team
+                stmtMembership.setString(1, this.login);
+                stmtMembership.setString(2, nomeTeam);
+                stmtMembership.setString(3, hackathon.getTitolo());
+                stmtMembership.executeUpdate();
+
+                conn.commit(); // Conferma transazione
+
+                // Crea e restituisce l'oggetto Team
+                Team nuovoTeam = new Team(hackathon, nomeTeam);
+                this.teamCorrente = nuovoTeam;
+
+                System.out.println("Team " + nomeTeam + " creato con successo per l'hackathon " + hackathon.getTitolo());
+                return nuovoTeam;
+
+            } catch (SQLException e) {
+                conn.rollback(); // Annulla transazione in caso di errore
+                throw e;
             }
-            // Setto a null il team corrente dell'utente
-            this.setNewTeam(null);
-        } else {
-            throw new IllegalStateException("Non puoi abbandonare il team dopo la scadenza delle registrazioni.");
+
+        } catch (SQLException e) {
+            throw new IllegalArgumentException("Errore nella creazione del team: " + e.getMessage());
         }
     }
 
@@ -137,34 +194,7 @@ public class Utente {
      * @return Oggetto Giudice (attualmente null).
      */
     public Giudice getInvite(String idEvento) {
-        // TODO Placeholder per implementazione futura
+        // TODO Implementazione futura per gestire gli inviti come giudice
         return null;
-    }
-
-    /**
-     * Permette all'utente di creare un nuovo team.
-     *
-     * @param hackathon Evento a cui il team parteciperà.
-     * @return nuovoTeam Restituisce il team appena creato.
-     */
-    public Team creaTeam(Hackathon hackathon, String nomeTeam) throws IllegalArgumentException, IllegalStateException {
-        if (hackathon == null) {
-            throw new IllegalArgumentException("L'hackathon non può essere null.");
-        }
-        hackathon.controlloValiditaDataReg();
-        // Il seguente controllo non sarà necessario poi perché un utente già registrato a un team non avrà
-        // accesso a questa funzione nell'interfaccia
-        if (this.teamCorrente != null) {
-            throw new IllegalStateException("Sei già registrato a un team, abbandona il team corrente per crearne uno nuovo.");
-        }
-        if (nomeTeam == null || nomeTeam.trim().isEmpty()) {
-            throw new IllegalArgumentException("Il nome del team non può essere null o vuoto.");
-        }
-
-        Team nuovoTeam = new Team(hackathon, nomeTeam);
-        this.entrataTeam(nuovoTeam);
-        this.getTeam().getHackathon().getClassifica().add(this.getTeam());
-
-        return nuovoTeam;
     }
 }

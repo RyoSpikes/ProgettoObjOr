@@ -21,7 +21,7 @@ public interface UtenteDAO extends GenericDAO<Utente, String> {
     
     /**
      * Verifica le credenziali di login di un utente.
-     * 
+     *
      * @param username Il nome utente
      * @param password La password
      * @return L'utente se le credenziali sono corrette, null altrimenti
@@ -31,7 +31,7 @@ public interface UtenteDAO extends GenericDAO<Utente, String> {
     
     /**
      * Trova tutti gli utenti che partecipano a un determinato hackathon.
-     * 
+     *
      * @param hackathonId L'ID dell'hackathon
      * @return Lista degli utenti partecipanti
      * @throws SQLException Se si verifica un errore durante l'operazione

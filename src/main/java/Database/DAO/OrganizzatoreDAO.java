@@ -27,9 +27,9 @@ public interface OrganizzatoreDAO extends GenericDAO<Organizzatore, String> {
     /**
      * Trova l'organizzatore che ha creato un determinato hackathon.
      *
-     * @param hackathonId L'ID dell'hackathon
-     * @return Lista degli organizzatori che hanno organizzato l'hackathon
+     * @param hackathonTitolo Il titolo identificativo dell'hackathon
+     * @return L'organizzatore che ha organizzato l'hackathon
      * @throws SQLException Se si verifica un errore durante l'operazione
      */
-    Organizzatore findByHackathon(int hackathonId) throws SQLException;
+    Organizzatore findByHackathon(String hackathonTitolo) throws SQLException;
 }

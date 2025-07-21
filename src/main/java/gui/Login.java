@@ -24,61 +24,7 @@ public class Login {
     public JFrame logFrame; // Finestra principale della vista di login.
 
     /**
-     * Metodo per trovare un utente nella lista degli utenti in base alle credenziali fornite.
-     *
-     * @param utenti La lista degli utenti registrati.
-     * @param username Il nome utente da cercare.
-     * @param password La password da verificare.
-     * @return L'utente trovato, o null se non esiste.
-     * @throws IllegalArgumentException se il nome utente è vuoto o la password è errata.
-     */
-    private Utente foundLogin(ArrayList<Utente> utenti, String username, String password) throws IllegalArgumentException {
-        if(!utenti.isEmpty()) {
-            for(Utente u : utenti) {
-                if(username == null || username.isEmpty())
-                    throw new IllegalArgumentException("Non è stato inserito alcun nome utente.");
-
-                if(username.equals(u.getName())) {
-                    if(!u.getLogin(password))
-                        throw new IllegalArgumentException("Password errata.");
-                    else {
-                        return u;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Metodo per trovare un organizzatore nella lista degli organizzatori in base alle credenziali fornite.
-     *
-     * @param utenti La lista degli organizzatori registrati.
-     * @param username Il nome utente da cercare.
-     * @param password La password da verificare.
-     * @return L'organizzatore trovato, o null se non esiste.
-     * @throws IllegalArgumentException se il nome utente è vuoto o la password è errata.
-     */
-    private Organizzatore foundLoginOrg(ArrayList<Organizzatore> utenti, String username, String password) throws IllegalArgumentException {
-        if(!utenti.isEmpty()) {
-            for(Organizzatore u : utenti) {
-                if(username == null || username.isEmpty())
-                    throw new IllegalArgumentException("Non è stato inserito alcun nome utente.");
-
-                if(username.equals(u.getName())) {
-                    if(!u.getLogin(password))
-                        throw new IllegalArgumentException("Password errata.");
-                    else {
-                        return u;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Costruttore della classe Login per gli utenti.
+     * Costruttore della classe Login.
      * Inizializza l'interfaccia grafica e gestisce le azioni per il login degli utenti.
      *
      * @param controllerOrganizzatore Il controller per la gestione degli organizzatori.
@@ -104,98 +50,120 @@ public class Login {
 
         logFrame.pack();
         logFrame.setVisible(true);
-        logFrame.setSize(600, 300);
+        logFrame.setSize(400, 250);
         logFrame.setResizable(false);
         logFrame.setLocationRelativeTo(null);
 
-
-        adminCheckBox.addActionListener(new ActionListener() {
+        // Listener per il pulsante "Accedi" - gestisce sia utenti che organizzatori
+        accediBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(adminCheckBox.isSelected()){
-                    accediBtn.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            String username = fieldUsername.getText();
-                            String password = new String(fieldPassword.getPassword());
+                String username = fieldUsername.getText();
+                String password = new String(fieldPassword.getPassword());
 
-                            try {
-                                // Usa il nuovo metodo loginUtente che restituisce l'utente
-                                Utente utenteLoggato = controller.loginUtente(username, password);
-
-                                if (utenteLoggato != null) {
-                                    // Login riuscito
-                                    System.out.println("Login riuscito per utente: " + username);
-                                    new UserView(utenteLoggato, frameCalling, controllerOrganizzatore, controller);
-                                    logFrame.dispose();
-                                } else {
-                                    // Login fallito
-                                    JOptionPane.showMessageDialog(null,
-                                            "Credenziali non valide. Riprova.",
-                                            "Login Fallito",
-                                            JOptionPane.ERROR_MESSAGE);
-                                }
-                            }
-                            catch (Exception ex) {
-                                JOptionPane.showMessageDialog(null,
-                                        "Errore durante il login: " + ex.getMessage(),
-                                        "Errore",
-                                        JOptionPane.ERROR_MESSAGE);
-                                ex.printStackTrace();
-                            }
-                        }
-                    });
+                if (username == null || username.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(null,
+                            "Inserire un nome utente valido.",
+                            "Campo vuoto",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
                 }
-                else {
-                    accediBtn.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            String username = fieldUsername.getText();
-                            String password = new String(fieldPassword.getPassword());
 
-                            try {
-                                // Usa il nuovo metodo loginUtente che restituisce l'utente
-                                Utente utenteLoggato = controller.loginUtente(username, password);
+                if (password.isEmpty()) {
+                    JOptionPane.showMessageDialog(null,
+                            "Inserire una password.",
+                            "Campo vuoto",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
 
-                                if (utenteLoggato != null) {
-                                    // Login riuscito
-                                    System.out.println("Login riuscito per utente: " + username);
-                                    new UserView(utenteLoggato, frameCalling, controllerOrganizzatore, controller);
-                                    logFrame.dispose();
-                                } else {
-                                    // Login fallito
-                                    JOptionPane.showMessageDialog(null,
-                                            "Credenziali non valide. Riprova.",
-                                            "Login Fallito",
-                                            JOptionPane.ERROR_MESSAGE);
-                                }
-                            }
-                            catch (Exception ex) {
-                                JOptionPane.showMessageDialog(null,
-                                        "Errore durante il login: " + ex.getMessage(),
-                                        "Errore",
-                                        JOptionPane.ERROR_MESSAGE);
-                                ex.printStackTrace();
-                            }
+                try {
+                    if (adminCheckBox.isSelected()) {
+                        // Login come organizzatore
+                        Organizzatore orgLoggato = controllerOrganizzatore.loginOrganizzatore(username, password);
+
+                        if (orgLoggato != null) {
+                            System.out.println("Login riuscito per organizzatore: " + username);
+                            new AdminView(orgLoggato, frameCalling, controllerOrganizzatore);
+                            logFrame.dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(null,
+                                    "Credenziali organizzatore non valide. Riprova.",
+                                    "Login Fallito",
+                                    JOptionPane.ERROR_MESSAGE);
                         }
-                    });
-                    registratiBtn.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            String username = fieldUsername.getText();
-                            String password = new String(fieldPassword.getPassword());
-                            try {
-                                // Usa il nuovo metodo loginUtente che restituisce l'utente
-                                controller.aggiungiUtente(username, password);
-                            }
-                            catch (IllegalArgumentException ex) {
-                                JOptionPane.showMessageDialog(null,
-                                        "Errore durante la registrazione: " + ex.getMessage(),
-                                        "Errore",
-                                        JOptionPane.ERROR_MESSAGE);
-                            }
+                    } else {
+                        // Login come utente normale
+                        Utente utenteLoggato = controller.loginUtente(username, password);
+
+                        if (utenteLoggato != null) {
+                            System.out.println("Login riuscito per utente: " + username);
+                            new UserView(utenteLoggato, frameCalling, controllerOrganizzatore, controller);
+                            logFrame.dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(null,
+                                    "Credenziali utente non valide. Riprova.",
+                                    "Login Fallito",
+                                    JOptionPane.ERROR_MESSAGE);
                         }
-                    });
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null,
+                            "Errore durante il login: " + ex.getMessage(),
+                            "Errore",
+                            JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        // Listener per il pulsante "Registrati" - gestisce utenti e organizzatori
+        registratiBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String username = fieldUsername.getText();
+                String password = new String(fieldPassword.getPassword());
+
+                if (username == null || username.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(null,
+                            "Inserire un nome utente valido.",
+                            "Campo vuoto",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                if (password.isEmpty()) {
+                    JOptionPane.showMessageDialog(null,
+                            "Inserire una password.",
+                            "Campo vuoto",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                try {
+                    if (adminCheckBox.isSelected()) {
+                        // ❌ REGISTRAZIONE ORGANIZZATORE DISABILITATA PER SICUREZZA
+                        JOptionPane.showMessageDialog(null,
+                                "Registrazione come organizzatore non permessa.\n" +
+                                "Gli organizzatori devono essere creati direttamente nel database per motivi di sicurezza.",
+                                "Accesso Negato",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    } else {
+                        // Registrazione come utente normale
+                        controller.aggiungiUtente(username, password);
+                        JOptionPane.showMessageDialog(null,
+                                "Registrazione utente completata con successo!",
+                                "Successo",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    fieldUsername.setText("");
+                    fieldPassword.setText("");
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(null,
+                            "Errore durante la registrazione: " + ex.getMessage(),
+                            "Errore",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -206,34 +174,38 @@ public class Login {
      */
     private void initializeComponents() {
         loginPanel = new JPanel();
-        fieldUsername = new JTextField(20);
-        fieldPassword = new JPasswordField(20);
-        accediBtn = new JButton("Login");
-        adminCheckBox = new JCheckBox();
-        
-        // Imposta layout del pannello
         loginPanel.setLayout(new java.awt.GridBagLayout());
+
+        fieldUsername = new JTextField(15);
+        fieldPassword = new JPasswordField(15);
+        accediBtn = new JButton("Accedi");
+        registratiBtn = new JButton("Registrati");
+        adminCheckBox = new JCheckBox("Login come Organizzatore");
+
         java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
-        
-        // Aggiunge etichetta username
-        gbc.gridx = 0; gbc.gridy = 0; gbc.insets = new java.awt.Insets(10, 10, 5, 5);
-        loginPanel.add(new JLabel("Username:"), gbc);
-        
-        // Aggiunge campo username
-        gbc.gridx = 1; gbc.gridy = 0; gbc.insets = new java.awt.Insets(10, 5, 5, 10);
+        gbc.insets = new java.awt.Insets(5, 5, 5, 5);
+
+        // Username label and field
+        gbc.gridx = 0; gbc.gridy = 0;
+        loginPanel.add(new JLabel("Nome Utente:"), gbc);
+        gbc.gridx = 1;
         loginPanel.add(fieldUsername, gbc);
         
-        // Aggiunge etichetta password
-        gbc.gridx = 0; gbc.gridy = 1; gbc.insets = new java.awt.Insets(5, 10, 5, 5);
+        // Password label and field
+        gbc.gridx = 0; gbc.gridy = 1;
         loginPanel.add(new JLabel("Password:"), gbc);
-        
-        // Aggiunge campo password
-        gbc.gridx = 1; gbc.gridy = 1; gbc.insets = new java.awt.Insets(5, 5, 5, 10);
+        gbc.gridx = 1;
         loginPanel.add(fieldPassword, gbc);
         
-        // Aggiunge pulsante login
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; 
-        gbc.insets = new java.awt.Insets(15, 10, 10, 10);
+        // Admin checkbox
+        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
+        loginPanel.add(adminCheckBox, gbc);
+
+        // Buttons
+        gbc.gridwidth = 1;
+        gbc.gridx = 0; gbc.gridy = 3;
         loginPanel.add(accediBtn, gbc);
+        gbc.gridx = 1;
+        loginPanel.add(registratiBtn, gbc);
     }
 }

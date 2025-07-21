@@ -199,65 +199,54 @@ public class Hackathon {
     public void incrementaNumIscritti() {this.numIscritti++;}
 
     /**
-     * Decrementa di 1 il numero di iscritti all'evento.
-     */
-    public void decrementaNumIscritti() {this.numIscritti--;}
-
-    /**
-     * Restituisce la lista dei giudici assegnati all'evento.
+     * Restituisce la sede dell'hackathon.
      *
-     * @return Lista di giudici.
+     * @return Sede dell'evento
      */
-    public ArrayList<Giudice> getGiudiciEvento() {return giudiciEvento;}
-
-    /**
-     * Controllo se la data corrente è valida per la registrazione.
-     *
-     * @return true se la data corrente è valida
-     */
-    public Boolean controlloValiditaDataReg() throws DateTimeException {
-        // Ricavo la data di oggi
-        LocalDateTime now = LocalDateTime.now();
-
-        // Controllo se la data di oggi è compresa tra la data di inizio e la data di fine registrazioni
-        if (now.isBefore(this.getDataInizioRegistrazioni()))
-        {
-            throw new DateTimeException("La data di inizio registrazione è registrata dopo la data attuale!");
-        }
-        else if (now.isAfter(this.getDataFineRegistrazioni()))
-        {
-            throw new DateTimeException("La data di fine registrazione è registrata prima della data attuale!");
-        }
-
-        // Se passa i controlli ritorna true
-        return true;
+    public String getSede() {
+        return sede;
     }
 
     /**
-     * Controllo se è stato raggiunto il numero massimo di iscritti
+     * Restituisce la descrizione del problema dell'hackathon.
      *
-     * @return true se il numero massimo di iscritti è stato raggiunto
+     * @return Descrizione del problema
      */
-    public Boolean controlloMaxIscritti() {
-        if (numIscritti >= maxNumIscritti) {
-            throw new IllegalStateException("Numero massimo di iscritti raggiunto!");
-        }
-
-        return true;
+    public String getDescrizioneProblema() {
+        return descrizioneProblema;
     }
 
     /**
-     * Ordina e stampa la classifica dei team in base al punteggio finale.
+     * Restituisce il numero massimo di iscritti all'hackathon.
+     *
+     * @return Numero massimo di iscritti
      */
-    public void ordinaStampaClassifica() {
-        // Ordina la lista dei team in base al votoFinale in ordine decrescente
-        classifica.sort(Comparator.comparingInt(Team::getVotoFinale).reversed());
-
-        // Stampa la classifica
-        System.out.println("Classifica Hackathon " + titolo + ":");
-        for (int i = 0; i < classifica.size(); i++) {
-            Team team = classifica.get(i);
-            System.out.println((i + 1) + ". Team " + team.getNomeTeam() + " - Voto Finale: " + team.getVotoFinale());
-        }
+    public int getMaxNumIscritti() {
+        return maxNumIscritti;
     }
+
+    /**
+     * Restituisce il numero corrente di iscritti all'hackathon.
+     *
+     * @return Numero corrente di iscritti
+     */
+    public int getNumIscritti() {
+        return numIscritti;
+    }
+
+    /**
+     * Imposta il numero corrente di iscritti all'hackathon.
+     *
+     * @param numIscritti Numero corrente di iscritti
+     */
+    public void setNumIscritti(int numIscritti) {
+        this.numIscritti = numIscritti;
+    }
+
+    // I SEGUENTI METODI SONO STATI RIMOSSI PERCHÉ LA LORO LOGICA
+    // È ORA GESTITA DIRETTAMENTE DAL DATABASE TRAMITE TRIGGER E FUNZIONI:
+    //
+    // - controlloValiditaDataReg(): Gestito dal trigger 'verifica_adesione_valida'.
+    // - controlloMaxIscritti(): Gestito dal trigger 'verifica_adesione_valida'.
+    // - ordinaStampaClassifica(): Gestito dalla funzione 'genera_classifica_hackathon'.
 }
