@@ -49,6 +49,12 @@ public class Home {
     public Home() {
         userController = new Controller();
         orgController = new ControllerOrganizzatore();
+        
+        // Initialize GUI components if not already done
+        if (homeTextArea == null) {
+            initializeComponents();
+        }
+        
         homeTextArea.setEditable(false);
 
         // Listener per il pulsante "Stampa Utenti".
@@ -105,5 +111,42 @@ public class Home {
                 }
             }
         });
+    }
+    
+    /**
+     * Inizializza i componenti GUI manualmente se non sono stati inizializzati automaticamente.
+     */
+    private void initializeComponents() {
+        mainPanel = new JPanel();
+        homeTextArea = new JTextArea();
+        textAreaScrollPane = new JScrollPane(homeTextArea);
+        stampaUtentiBtn = new JButton("Stampa Utenti");
+        accessoUtenteBtn = new JButton("Accesso Utente");
+        accessoOrganizzatoreBtn = new JButton("Accesso Organizzatore");
+        stampaOrganizzatoriBtn = new JButton("Stampa Organizzatori");
+        
+        // Set basic properties
+        homeTextArea.setLineWrap(true);
+        homeTextArea.setWrapStyleWord(true);
+        
+        // Add components to panel (basic layout)
+        mainPanel.setLayout(new java.awt.BorderLayout());
+        
+        JPanel topPanel = new JPanel();
+        topPanel.add(new JLabel("HOME"));
+        
+        JPanel centerPanel = new JPanel();
+        textAreaScrollPane.setPreferredSize(new java.awt.Dimension(400, 400));
+        centerPanel.add(textAreaScrollPane);
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(stampaUtentiBtn);
+        buttonPanel.add(stampaOrganizzatoriBtn);
+        buttonPanel.add(accessoUtenteBtn);
+        buttonPanel.add(accessoOrganizzatoreBtn);
+        
+        mainPanel.add(topPanel, java.awt.BorderLayout.NORTH);
+        mainPanel.add(centerPanel, java.awt.BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
     }
 }

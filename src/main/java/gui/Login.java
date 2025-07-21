@@ -84,6 +84,11 @@ public class Login {
      * @param frameCalling Il frame chiamante che ha aperto questa finestra.
      */
     public Login(ControllerOrganizzatore controllerOrganizzatore, Controller controller, JFrame frameCalling) {
+        // Inizializza i componenti GUI se non sono stati inizializzati automaticamente
+        if (loginPanel == null) {
+            initializeComponents();
+        }
+        
         logFrame = new JFrame("Login");
         logFrame.setContentPane(loginPanel);
 
@@ -107,24 +112,29 @@ public class Login {
                 String username = fieldUsername.getText();
                 String password = new String(fieldPassword.getPassword());
 
-                try
-                {
-                    Utente u = foundLogin(controller.getListaUtenti(), username, password);
-                    if(u == null)
-                    {
-                        controller.aggiungiUtente(username, password);
-                        new UserView(controller.getListaUtenti().getLast(), frameCalling, controllerOrganizzatore, controller);
+                try {
+                    // Usa il nuovo metodo loginUtente che restituisce l'utente
+                    Utente utenteLoggato = controller.loginUtente(username, password);
+                    
+                    if (utenteLoggato != null) {
+                        // Login riuscito
+                        System.out.println("Login riuscito per utente: " + username);
+                        new UserView(utenteLoggato, frameCalling, controllerOrganizzatore, controller);
                         logFrame.dispose();
-                    }
-                    else
-                    {
-                        new UserView(u,frameCalling, controllerOrganizzatore, controller);
-                        logFrame.dispose();
+                    } else {
+                        // Login fallito
+                        JOptionPane.showMessageDialog(null, 
+                            "Credenziali non valide. Riprova.", 
+                            "Login Fallito", 
+                            JOptionPane.ERROR_MESSAGE);
                     }
                 }
-                catch (IllegalArgumentException ex)
-                {
-                    JOptionPane.showMessageDialog(null, ex);
+                catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, 
+                        "Errore durante il login: " + ex.getMessage(), 
+                        "Errore", 
+                        JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
                 }
             }
         });
@@ -138,6 +148,11 @@ public class Login {
      * @param frameCalling Il frame chiamante che ha aperto questa finestra.
      */
     public Login(ControllerOrganizzatore controller, JFrame frameCalling) {
+        // Inizializza i componenti GUI se non sono stati inizializzati automaticamente
+        if (loginPanel == null) {
+            initializeComponents();
+        }
+        
         logFrame = new JFrame("Login");
         logFrame.setContentPane(loginPanel);
 
@@ -183,5 +198,40 @@ public class Login {
 
             }
         });
+    }
+    
+    /**
+     * Inizializza i componenti GUI manualmente se non sono stati inizializzati automaticamente.
+     */
+    private void initializeComponents() {
+        loginPanel = new JPanel();
+        fieldUsername = new JTextField(20);
+        fieldPassword = new JPasswordField(20);
+        getLoginBtn = new JButton("Login");
+        
+        // Imposta layout del pannello
+        loginPanel.setLayout(new java.awt.GridBagLayout());
+        java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+        
+        // Aggiunge etichetta username
+        gbc.gridx = 0; gbc.gridy = 0; gbc.insets = new java.awt.Insets(10, 10, 5, 5);
+        loginPanel.add(new JLabel("Username:"), gbc);
+        
+        // Aggiunge campo username
+        gbc.gridx = 1; gbc.gridy = 0; gbc.insets = new java.awt.Insets(10, 5, 5, 10);
+        loginPanel.add(fieldUsername, gbc);
+        
+        // Aggiunge etichetta password
+        gbc.gridx = 0; gbc.gridy = 1; gbc.insets = new java.awt.Insets(5, 10, 5, 5);
+        loginPanel.add(new JLabel("Password:"), gbc);
+        
+        // Aggiunge campo password
+        gbc.gridx = 1; gbc.gridy = 1; gbc.insets = new java.awt.Insets(5, 5, 5, 10);
+        loginPanel.add(fieldPassword, gbc);
+        
+        // Aggiunge pulsante login
+        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; 
+        gbc.insets = new java.awt.Insets(15, 10, 10, 10);
+        loginPanel.add(getLoginBtn, gbc);
     }
 }

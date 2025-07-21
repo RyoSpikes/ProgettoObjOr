@@ -60,6 +60,16 @@ public class Utente {
     }
 
     /**
+     * Ritorna la password dell'utente.
+     * Necessario per le operazioni di persistenza nel database.
+     *
+     * @return La password dell'utente
+     */
+    public String getPassword() {
+        return this.password;
+    }
+
+    /**
      * Ritorna il team dell'utente.
      *
      * @return Restituisce il team dell'utente

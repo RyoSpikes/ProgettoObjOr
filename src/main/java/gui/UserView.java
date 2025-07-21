@@ -33,6 +33,11 @@ public class UserView {
      * @param controllerUtente Il controller per la gestione degli utenti.
      */
     public UserView(Utente userLogged, JFrame frameHome, ControllerOrganizzatore controllerOrganizzatore, Controller controllerUtente) {
+        // Inizializza i componenti GUI se non sono stati inizializzati automaticamente
+        if (userPanel == null) {
+            initializeComponents();
+        }
+        
         userViewFrame = new JFrame("User View");
         userViewFrame.setContentPane(userPanel);
         userViewFrame.pack();
@@ -93,5 +98,50 @@ public class UserView {
                 }
             }
         });
+    }
+    
+    /**
+     * Inizializza i componenti GUI manualmente se non sono stati inizializzati automaticamente.
+     */
+    private void initializeComponents() {
+        userPanel = new JPanel();
+        userTextArea = new JTextArea(15, 40);
+        creaTeam = new JButton("Crea Team");
+        mostraInvitiButton = new JButton("Mostra Inviti");
+        scegliTeamButton = new JButton("Scegli Team");
+        visualizzaTeamButton = new JButton("Visualizza Team");
+        
+        // Imposta proprietà dell'area di testo
+        userTextArea.setEditable(false);
+        userTextArea.setLineWrap(true);
+        userTextArea.setWrapStyleWord(true);
+        
+        // Crea scroll pane per l'area di testo
+        JScrollPane scrollPane = new JScrollPane(userTextArea);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        
+        // Imposta layout del pannello
+        userPanel.setLayout(new java.awt.BorderLayout());
+        
+        // Pannello superiore con titolo
+        JPanel topPanel = new JPanel();
+        topPanel.add(new JLabel("Area Utente"));
+        
+        // Pannello centrale con area di testo
+        JPanel centerPanel = new JPanel();
+        centerPanel.add(scrollPane);
+        
+        // Pannello inferiore con pulsanti
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new java.awt.FlowLayout());
+        buttonPanel.add(creaTeam);
+        buttonPanel.add(mostraInvitiButton);
+        buttonPanel.add(scegliTeamButton);
+        buttonPanel.add(visualizzaTeamButton);
+        
+        // Aggiungi i pannelli al pannello principale
+        userPanel.add(topPanel, java.awt.BorderLayout.NORTH);
+        userPanel.add(centerPanel, java.awt.BorderLayout.CENTER);
+        userPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
     }
 }
