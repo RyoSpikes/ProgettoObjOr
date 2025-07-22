@@ -10,6 +10,8 @@ import java.sql.SQLException;
  * Può essere estesa per creare tipi specifici di utenti (Organizzatore, Giudice).
  */
 public class Utente {
+
+    //TODO: Cambiare in Username
     /**
      * Username dell'utente.
      * Definito come costante per aumentare la sicurezza della struttura.

@@ -139,9 +139,4 @@ public class Organizzatore extends Utente {
         }
         return listaStampata.toString();
     }
-
-    // TODO: 18/04/2025  
-    public void invitoGiudice(Utente giudiceAggiunto, String idNum) {
-        //getHackathonOrganizzata(getIndexHackathonOrganizzata(idNum)).aggiungiGiudice(giudiceAggiunto.getInvite(idNum));
-    }
 }
