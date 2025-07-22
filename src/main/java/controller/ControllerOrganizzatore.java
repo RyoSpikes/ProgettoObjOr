@@ -2,7 +2,6 @@ package controller;
 
 import model.*;
 
-import javax.print.attribute.standard.JobMessageFromOperator;
 import javax.swing.*;
 import java.sql.SQLException;
 import java.time.DateTimeException;
@@ -10,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import Database.DAO.Impl.OrganizzatoreDAOImpl;
-import Database.DAO.Impl.HackathonDAOImpl;
 
 /**
  * La classe ControllerOrganizzatore estende la classe Controller e gestisce una lista di organizzatori.

@@ -11,6 +11,9 @@ import utilities.RandomStringGenerator;
  * all'organizzazione, tempistiche e partecipanti.
  */
 public class Hackathon {
+    //TODO: Aggiungere attributo Organizzatore
+
+    //TODO: Cambiare idNum in Titolo_id
     /** Identificativo univoco numerico dell'evento */
     private final String idNum;
     /** Luogo di svolgimento dell'hackathon */
@@ -23,6 +26,8 @@ public class Hackathon {
     private LocalDateTime dataInizioRegistrazioni;
     /** Data di chiusura registrazioni */
     private LocalDateTime dataFineRegistrazioni;
+
+    //TODO: eliminare titolo, è stabilito come chiave primaria dal DB
     /** Titolo dell'evento */
     private String titolo;
     /** Numero massimo di membri per team */
@@ -83,6 +88,7 @@ public class Hackathon {
         Random random = new Random();
         //this.idNum = RandomStringGenerator.generateRandomString(5);
 
+        //TODO
         this.idNum = id;
 
 
@@ -95,6 +101,8 @@ public class Hackathon {
         this.dataFineRegistrazioni = dataInizio.minusDays(2);
 
         this.maxMembriTeam = 4;
+
+        //TODO
         this.maxNumIscritti = random.nextInt(10, 100);
         giudiciEvento = new ArrayList<>();
         this.classifica = new ArrayList<>();
@@ -147,6 +155,8 @@ public class Hackathon {
         giudiciEvento.add(newGiudice);
     }
 
+
+    //TODO
     /**
      * Restituisce l'identificativo numerico dell'evento.
      *
@@ -193,6 +203,8 @@ public class Hackathon {
      */
     public ArrayList<Team> getClassifica() {return classifica;}
 
+
+    //TODO: funzione incrementaNumIscritti() va eliminata, in quanto gestita tramite TRIGGER
     /**
      * Incrementa di 1 il numero di iscritti all'evento.
      */
