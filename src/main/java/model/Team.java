@@ -105,7 +105,7 @@ public class Team {
 
             stmt.setString(1, utente.getName());
             stmt.setString(2, this.nomeTeam);
-            stmt.setString(3, this.eventoPartecipazione.getTitolo());
+            stmt.setString(3, this.eventoPartecipazione.getTitoloIdentificativo());
 
             int rowsAffected = stmt.executeUpdate();
 

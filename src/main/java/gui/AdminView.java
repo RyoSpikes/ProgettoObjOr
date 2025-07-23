@@ -3,6 +3,7 @@ package gui;
 import model.Hackathon;
 import model.Organizzatore;
 import controller.ControllerOrganizzatore;
+import gui.CreaHackathonForm;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -30,12 +31,10 @@ public class AdminView {
      * @param controllerOrganizzatore Il controller per la gestione degli hackathon.
      */
     public AdminView(Organizzatore adminLogged, JFrame frameCalling, ControllerOrganizzatore controllerOrganizzatore) {
-
         frameAdminView = new JFrame("Admin View");
         frameAdminView.setContentPane(panelAdmin);
-        frameAdminView.pack();
 
-        // Listener per gestire la chiusura della finestra.
+        // Listener per gestire la chiusura della finestra
         frameAdminView.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -45,15 +44,11 @@ public class AdminView {
         });
 
         frameAdminView.setVisible(true);
-        frameAdminView.setSize(800, 800);
+        frameAdminView.setSize(800, 700);
         frameAdminView.setResizable(false);
         frameAdminView.setLocationRelativeTo(null);
 
-        adminTextArea.setLineWrap(true);
-        adminTextArea.setWrapStyleWord(true);
-        adminTextArea.setEditable(false);
-
-        // Listener per il pulsante "Crea Hackathon" - ora passa il controller.
+        // Listener per il pulsante "Crea Hackathon"
         creaHackathonButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -62,11 +57,32 @@ public class AdminView {
             }
         });
 
-        // Listener per il pulsante "Mostra Hackathon".
+        // Listener per il pulsante "Mostra Hackathon"
         mostraHackathonButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                adminTextArea.setText(adminLogged.printListaHackathon());
+                adminTextArea.setText("");
+
+                // Recupera gli hackathon dell'organizzatore dal database
+                var hackathonList = controllerOrganizzatore.getHackathonDiOrganizzatore(adminLogged);
+
+                if (hackathonList.isEmpty()) {
+                    adminTextArea.append("Non hai ancora creato nessun hackathon.\n\n");
+                    adminTextArea.append("Utilizza il pulsante 'Crea Hackathon' per organizzare il tuo primo evento!");
+                } else {
+                    adminTextArea.append("=== I TUOI HACKATHON ===\n\n");
+
+                    for (int i = 0; i < hackathonList.size(); i++) {
+                        Hackathon h = hackathonList.get(i);
+                        adminTextArea.append((i + 1) + ". " + h.printInfoEvento());
+                        adminTextArea.append("\n" + "=".repeat(50) + "\n\n");
+                    }
+
+                    adminTextArea.append("Totale hackathon organizzati: " + hackathonList.size());
+                }
+
+                // Scorri automaticamente all'inizio del testo
+                adminTextArea.setCaretPosition(0);
             }
         });
     }

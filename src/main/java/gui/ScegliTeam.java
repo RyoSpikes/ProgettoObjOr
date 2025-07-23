@@ -81,7 +81,7 @@ public class ScegliTeam {
                                                           boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Hackathon) {
-                    setText(((Hackathon) value).getTitolo());
+                    setText(((Hackathon) value).getTitoloIdentificativo());
                 }
                 return this;
             }

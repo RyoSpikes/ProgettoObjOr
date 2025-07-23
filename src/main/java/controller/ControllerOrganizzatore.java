@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import Database.DAO.Impl.OrganizzatoreDAOImpl;
+import Database.DAO.Impl.HackathonDAOImpl;
 
 /**
  * La classe ControllerOrganizzatore estende la classe Controller e gestisce una lista di organizzatori.
@@ -48,7 +49,12 @@ public class ControllerOrganizzatore extends Controller {
         } catch (SQLException e) {
             System.err.println("Errore durante l'inizializzazione del ControllerOrganizzatore: " + e.getMessage());
             organizzatoreDAO = null; // Modalità offline
-            hackathonDAO = new HackathonDAOImpl();
+            try {
+                hackathonDAO = new HackathonDAOImpl();
+            } catch (SQLException ex) {
+                System.err.println("Errore critico nell'inizializzazione HackathonDAO: " + ex.getMessage());
+                hackathonDAO = null;
+            }
         }
     }
 
@@ -96,11 +102,11 @@ public class ControllerOrganizzatore extends Controller {
     }
 
     /**
-     * Aggiunge un nuovo organizzatore alla lista e lo salva nel database.
+     * Effettua il login di un organizzatore.
      *
-     * @param username Il nome utente del nuovo organizzatore.
-     * @param password La password del nuovo organizzatore.
-     * @throws IllegalArgumentException se l'organizzatore non può essere creato (ad esempio, input non valido).
+     * @param username Il nome utente dell'organizzatore.
+     * @param password La password dell'organizzatore.
+     * @return L'oggetto Organizzatore se il login è riuscito, null altrimenti.
      */
     public Organizzatore loginOrganizzatore(String username, String password) {
         try {
@@ -131,7 +137,7 @@ public class ControllerOrganizzatore extends Controller {
     }
 
     /**
-     * Aggiunge un nuovo hackathon per un organizzatore specifico.
+     * Aggiunge un nuovo hackathon per un organizzatore specifico (metodo legacy).
      *
      * @param org                     L'organizzatore che registra l'hackathon.
      * @param idNum                   L'ID dell'hackathon.
@@ -154,13 +160,13 @@ public class ControllerOrganizzatore extends Controller {
     }
 
     /**
-     * Crea un nuovo hackathon e lo salva nel database.
+     * Crea un nuovo hackathon e lo salva nel database PostgreSQL.
      *
-     * @param titoloIdentificativo Titolo identificativo dell'hackathon
+     * @param titoloIdentificativo Titolo identificativo dell'hackathon (chiave primaria)
      * @param organizzatore L'organizzatore che crea l'hackathon
      * @param sede Sede dell'evento
      * @param dataInizioRegistrazione Data inizio registrazioni
-     * @param dataFineRegistrazione Data fine registrazioni
+     * @param dataFineRegistrazione Data fine registrazioni (calcolata automaticamente: 2 giorni prima dell'evento)
      * @param dataInizioEvento Data inizio evento
      * @param dataFineEvento Data fine evento
      * @param descrizioneProblema Descrizione del problema da risolvere
@@ -174,20 +180,57 @@ public class ControllerOrganizzatore extends Controller {
                                 LocalDateTime dataInizioEvento, LocalDateTime dataFineEvento,
                                 String descrizioneProblema, int maxNumIscritti, int maxNumMembriTeam) throws SQLException {
 
-        return hackathonDAO.creaHackathon(titoloIdentificativo, organizzatore.getName(), sede,
-                                        dataInizioRegistrazione, dataFineRegistrazione,
-                                        dataInizioEvento, dataFineEvento,
-                                        descrizioneProblema, maxNumIscritti, maxNumMembriTeam);
+        if (hackathonDAO == null) {
+            throw new SQLException("DAO non disponibile. Impossibile creare l'hackathon.");
+        }
+
+        try {
+            // Creo l'oggetto Hackathon basato sullo schema del database
+            // NOTA: La dataFineRegistrazione viene calcolata automaticamente nel costruttore
+            // della classe Hackathon come dataInizioEvento.minusDays(2)
+            Hackathon hackathon = new Hackathon(
+                titoloIdentificativo,           // Titolo_identificativo (PRIMARY KEY)
+                organizzatore.getName(),        // Organizzatore (FOREIGN KEY → ORGANIZZATORE.Username_org)
+                sede,                          // Sede
+                dataInizioEvento,              // DataInizio_evento
+                dataFineEvento,                // DataFine_evento
+                dataInizioRegistrazione,       // DataInizio_registrazione
+                maxNumMembriTeam,              // MaxNum_membriTeam
+                maxNumIscritti,                // MaxNum_iscritti
+                descrizioneProblema            // Descrizione_problema
+            );
+
+            // Salva nel database PostgreSQL tramite DAO
+            boolean risultato = hackathonDAO.creaHackathon(hackathon);
+
+            if (risultato) {
+                System.out.println("✅ Hackathon '" + titoloIdentificativo + "' salvato nel database PostgreSQL.");
+                System.out.println("📅 Data fine registrazioni calcolata automaticamente: " +
+                                 hackathon.getDataFineRegistrazioni());
+            }
+
+            return risultato;
+
+        } catch (DateTimeException e) {
+            throw new SQLException("Date non valide: " + e.getMessage(), e);
+        } catch (Exception e) {
+            System.err.println("Errore durante la creazione dell'hackathon: " + e.getMessage());
+            throw new SQLException("Impossibile creare l'hackathon: " + e.getMessage(), e);
+        }
     }
 
     /**
-     * Recupera tutti gli hackathon di un organizzatore specifico dal database.
+     * Recupera tutti gli hackathon organizzati da un organizzatore specifico dal database.
      *
      * @param organizzatore L'organizzatore di cui recuperare gli hackathon
      * @return Lista degli hackathon dell'organizzatore
      */
     public List<Hackathon> getHackathonDiOrganizzatore(Organizzatore organizzatore) {
         try {
+            if (hackathonDAO == null) {
+                System.err.println("DAO non disponibile.");
+                return new ArrayList<>();
+            }
             return hackathonDAO.getHackathonByOrganizzatore(organizzatore.getName());
         } catch (SQLException e) {
             System.err.println("Errore nel recupero degli hackathon: " + e.getMessage());
@@ -202,6 +245,10 @@ public class ControllerOrganizzatore extends Controller {
      */
     public List<Hackathon> getTuttiGliHackathon() {
         try {
+            if (hackathonDAO == null) {
+                System.err.println("DAO non disponibile.");
+                return new ArrayList<>();
+            }
             return hackathonDAO.getAllHackathon();
         } catch (SQLException e) {
             System.err.println("Errore nel recupero di tutti gli hackathon: " + e.getMessage());
@@ -216,6 +263,10 @@ public class ControllerOrganizzatore extends Controller {
      */
     public List<Hackathon> getHackathonConRegistrazioniAperte() {
         try {
+            if (hackathonDAO == null) {
+                System.err.println("DAO non disponibile.");
+                return new ArrayList<>();
+            }
             return hackathonDAO.getHackathonConRegistrazioniAperte();
         } catch (SQLException e) {
             System.err.println("Errore nel recupero degli hackathon con registrazioni aperte: " + e.getMessage());
@@ -231,6 +282,10 @@ public class ControllerOrganizzatore extends Controller {
      */
     public Hackathon getHackathonPerTitolo(String titoloIdentificativo) {
         try {
+            if (hackathonDAO == null) {
+                System.err.println("DAO non disponibile.");
+                return null;
+            }
             return hackathonDAO.getHackathonByTitolo(titoloIdentificativo);
         } catch (SQLException e) {
             System.err.println("Errore nel recupero dell'hackathon: " + e.getMessage());

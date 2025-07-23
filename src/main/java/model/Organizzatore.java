@@ -54,9 +54,15 @@ public class Organizzatore extends Utente {
     ) {
         hackathonOrganizzate.add(
                 new Hackathon(
-                    idNum, sede, dataInizio,
-                    dataFine, dataInizioRegistrazioni,
-                    titolo, maxMembriTeam, maxNumIscritti
+                    titolo,                  // titoloIdentificativo
+                    this.getName(),          // organizzatore
+                    sede,                    // sede
+                    dataInizio,              // dataInizio
+                    dataFine,                // dataFine
+                    dataInizioRegistrazioni, // dataInizioRegistrazioni
+                    maxMembriTeam,           // maxMembriTeam
+                    maxNumIscritti,          // maxNumIscritti
+                    "Problema da definire"   // descrizioneProblema (placeholder)
                 )
         );
     }
@@ -100,7 +106,7 @@ public class Organizzatore extends Utente {
         int index = 0;
         // Itera sulla lista degli hackathon organizzati
         for (Hackathon hack : hackathonOrganizzate) {
-            if (idHackathon.equals(hack.getIdNum())) {
+            if (idHackathon.equals(hack.getTitoloIdentificativo())) {
                 return index; // Trovato: restituisce l'indice immediatamente
             }
             index++; // Incrementa l'indice se non trovato

@@ -4,7 +4,6 @@ import controller.ControllerOrganizzatore;
 import model.Hackathon;
 import model.Utente;
 
-import javax.naming.ldap.Control;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -61,7 +60,7 @@ public class CreaTeamForm {
                                                           boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Hackathon) {
-                    setText(((Hackathon) value).getTitolo());
+                    setText(((Hackathon) value).getTitoloIdentificativo());
                 }
                 return this;
             }

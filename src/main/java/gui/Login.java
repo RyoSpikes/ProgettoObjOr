@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 
 /**
  * La classe Login rappresenta l'interfaccia grafica per il login degli utenti e degli organizzatori.
@@ -19,8 +18,8 @@ public class Login {
     private JTextField fieldUsername; // Campo di testo per l'inserimento del nome utente.
     private JPasswordField fieldPassword; // Campo di testo per l'inserimento della password.
     private JButton accediBtn; // Pulsante per effettuare il login.
-    private JButton registratiBtn;
-    private JCheckBox adminCheckBox;
+    private JButton registratiBtn; // Pulsante per registrarsi.
+    private JCheckBox adminCheckBox; // Checkbox per indicare se è un admin.
     public JFrame logFrame; // Finestra principale della vista di login.
 
     /**
@@ -32,12 +31,8 @@ public class Login {
      * @param frameCalling Il frame chiamante che ha aperto questa finestra.
      */
     public Login(ControllerOrganizzatore controllerOrganizzatore, Controller controller, JFrame frameCalling) {
-        // Inizializza i componenti GUI se non sono stati inizializzati automaticamente
-        if (loginPanel == null) {
-            initializeComponents();
-        }
-        
         logFrame = new JFrame("Login");
+        logFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         logFrame.setContentPane(loginPanel);
 
         logFrame.addWindowListener(new WindowAdapter() {
@@ -167,45 +162,5 @@ public class Login {
                 }
             }
         });
-    }
-    
-    /**
-     * Inizializza i componenti GUI manualmente se non sono stati inizializzati automaticamente.
-     */
-    private void initializeComponents() {
-        loginPanel = new JPanel();
-        loginPanel.setLayout(new java.awt.GridBagLayout());
-
-        fieldUsername = new JTextField(15);
-        fieldPassword = new JPasswordField(15);
-        accediBtn = new JButton("Accedi");
-        registratiBtn = new JButton("Registrati");
-        adminCheckBox = new JCheckBox("Login come Organizzatore");
-
-        java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
-        gbc.insets = new java.awt.Insets(5, 5, 5, 5);
-
-        // Username label and field
-        gbc.gridx = 0; gbc.gridy = 0;
-        loginPanel.add(new JLabel("Nome Utente:"), gbc);
-        gbc.gridx = 1;
-        loginPanel.add(fieldUsername, gbc);
-        
-        // Password label and field
-        gbc.gridx = 0; gbc.gridy = 1;
-        loginPanel.add(new JLabel("Password:"), gbc);
-        gbc.gridx = 1;
-        loginPanel.add(fieldPassword, gbc);
-        
-        // Admin checkbox
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
-        loginPanel.add(adminCheckBox, gbc);
-
-        // Buttons
-        gbc.gridwidth = 1;
-        gbc.gridx = 0; gbc.gridy = 3;
-        loginPanel.add(accediBtn, gbc);
-        gbc.gridx = 1;
-        loginPanel.add(registratiBtn, gbc);
     }
 }

@@ -11,11 +11,10 @@ import utilities.RandomStringGenerator;
  * all'organizzazione, tempistiche e partecipanti.
  */
 public class Hackathon {
-    //TODO: Aggiungere attributo Organizzatore
-
-    //TODO: Cambiare idNum in Titolo_id
-    /** Identificativo univoco numerico dell'evento */
-    private final String idNum;
+    /** Titolo identificativo dell'hackathon (chiave primaria nel DB) */
+    private final String titoloIdentificativo;
+    /** Organizzatore dell'hackathon */
+    private String organizzatore;
     /** Luogo di svolgimento dell'hackathon */
     private String sede;
     /** Data di inizio dell'evento */
@@ -28,8 +27,6 @@ public class Hackathon {
     private LocalDateTime dataFineRegistrazioni;
 
     //TODO: eliminare titolo, è stabilito come chiave primaria dal DB
-    /** Titolo dell'evento */
-    private String titolo;
     /** Numero massimo di membri per team */
     private int maxMembriTeam;
     /** Numero massimo di partecipanti totali */
@@ -42,26 +39,26 @@ public class Hackathon {
     private int numIscritti;        //Ricavabile tramite Team
     /** Lista dei team iscritti all'evento che verrà ordinata per punteggio a fine evento */
     private ArrayList<Team> classifica;
-    private static Integer i = 0;
 
     /**
      * Costruttore principale per creare un nuovo evento Hackathon.
      *
-     * @param idNum                   Identificativo univoco
+     * @param titoloIdentificativo    Titolo identificativo dell'hackathon (chiave primaria)
+     * @param organizzatore           Username dell'organizzatore
      * @param sede                    Luogo di svolgimento
      * @param dataInizio              Data inizio evento
      * @param dataFine                Data fine evento
      * @param dataInizioRegistrazioni Data apertura iscrizioni
-     * @param titolo                  Titolo dell'evento
      * @param maxMembriTeam           Massimo membri per team
      * @param maxNumIscritti          Massimo partecipanti totali
+     * @param descrizioneProblema     Descrizione del problema da risolvere
      * @throws DateTimeException      Messaggio di errore nel caso in cui la data di fine evento
      *                                preceda la data di inizio evento.
      */
-    public Hackathon(String idNum, String sede, LocalDateTime dataInizio, LocalDateTime dataFine,
-                     LocalDateTime dataInizioRegistrazioni, String titolo,
-                     int maxMembriTeam, int maxNumIscritti) throws DateTimeException {
-        this.idNum = idNum;
+    public Hackathon(String titoloIdentificativo, String organizzatore, String sede, LocalDateTime dataInizio, LocalDateTime dataFine,
+                     LocalDateTime dataInizioRegistrazioni, int maxMembriTeam, int maxNumIscritti, String descrizioneProblema) throws DateTimeException {
+        this.titoloIdentificativo = titoloIdentificativo;
+        this.organizzatore = organizzatore;
         this.sede = sede;
         this.dataInizio = dataInizio;
         //Controllo sulla validità della data di fine evento: Non può essere prima dell'inizio dell'evento.
@@ -75,9 +72,9 @@ public class Hackathon {
         }
         // Le registrazioni finiscono esattamente 2 giorni prima dell'inizio dell'evento
         this.dataFineRegistrazioni = dataInizio.minusDays(2);
-        this.titolo = titolo;
         this.maxMembriTeam = maxMembriTeam;
         this.maxNumIscritti = maxNumIscritti;
+        this.descrizioneProblema = descrizioneProblema;
         giudiciEvento = new ArrayList<>();
         this.classifica = new ArrayList<>();
     }
@@ -86,14 +83,9 @@ public class Hackathon {
     public Hackathon(String id)
     {
         Random random = new Random();
-        //this.idNum = RandomStringGenerator.generateRandomString(5);
-
-        //TODO
-        this.idNum = id;
-
-
+        this.titoloIdentificativo = id;
+        this.organizzatore = "testUser";
         this.sede = RandomStringGenerator.generateRandomString(12);
-        this.titolo = RandomStringGenerator.generateRandomString(12);
 
         this.dataInizio = LocalDateTime.of(2025, 12, 2 ,0, 0);
         this.dataFine = dataInizio.plusDays(365);
@@ -101,16 +93,19 @@ public class Hackathon {
         this.dataFineRegistrazioni = dataInizio.minusDays(2);
 
         this.maxMembriTeam = 4;
-
-        //TODO
         this.maxNumIscritti = random.nextInt(10, 100);
+        this.descrizioneProblema = "Test problem description";
         giudiciEvento = new ArrayList<>();
         this.classifica = new ArrayList<>();
 
     }
 
-    public String getTitolo() {
-        return titolo;
+    public String getTitoloIdentificativo() {
+        return titoloIdentificativo;
+    }
+    
+    public String getOrganizzatore() {
+        return organizzatore;
     }
 
     /**
@@ -135,8 +130,8 @@ public class Hackathon {
      * Stampa a console tutte le informazioni dell'evento formattate.
      */
     public String printInfoEvento() {
-        return "- ID: " + idNum +
-                "\n- Titolo: " + titolo +
+        return "- Titolo: " + titoloIdentificativo +
+                "\n- Organizzatore: " + organizzatore +
                 "\n- Sede dell'evento: " + sede +
                 "\n- Data Inizio dell'evento: " + dataInizio +
                 "\n- Data Fine dell'evento: " + dataFine +
@@ -155,16 +150,6 @@ public class Hackathon {
         giudiciEvento.add(newGiudice);
     }
 
-
-    //TODO
-    /**
-     * Restituisce l'identificativo numerico dell'evento.
-     *
-     * @return ID numerico dell'hackathon
-     */
-    public String getIdNum() {
-        return idNum;
-    }
 
     /** Restituisce la data della fine dell'evento.
      *

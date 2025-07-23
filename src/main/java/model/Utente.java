@@ -117,7 +117,7 @@ public class Utente {
 
             stmt.setString(1, this.login);
             stmt.setString(2, team.getNomeTeam());
-            stmt.setString(3, team.getHackathon().getTitolo());
+            stmt.setString(3, team.getHackathon().getTitoloIdentificativo());
 
             int rowsAffected = stmt.executeUpdate();
 
@@ -161,13 +161,13 @@ public class Utente {
 
                 // Inserisci il team
                 stmtTeam.setString(1, nomeTeam);
-                stmtTeam.setString(2, hackathon.getTitolo());
+                stmtTeam.setString(2, hackathon.getTitoloIdentificativo());
                 stmtTeam.executeUpdate();
 
                 // Inserisci l'utente nel team
                 stmtMembership.setString(1, this.login);
                 stmtMembership.setString(2, nomeTeam);
-                stmtMembership.setString(3, hackathon.getTitolo());
+                stmtMembership.setString(3, hackathon.getTitoloIdentificativo());
                 stmtMembership.executeUpdate();
 
                 conn.commit(); // Conferma transazione
@@ -176,7 +176,7 @@ public class Utente {
                 Team nuovoTeam = new Team(hackathon, nomeTeam);
                 this.teamCorrente = nuovoTeam;
 
-                System.out.println("Team " + nomeTeam + " creato con successo per l'hackathon " + hackathon.getTitolo());
+                System.out.println("Team " + nomeTeam + " creato con successo per l'hackathon " + hackathon.getTitoloIdentificativo());
                 return nuovoTeam;
 
             } catch (SQLException e) {
