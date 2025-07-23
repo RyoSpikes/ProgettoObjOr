@@ -15,6 +15,7 @@ public class Voto {
      */
     private Giudice giudiceVotante;
 
+    //TODO: Cambiare voto -> punteggio
     /**
      * Valore numerico del voto assegnato.
      */

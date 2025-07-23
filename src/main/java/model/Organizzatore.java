@@ -25,11 +25,19 @@ public class Organizzatore extends Utente {
         hackathonOrganizzate = new ArrayList<Hackathon>();
     }
 
+    /**
+     * Costruttore per creare un nuovo Organizzatore con solo il login.
+     * La password sarà impostata a "admin" per default.
+     *
+     * @param login il nome utente dell'organizzatore
+     */
     public Organizzatore(String login) {
         super(login, "admin");
         hackathonOrganizzate = new ArrayList<Hackathon>();
     }
 
+    //TODO: idNum -> Titolo_id
+    //TODO: Eliminare titolo
     /**
      * Registra un nuovo hackathon organizzato da questo organizzatore.
      *
@@ -144,5 +152,29 @@ public class Organizzatore extends Utente {
             listaStampata.append(h.printInfoEvento()).append("\n================================================\n");
         }
         return listaStampata.toString();
+    }
+
+    @Override
+    public Team getTeam() {
+        // Non implementato, l'organizzatore non ha un team
+        throw new UnsupportedOperationException("L'organizzatore non ha un team.");
+    }
+
+    @Override
+    public void setNewTeam(Team team) {
+        // Non implementato, l'organizzatore non cambia team
+        throw new UnsupportedOperationException("L'organizzatore non può cambiare team.");
+    }
+
+    @Override
+    public void entrataTeam(Team team) throws UnsupportedOperationException {
+        // Non implementato, l'organizzatore non entra nei team
+        throw new UnsupportedOperationException("L'organizzatore non può entrare in un team.");
+    }
+
+    @Override
+    public Team creaTeam(Hackathon hackathon, String nomeTeam) throws UnsupportedOperationException {
+        // Non implementato, l'organizzatore non crea team
+        throw new UnsupportedOperationException("L'organizzatore non può creare un team.");
     }
 }

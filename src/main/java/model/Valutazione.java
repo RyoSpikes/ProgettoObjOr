@@ -16,6 +16,8 @@ public class Valutazione {
      */
     private Giudice giudiceValutante;
 
+
+    //TODO: Cambiare giudizio -> valutazioneGiudice
     /**
      * Commento o giudizio testuale del giudice.
      */
