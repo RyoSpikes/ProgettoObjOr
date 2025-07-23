@@ -157,4 +157,6 @@ public class OrganizzatoreDAOImpl implements OrganizzatoreDAO {
         }
         return organizzatori;
     }
+
+    //TODO: Aggiungere metodo per inviare inviti agli utenti per diventare giudici
 }

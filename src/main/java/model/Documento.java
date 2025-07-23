@@ -7,6 +7,11 @@ import java.util.ArrayList;
  * Contiene il contenuto testuale, il titolo del documento ed il riferimento al team proprietario.
  */
 public class Documento {
+
+    //TODO: Aggiungere ID_doc
+    //TODO: Aggiungere dataStesura
+
+    //TODO: Cambiare text -> contenuto
     /**
      * Contenuto testuale del documento (non nullo).
      */

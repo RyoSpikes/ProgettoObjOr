@@ -52,7 +52,7 @@ public class Giudice extends Utente {
     }
 
     /**
-     * Pubblica la descrizione del problema da risolvere durante l'hackathon.
+     * Visualizza l'ultimo documento caricato da un team e consente al giudice di valutarlo.
      *
      * @param team Team dal quale ricavare il documento da valutare.
      * @return valutazione restituisce una valutazione su assenso del giudice.
@@ -115,5 +115,29 @@ public class Giudice extends Utente {
         // genera_classifica_hackathon(titolo_hack)
 
         return new Voto(team, this, voto);
+    }
+
+    @Override
+    public Team getTeam() {
+        // Non implementato, l'organizzatore non ha un team
+        throw new UnsupportedOperationException("L'organizzatore non ha un team.");
+    }
+
+    @Override
+    public void setNewTeam(Team team) {
+        // Non implementato, l'organizzatore non cambia team
+        throw new UnsupportedOperationException("L'organizzatore non può cambiare team.");
+    }
+
+    @Override
+    public void entrataTeam(Team team) throws UnsupportedOperationException {
+        // Non implementato, l'organizzatore non entra nei team
+        throw new UnsupportedOperationException("L'organizzatore non può entrare in un team.");
+    }
+
+    @Override
+    public Team creaTeam(Hackathon hackathon, String nomeTeam) throws UnsupportedOperationException {
+        // Non implementato, l'organizzatore non crea team
+        throw new UnsupportedOperationException("L'organizzatore non può creare un team.");
     }
 }

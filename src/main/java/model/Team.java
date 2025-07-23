@@ -20,8 +20,12 @@ public class Team {
     private final Hackathon eventoPartecipazione;
     /** Lista dei documenti caricati dal team. */
     private ArrayList<Documento> documentazione;
+
+    //TODO: cambiare in punteggioFinale
     /** Punteggio totale accumulato dal team. */
     private int votoFinale = 0;
+
+    //TODO: è davvero necessario?
     /** Numero di voti ricevuti */
     private int numeroVoti = 0;
 
