@@ -149,6 +149,7 @@ public class ControllerOrganizzatore extends Controller {
         return null;
     }
 
+    //TODO: Eliminare idNum
     /**
      * Aggiunge un nuovo hackathon per un organizzatore specifico (metodo legacy).
      *
@@ -172,6 +173,7 @@ public class ControllerOrganizzatore extends Controller {
         }
     }
 
+    //TODO: Correggere la logica sulla descrizioneProblema, per traccia la descrizione è decisa dai giudici
     /**
      * Crea un nuovo hackathon e lo salva nel database PostgreSQL.
      *
