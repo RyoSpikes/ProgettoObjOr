@@ -74,6 +74,19 @@ public class ControllerOrganizzatore extends Controller {
      */
     public ArrayList<Hackathon> getListaHackathon() {
         ArrayList<Hackathon> hList = new ArrayList<>();
+
+        // Prova prima a recuperare gli hackathon dal database
+        if (hackathonDAO != null) {
+            try {
+                hList.addAll(hackathonDAO.getAllHackathon());
+                return hList;
+            } catch (SQLException e) {
+                System.err.println("Errore durante il recupero degli hackathon dal database: " + e.getMessage());
+                // In caso di errore, fallback al metodo originale
+            }
+        }
+
+        // Fallback: recupera gli hackathon dagli oggetti organizzatore in memoria
         for (Organizzatore o : listaOrganizzatori) {
             hList.addAll(o.getHackathonOrganizzate());
         }

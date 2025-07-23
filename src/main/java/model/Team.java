@@ -1,12 +1,11 @@
 package model;
 
 import Database.ConnessioneDatabase;
+import Database.DAO.Impl.MembershipDAOImpl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Scanner;
 /**
  * Classe che rappresenta un team partecipante a un hackathon.
  * Gestisce la lista dei membri (dinamica), la documentazione e il punteggio.
@@ -127,6 +126,54 @@ public class Team {
             // Il database restituisce errori specifici tramite i trigger
             if (e.getMessage().contains("duplicate key")) {
                 throw new IllegalStateException("L'utente è già membro di un team per questo hackathon");
+            }
+            throw new IllegalArgumentException("Errore nell'aggiunta dell'utente al team: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Aggiunge un membro al team utilizzando la DAO (metodo alternativo).
+     * Questo metodo usa la MembershipDAO invece di SQL diretto.
+     *
+     * @param utente L'utente da aggiungere al team
+     * @throws IllegalArgumentException Se l'aggiunta non è possibile
+     * @throws IllegalStateException Se l'utente è già in un team per questo hackathon
+     */
+    public void aggiungiMembroConDAO(Utente utente) throws IllegalArgumentException, IllegalStateException {
+        if (utente == null) {
+            throw new IllegalArgumentException("L'utente non può essere null");
+        }
+
+        try {
+            MembershipDAOImpl membershipDAO = new MembershipDAOImpl();
+            
+            // Usa la DAO per aggiungere l'utente
+            boolean success = membershipDAO.addUserToTeam(
+                utente.getName(), 
+                this.nomeTeam, 
+                this.eventoPartecipazione.getTitoloIdentificativo(), 
+                java.time.LocalDate.now()
+            );
+            
+            if (success) {
+                // Aggiorna la lista locale dei membri
+                this.membro.add(utente);
+                // Aggiorna il team corrente dell'utente
+                utente.setNewTeam(this);
+                System.out.println("Utente " + utente.getName() + " aggiunto al team " + this.nomeTeam + " tramite DAO");
+            } else {
+                throw new IllegalArgumentException("Non è stato possibile aggiungere l'utente al team");
+            }
+            
+        } catch (SQLException e) {
+            // I trigger del database gestiscono automaticamente molti controlli
+            String message = e.getMessage().toLowerCase();
+            if (message.contains("duplicate") || message.contains("unique")) {
+                throw new IllegalStateException("L'utente è già membro di un team per questo hackathon");
+            } else if (message.contains("registrazione") || message.contains("chiuse")) {
+                throw new IllegalStateException("Le registrazioni per questo hackathon sono chiuse");
+            } else if (message.contains("numero massimo")) {
+                throw new IllegalStateException("Il team ha raggiunto il numero massimo di membri o l'hackathon è al completo");
             }
             throw new IllegalArgumentException("Errore nell'aggiunta dell'utente al team: " + e.getMessage());
         }
