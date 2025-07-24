@@ -30,7 +30,7 @@ public class Giudice extends Utente {
         // La gestione dei giudici è ora delegata al database tramite:
         // 1. Tabella INVITO_GIUDICE per gestire gli inviti
         // 2. Trigger aggiungi_giudice() per l'aggiunta automatica alla tabella GIUDICE
-        // 3. Utilizzo delle funzionalità del database
+        // 3. Utilizzo di GiudiceDAO
     }
 
     /**
