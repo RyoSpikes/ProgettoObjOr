@@ -1,6 +1,5 @@
 package model;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
 
@@ -154,25 +153,16 @@ public class Organizzatore extends Utente {
         return listaStampata.toString();
     }
 
-    @Override
     public Team getTeam() {
         // Non implementato, l'organizzatore non ha un team
         throw new UnsupportedOperationException("L'organizzatore non ha un team.");
     }
 
-    @Override
-    public void setNewTeam(Team team) {
-        // Non implementato, l'organizzatore non cambia team
-        throw new UnsupportedOperationException("L'organizzatore non può cambiare team.");
-    }
-
-    @Override
     public void entrataTeam(Team team) throws UnsupportedOperationException {
         // Non implementato, l'organizzatore non entra nei team
         throw new UnsupportedOperationException("L'organizzatore non può entrare in un team.");
     }
 
-    @Override
     public Team creaTeam(Hackathon hackathon, String nomeTeam) throws UnsupportedOperationException {
         // Non implementato, l'organizzatore non crea team
         throw new UnsupportedOperationException("L'organizzatore non può creare un team.");

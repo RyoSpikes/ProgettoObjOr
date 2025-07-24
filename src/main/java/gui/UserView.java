@@ -2,13 +2,17 @@ package gui;
 
 import controller.Controller;
 import controller.ControllerOrganizzatore;
+import controller.TeamController;
+import Database.DAO.Impl.InvitoGiudiceDAOImpl;
 import model.Utente;
+import model.Team;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 /**
  * La classe UserView rappresenta l'interfaccia grafica per la visualizzazione delle funzionalità disponibili per un utente.
@@ -22,6 +26,10 @@ public class UserView {
     private JButton mostraInvitiButton; // Pulsante per mostrare gli inviti ricevuti.
     private JButton scegliTeamButton; // Pulsante per scegliere un team.
     private JButton visualizzaTeamButton; // Pulsante per visualizzare il team attuale.
+    private JButton gestisciTeamButton; // Pulsante per gestire il team (aprire TeamView).
+    private JButton menuGiudiceButton;
+    private TeamController teamController; // Controller per la gestione dei team.
+    private InvitoGiudiceDAOImpl invitoGiudiceDAO; // DAO per la gestione degli inviti a giudice.
 
     /**
      * Costruttore della classe UserView.
@@ -33,9 +41,13 @@ public class UserView {
      * @param controllerUtente Il controller per la gestione degli utenti.
      */
     public UserView(Utente userLogged, JFrame frameHome, ControllerOrganizzatore controllerOrganizzatore, Controller controllerUtente) {
-        // Inizializza i componenti GUI se non sono stati inizializzati automaticamente
-        if (userPanel == null) {
-            initializeComponents();
+        // Inizializza il TeamController e il DAO degli inviti
+        this.teamController = new TeamController();
+        try {
+            this.invitoGiudiceDAO = new InvitoGiudiceDAOImpl();
+        } catch (Exception e) {
+            System.err.println("Errore nell'inizializzazione di InvitoGiudiceDAO: " + e.getMessage());
+            this.invitoGiudiceDAO = null;
         }
         
         userViewFrame = new JFrame("User View");
@@ -55,7 +67,6 @@ public class UserView {
         userViewFrame.setSize(800, 800);
         userViewFrame.setResizable(false);
         userViewFrame.setLocationRelativeTo(null);
-        userTextArea.setEditable(false);
 
         // Listener per il pulsante "Crea Team".
         creaTeam.addActionListener(new ActionListener() {
@@ -70,7 +81,76 @@ public class UserView {
         mostraInvitiButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                userTextArea.setText("Non ci sono inviti da mostrare.");
+                if (invitoGiudiceDAO == null) {
+                    JOptionPane.showMessageDialog(userViewFrame, 
+                        "Errore: servizio inviti non disponibile.", 
+                        "Errore", 
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                
+                try {
+                    List<String> inviti = invitoGiudiceDAO.getInvitiByUser(userLogged.getName());
+                    
+                    if (inviti != null && !inviti.isEmpty()) {
+                        String[] invitiArray = inviti.toArray(new String[0]);
+                        
+                        String selectedInvito = (String) JOptionPane.showInputDialog(
+                            userViewFrame,
+                            "Seleziona un invito a giudice:",
+                            "I tuoi inviti",
+                            JOptionPane.PLAIN_MESSAGE,
+                            null,
+                            invitiArray,
+                            invitiArray[0]
+                        );
+                        
+                        if (selectedInvito != null) {
+                            // Estrai il titolo dell'hackathon dall'invito
+                            String titoloHackathon = selectedInvito.split("'")[1]; // Estrae il titolo tra apici
+                            
+                            int result = JOptionPane.showConfirmDialog(
+                                userViewFrame,
+                                "Vuoi accettare l'invito a giudicare l'hackathon '" + titoloHackathon + "'?",
+                                "Conferma invito",
+                                JOptionPane.YES_NO_OPTION
+                            );
+                            
+                            if (result == JOptionPane.YES_OPTION) {
+                                boolean success = invitoGiudiceDAO.accettaInvito(userLogged.getName(), titoloHackathon);
+                                if (success) {
+                                    JOptionPane.showMessageDialog(userViewFrame,
+                                        "Invito accettato! Ora sei un giudice per l'hackathon '" + titoloHackathon + "'",
+                                        "Invito accettato",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                                } else {
+                                    JOptionPane.showMessageDialog(userViewFrame,
+                                        "Errore nell'accettazione dell'invito.",
+                                        "Errore",
+                                        JOptionPane.ERROR_MESSAGE);
+                                }
+                            } else {
+                                boolean success = invitoGiudiceDAO.rifiutaInvito(userLogged.getName(), titoloHackathon);
+                                if (success) {
+                                    JOptionPane.showMessageDialog(userViewFrame,
+                                        "Invito rifiutato.",
+                                        "Invito rifiutato",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                                }
+                            }
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(userViewFrame, 
+                            "Non hai inviti a giudice pendenti.", 
+                            "Nessun invito", 
+                            JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(userViewFrame, 
+                        "Errore nel recupero degli inviti: " + ex.getMessage(), 
+                        "Errore", 
+                        JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
@@ -87,61 +167,184 @@ public class UserView {
         visualizzaTeamButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                userTextArea.setText("");
                 try {
-                    userTextArea.append(
-                            "Nome Team: " + userLogged.getTeam().getNomeTeam() +
-                                    "\nHackathon: \n" + userLogged.getTeam().getHackathon().printInfoEvento()
-                    );
-                } catch (NullPointerException ex) {
-                    userTextArea.append("Non sei in nessun team.");
+                    // Ottiene tutti i team dell'utente usando la DAO
+                    List<Team> teamsUtente = teamController.getMembershipDAO().getTeamsByUser(userLogged.getName());
+                    
+                    if (teamsUtente != null && !teamsUtente.isEmpty()) {
+                        // Crea una lista cliccabile dei team
+                        String[] teamNames = new String[teamsUtente.size()];
+                        for (int i = 0; i < teamsUtente.size(); i++) {
+                            Team team = teamsUtente.get(i);
+                            String hackathonName = team.getHackathon() != null ? 
+                                team.getHackathon().getTitoloIdentificativo() : "Hackathon sconosciuto";
+                            teamNames[i] = team.getNomeTeam() + " - " + hackathonName;
+                        }
+                        
+                        // Mostra la lista in un dialogo
+                        String selectedTeam = (String) JOptionPane.showInputDialog(
+                            userViewFrame,
+                            "Seleziona un team per visualizzare i dettagli:",
+                            "I tuoi team",
+                            JOptionPane.PLAIN_MESSAGE,
+                            null,
+                            teamNames,
+                            teamNames[0]
+                        );
+                        
+                        if (selectedTeam != null) {
+                            // Trova il team selezionato
+                            Team teamSelezionato = null;
+                            for (Team team : teamsUtente) {
+                                String hackathonName = team.getHackathon() != null ? 
+                                    team.getHackathon().getTitoloIdentificativo() : "Hackathon sconosciuto";
+                                if (selectedTeam.equals(team.getNomeTeam() + " - " + hackathonName)) {
+                                    teamSelezionato = team;
+                                    break;
+                                }
+                            }
+                            
+                            if (teamSelezionato != null) {
+                                // Apri TeamView form invece di InfoTeam
+                                new TeamView(teamSelezionato, userLogged, userViewFrame, teamController);
+                            }
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(userViewFrame, 
+                            "Non sei in nessun team.", 
+                            "Nessun team", 
+                            JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(userViewFrame, 
+                        "Errore nel recupero delle informazioni dei team: " + ex.getMessage(), 
+                        "Errore", 
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // Listener per il pulsante "Gestisci Team".
+        gestisciTeamButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    // Ottiene tutti i team dell'utente usando la DAO
+                    List<Team> teamsUtente = teamController.getMembershipDAO().getTeamsByUser(userLogged.getName());
+                    
+                    if (teamsUtente != null && !teamsUtente.isEmpty()) {
+                        // Crea una lista cliccabile dei team
+                        String[] teamNames = new String[teamsUtente.size()];
+                        for (int i = 0; i < teamsUtente.size(); i++) {
+                            Team team = teamsUtente.get(i);
+                            String hackathonName = team.getHackathon() != null ? 
+                                team.getHackathon().getTitoloIdentificativo() : "Hackathon sconosciuto";
+                            teamNames[i] = team.getNomeTeam() + " - " + hackathonName;
+                        }
+                        
+                        // Mostra la lista in un dialogo
+                        String selectedTeam = (String) JOptionPane.showInputDialog(
+                            userViewFrame,
+                            "Seleziona un team da gestire:",
+                            "Gestisci Team",
+                            JOptionPane.PLAIN_MESSAGE,
+                            null,
+                            teamNames,
+                            teamNames[0]
+                        );
+                        
+                        if (selectedTeam != null) {
+                            // Trova il team selezionato
+                            Team teamSelezionato = null;
+                            for (Team team : teamsUtente) {
+                                String hackathonName = team.getHackathon() != null ? 
+                                    team.getHackathon().getTitoloIdentificativo() : "Hackathon sconosciuto";
+                                if (selectedTeam.equals(team.getNomeTeam() + " - " + hackathonName)) {
+                                    teamSelezionato = team;
+                                    break;
+                                }
+                            }
+                            
+                            if (teamSelezionato != null) {
+                                // Apri TeamView per gestire il team
+                                userViewFrame.setVisible(false);
+                                new TeamView(teamSelezionato, userLogged, userViewFrame, teamController);
+                            }
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(userViewFrame, 
+                            "Non sei in nessun team da gestire.", 
+                            "Nessun team", 
+                            JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(userViewFrame, 
+                        "Errore nel recupero delle informazioni dei team: " + ex.getMessage(), 
+                        "Errore", 
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // Listener per il pulsante "Menu Giudice".
+        menuGiudiceButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (invitoGiudiceDAO == null) {
+                    JOptionPane.showMessageDialog(userViewFrame, 
+                        "Errore: servizio giudice non disponibile.", 
+                        "Errore", 
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                
+                try {
+                    List<String> hackathons = invitoGiudiceDAO.getHackathonAsGiudice(userLogged.getName());
+                    
+                    if (hackathons != null && !hackathons.isEmpty()) {
+                        String[] hackathonsArray = hackathons.toArray(new String[0]);
+                        
+                        String selectedHackathon = (String) JOptionPane.showInputDialog(
+                            userViewFrame,
+                            "Seleziona un hackathon di cui sei giudice:",
+                            "Menu Giudice",
+                            JOptionPane.PLAIN_MESSAGE,
+                            null,
+                            hackathonsArray,
+                            hackathonsArray[0]
+                        );
+                        
+                        if (selectedHackathon != null) {
+                            // Estrai il titolo dell'hackathon (prima del primo " - ")
+                            String titoloHackathon = selectedHackathon.split(" - ")[0];
+                            
+                            // Apri JudgeView
+                            try {
+                                userViewFrame.setVisible(false);
+                                new JudgeView(titoloHackathon, userLogged, userViewFrame);
+                            } catch (Exception ex) {
+                                userViewFrame.setVisible(true); // Ripristina la visibilità in caso di errore
+                                JOptionPane.showMessageDialog(userViewFrame, 
+                                    "Errore nell'apertura della vista giudice:\n" + ex.getMessage(), 
+                                    "Errore", 
+                                    JOptionPane.ERROR_MESSAGE);
+                                ex.printStackTrace();
+                            }
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(userViewFrame, 
+                            "Non sei giudice di nessun hackathon.", 
+                            "Nessun hackathon", 
+                            JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(userViewFrame, 
+                        "Errore nel recupero degli hackathon: " + ex.getMessage(), 
+                        "Errore", 
+                        JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
     }
     
-    /**
-     * Inizializza i componenti GUI manualmente se non sono stati inizializzati automaticamente.
-     */
-    private void initializeComponents() {
-        userPanel = new JPanel();
-        userTextArea = new JTextArea(15, 40);
-        creaTeam = new JButton("Crea Team");
-        mostraInvitiButton = new JButton("Mostra Inviti");
-        scegliTeamButton = new JButton("Scegli Team");
-        visualizzaTeamButton = new JButton("Visualizza Team");
-        
-        // Imposta proprietà dell'area di testo
-        userTextArea.setEditable(false);
-        userTextArea.setLineWrap(true);
-        userTextArea.setWrapStyleWord(true);
-        
-        // Crea scroll pane per l'area di testo
-        JScrollPane scrollPane = new JScrollPane(userTextArea);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        
-        // Imposta layout del pannello
-        userPanel.setLayout(new java.awt.BorderLayout());
-        
-        // Pannello superiore con titolo
-        JPanel topPanel = new JPanel();
-        topPanel.add(new JLabel("Area Utente"));
-        
-        // Pannello centrale con area di testo
-        JPanel centerPanel = new JPanel();
-        centerPanel.add(scrollPane);
-        
-        // Pannello inferiore con pulsanti
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new java.awt.FlowLayout());
-        buttonPanel.add(creaTeam);
-        buttonPanel.add(mostraInvitiButton);
-        buttonPanel.add(scegliTeamButton);
-        buttonPanel.add(visualizzaTeamButton);
-        
-        // Aggiungi i pannelli al pannello principale
-        userPanel.add(topPanel, java.awt.BorderLayout.NORTH);
-        userPanel.add(centerPanel, java.awt.BorderLayout.CENTER);
-        userPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
-    }
 }

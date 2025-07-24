@@ -2,6 +2,7 @@ package gui;
 
 import controller.Controller;
 import controller.ControllerOrganizzatore;
+import controller.TeamController;
 import model.*;
 
 import javax.swing.*;
@@ -10,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.SQLException;
 
 /**
  * La classe ScegliTeam rappresenta un'interfaccia grafica per consentire a un utente di selezionare un team
@@ -30,6 +32,9 @@ public class ScegliTeam {
      * @param controllerUtente Il controller per la gestione degli utenti.
      */
     public ScegliTeam(Utente userLogged, JFrame frameCalling, ControllerOrganizzatore controllerOrganizzatore, Controller controllerUtente) {
+        // Inizializza il TeamController per gestire le operazioni sui team
+        TeamController teamController = new TeamController();
+        
         JFrame frame = new JFrame("Scelta Team");
         frame.setContentPane(panelScegliTeam);
         frame.pack();
@@ -59,17 +64,22 @@ public class ScegliTeam {
             public void actionPerformed(ActionEvent e) {
                 teamComboBox.removeAllItems();
 
-                Hackathon h = (Hackathon) hackathonComboBox.getSelectedItem();
-                try
-                {
-                    for(Team t : h.getClassifica())
-                    {
-                        teamComboBox.addItem(t);
+                Hackathon hackathonSelezionato = (Hackathon) hackathonComboBox.getSelectedItem();
+                if (hackathonSelezionato != null) {
+                    try {
+                        // Usa direttamente TeamDAO per operazioni semplici di query
+                        for (Team team : teamController.getTeamDAO().findByHackathon(hackathonSelezionato.getTitoloIdentificativo())) {
+                            teamComboBox.addItem(team);
+                        }
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(frame, 
+                            "Errore nel caricamento dei team:\n" + ex.getMessage(), 
+                            "Errore database", JOptionPane.ERROR_MESSAGE);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(frame, 
+                            "Errore imprevisto nel caricamento dei team:\n" + ex.getMessage(), 
+                            "Errore", JOptionPane.ERROR_MESSAGE);
                     }
-                }
-                catch (NullPointerException ex)
-                {
-                    JOptionPane.showMessageDialog(null,"Non ci sono Hackathon!");
                 }
             }
         });
@@ -105,13 +115,39 @@ public class ScegliTeam {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    userLogged.entrataTeam((Team) teamComboBox.getSelectedItem());
+                    Team teamSelezionato = (Team) teamComboBox.getSelectedItem();
+                    if (teamSelezionato == null) {
+                        JOptionPane.showMessageDialog(frame, "Seleziona un team!", 
+                            "Errore di validazione", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    
+                    // Aggiunge l'utente al team utilizzando il TeamController
+                    teamController.aggiungiUtenteATeam(userLogged, teamSelezionato);
+                    
+                    // Notifica successo
+                    JOptionPane.showMessageDialog(frame, 
+                        "Sei stato aggiunto con successo al team '" + teamSelezionato.getNomeTeam() + "'!", 
+                        "Adesione completata", JOptionPane.INFORMATION_MESSAGE);
+                    
                     frameCalling.setVisible(true);
                     frame.dispose();
                 }
-                catch (IllegalArgumentException ex)
-                {
-                    JOptionPane.showMessageDialog(null, ex);
+                catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(frame, 
+                        "Errore nell'adesione al team:\n" + ex.getMessage(), 
+                        "Errore", JOptionPane.ERROR_MESSAGE);
+                }
+                catch (IllegalStateException ex) {
+                    JOptionPane.showMessageDialog(frame, 
+                        "Operazione non consentita:\n" + ex.getMessage(), 
+                        "Avviso", JOptionPane.WARNING_MESSAGE);
+                }
+                catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame, 
+                        "Errore imprevisto:\n" + ex.getMessage(), 
+                        "Errore", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
                 }
             }
         });

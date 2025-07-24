@@ -1,7 +1,5 @@
 package model;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -32,7 +30,7 @@ public class Giudice extends Utente {
         // La gestione dei giudici è ora delegata al database tramite:
         // 1. Tabella INVITO_GIUDICE per gestire gli inviti
         // 2. Trigger aggiungi_giudice() per l'aggiunta automatica alla tabella GIUDICE
-        // 3. Utilizzo di GiudiceDAO
+        // 3. Utilizzo delle funzionalità del database
     }
 
     /**
@@ -75,21 +73,21 @@ public class Giudice extends Utente {
                 "\t" + documento.getText());
 
         // Chiedi al giudice se vuole valutare il documento
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Vuoi commentare il documento (si/no)? ");
-        String risposta = scanner.nextLine();
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.println("Vuoi commentare il documento (si/no)? ");
+            String risposta = scanner.nextLine();
 
-        if (risposta.equalsIgnoreCase("si")) {
-            // Se il giudice decide di valutare il documento, restituisci Valutazione
-            System.out.println("Inserisci commento: ");
-            String commento = scanner.nextLine();
+            if (risposta.equalsIgnoreCase("si")) {
+                // Se il giudice decide di valutare il documento, restituisci Valutazione
+                System.out.println("Inserisci commento: ");
+                String commento = scanner.nextLine();
 
-            // Creo la valutazione, aggiorno l'arraylist delle valutazioni del documento e ritorno la nuova istanza di valutazione creata
-            Valutazione valutazione = new Valutazione(documento, this, commento);
-            documento.getValutazioni().add(valutazione);
+                // Creo la valutazione, aggiorno l'arraylist delle valutazioni del documento e ritorno la nuova istanza di valutazione creata
+                Valutazione valutazione = new Valutazione(documento, this, commento);
+                documento.getValutazioni().add(valutazione);
 
-            return valutazione;
-        } else {
+                return valutazione;
+            }
             // Se il giudice non vuole valutare il documento, restituisci null
             return null;
         }
@@ -117,25 +115,16 @@ public class Giudice extends Utente {
         return new Voto(team, this, voto);
     }
 
-    @Override
     public Team getTeam() {
         // Non implementato, l'organizzatore non ha un team
         throw new UnsupportedOperationException("L'organizzatore non ha un team.");
     }
 
-    @Override
-    public void setNewTeam(Team team) {
-        // Non implementato, l'organizzatore non cambia team
-        throw new UnsupportedOperationException("L'organizzatore non può cambiare team.");
-    }
-
-    @Override
     public void entrataTeam(Team team) throws UnsupportedOperationException {
         // Non implementato, l'organizzatore non entra nei team
         throw new UnsupportedOperationException("L'organizzatore non può entrare in un team.");
     }
 
-    @Override
     public Team creaTeam(Hackathon hackathon, String nomeTeam) throws UnsupportedOperationException {
         // Non implementato, l'organizzatore non crea team
         throw new UnsupportedOperationException("L'organizzatore non può creare un team.");

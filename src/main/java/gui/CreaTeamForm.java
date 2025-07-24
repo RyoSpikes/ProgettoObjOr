@@ -1,7 +1,9 @@
 package gui;
 
 import controller.ControllerOrganizzatore;
+import controller.TeamController;
 import model.Hackathon;
+import model.Team;
 import model.Utente;
 
 import javax.swing.*;
@@ -30,6 +32,9 @@ public class CreaTeamForm {
      * @param controllerOrganizzatore Il controller utilizzato per gestire gli hackathon.
      */
     public CreaTeamForm(Utente userLogged, JFrame frameCalling, ControllerOrganizzatore controllerOrganizzatore) {
+        // Inizializza il TeamController per gestire le operazioni sui team
+        TeamController teamController = new TeamController();
+        
         JFrame frame = new JFrame("Creazione Team");
         frame.setContentPane(panelCreaTeam);
         frame.pack();
@@ -71,16 +76,48 @@ public class CreaTeamForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    // Crea un nuovo team associato all'hackathon selezionato.
-                    userLogged.creaTeam((Hackathon) hackathonComboBox.getSelectedItem(), nomeTeamField.getText());
+                    // Validazione input
+                    String nomeTeam = nomeTeamField.getText();
+                    if (nomeTeam == null || nomeTeam.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(frame, "Il nome del team è obbligatorio!", 
+                            "Errore di validazione", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    
+                    Hackathon hackathonSelezionato = (Hackathon) hackathonComboBox.getSelectedItem();
+                    if (hackathonSelezionato == null) {
+                        JOptionPane.showMessageDialog(frame, "Seleziona un hackathon!", 
+                            "Errore di validazione", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    
+                    // Crea il team utilizzando il TeamController
+                    Team nuovoTeam = teamController.creaTeam(userLogged, hackathonSelezionato, nomeTeam.trim());
+                    
+                    // Notifica successo
+                    JOptionPane.showMessageDialog(frame, 
+                        "Team '" + nuovoTeam.getNomeTeam() + "' creato con successo!\n" +
+                        "Sei stato automaticamente aggiunto come primo membro.", 
+                        "Team creato", JOptionPane.INFORMATION_MESSAGE);
+                    
                     frameCalling.setVisible(true);
                     frame.dispose();
                 }
                 catch (IllegalArgumentException ex) {
-                    JOptionPane.showMessageDialog(null, ex);
+                    JOptionPane.showMessageDialog(frame, 
+                        "Errore nella creazione del team:\n" + ex.getMessage(), 
+                        "Errore", JOptionPane.ERROR_MESSAGE);
                 }
                 catch (IllegalStateException ex) {
-                    JOptionPane.showMessageDialog(null, ex);
+                    JOptionPane.showMessageDialog(frame, 
+                        "Operazione non consentita:\n" + ex.getMessage(), 
+                        "Avviso", JOptionPane.WARNING_MESSAGE);
+                }
+                catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame, 
+                        "Errore imprevisto:\n" + ex.getMessage(), 
+                        "Errore", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
                 }
             }
         });

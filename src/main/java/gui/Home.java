@@ -110,4 +110,34 @@ public class Home {
             });
         }
     }
+    
+    /**
+     * Inizializza manualmente i componenti GUI quando il file .form non è disponibile
+     */
+    private void initializeComponents() {
+        if (mainPanel == null) {
+            mainPanel = new JPanel();
+            mainPanel.setLayout(new java.awt.BorderLayout());
+            
+            // Crea l'area di testo
+            homeTextArea = new JTextArea(20, 40);
+            homeTextArea.setEditable(false);
+            textAreaScrollPane = new JScrollPane(homeTextArea);
+            
+            // Crea i pulsanti
+            stampaUtentiBtn = new JButton("Stampa Utenti");
+            accediBtn = new JButton("Accedi");
+            stampaOrganizzatoriBtn = new JButton("Stampa Organizzatori");
+            
+            // Crea un pannello per i pulsanti
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.add(stampaUtentiBtn);
+            buttonPanel.add(accediBtn);
+            buttonPanel.add(stampaOrganizzatoriBtn);
+            
+            // Aggiungi i componenti al pannello principale
+            mainPanel.add(textAreaScrollPane, java.awt.BorderLayout.CENTER);
+            mainPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package Database.DAO;
 
 import model.Utente;
+import model.Team;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
@@ -82,4 +83,23 @@ public interface MembershipDAO {
      * @throws SQLException Se si verifica un errore durante l'operazione
      */
     List<String> getTeamsForHackathon(String titoloHackathon) throws SQLException;
+    
+    /**
+     * Recupera tutti i team a cui partecipa un utente.
+     *
+     * @param username Il nome utente
+     * @return Lista dei team dell'utente
+     * @throws SQLException Se si verifica un errore durante l'operazione
+     */
+    List<Team> getTeamsByUser(String username) throws SQLException;
+    
+    /**
+     * Recupera il team di un utente per un hackathon specifico.
+     *
+     * @param username Il nome utente
+     * @param titoloHackathon Il titolo dell'hackathon
+     * @return Il team dell'utente per l'hackathon, null se non partecipa
+     * @throws SQLException Se si verifica un errore durante l'operazione
+     */
+    Team getTeamForUserAndHackathon(String username, String titoloHackathon) throws SQLException;
 }

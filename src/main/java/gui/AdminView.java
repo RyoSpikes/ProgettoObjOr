@@ -1,15 +1,19 @@
 package gui;
 
+import Database.DAO.Impl.UtenteDAOImpl;
+import Database.DAO.Impl.InvitoGiudiceDAOImpl;
 import model.Hackathon;
 import model.Organizzatore;
+import model.Utente;
 import controller.ControllerOrganizzatore;
-import gui.CreaHackathonForm;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 /**
  * La classe AdminView rappresenta l'interfaccia grafica per l'amministratore.
@@ -20,7 +24,9 @@ public class AdminView {
     private JPanel panelAdmin; // Pannello principale della vista amministratore.
     private JTextArea adminTextArea; // Area di testo per visualizzare informazioni.
     private JButton creaHackathonButton; // Pulsante per creare un nuovo hackathon.
-    private JButton mostraHackathonButton; // Pulsante per mostrare gli hackathon esistenti.
+    private JButton invitaGiudiceButton;
+    private JTextArea textArea1;
+    private JPanel hackathonContentPanel; // Pannello interno per i contenuti dinamici degli hackathon
 
     /**
      * Costruttore della classe AdminView.
@@ -31,7 +37,7 @@ public class AdminView {
      * @param controllerOrganizzatore Il controller per la gestione degli hackathon.
      */
     public AdminView(Organizzatore adminLogged, JFrame frameCalling, ControllerOrganizzatore controllerOrganizzatore) {
-        frameAdminView = new JFrame("Admin View");
+        frameAdminView = new JFrame("Pannello Organizzatore - " + adminLogged.getName() + " (I tuoi hackathon)");
         frameAdminView.setContentPane(panelAdmin);
 
         // Listener per gestire la chiusura della finestra
@@ -47,6 +53,16 @@ public class AdminView {
         frameAdminView.setSize(800, 700);
         frameAdminView.setResizable(false);
         frameAdminView.setLocationRelativeTo(null);
+        
+        // Imposta tooltip per i pulsanti
+        invitaGiudiceButton.setToolTipText("Invita un giudice per uno dei tuoi hackathon (solo organizzatore)");
+        creaHackathonButton.setToolTipText("Crea un nuovo hackathon di cui sarai l'organizzatore");
+        
+        // Nascondi l'area di testo se non è necessaria e inizializza i pulsanti dinamici
+        if (adminTextArea != null) {
+            adminTextArea.setVisible(false);
+        }
+        initializeHackathonButtonsPanel(adminLogged, controllerOrganizzatore);
 
         // Listener per il pulsante "Crea Hackathon"
         creaHackathonButton.addActionListener(new ActionListener() {
@@ -54,36 +70,227 @@ public class AdminView {
             public void actionPerformed(ActionEvent e) {
                 new CreaHackathonForm(adminLogged, frameAdminView, frameCalling, controllerOrganizzatore);
                 frameAdminView.setVisible(false);
+                // Nota: quando si torna alla AdminView, i pulsanti verranno aggiornati automaticamente
+                // perché viene creata una nuova istanza della vista
             }
         });
 
-        // Listener per il pulsante "Mostra Hackathon"
-        mostraHackathonButton.addActionListener(new ActionListener() {
+        // Listener per il pulsante "Invita Giudice"
+        invitaGiudiceButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                adminTextArea.setText("");
-
-                // Recupera gli hackathon dell'organizzatore dal database
-                var hackathonList = controllerOrganizzatore.getHackathonDiOrganizzatore(adminLogged);
-
-                if (hackathonList.isEmpty()) {
-                    adminTextArea.append("Non hai ancora creato nessun hackathon.\n\n");
-                    adminTextArea.append("Utilizza il pulsante 'Crea Hackathon' per organizzare il tuo primo evento!");
-                } else {
-                    adminTextArea.append("=== I TUOI HACKATHON ===\n\n");
-
-                    for (int i = 0; i < hackathonList.size(); i++) {
-                        Hackathon h = hackathonList.get(i);
-                        adminTextArea.append((i + 1) + ". " + h.printInfoEvento());
-                        adminTextArea.append("\n" + "=".repeat(50) + "\n\n");
+                try {
+                    // Recupera tutti gli utenti dal database
+                    UtenteDAOImpl utenteDAO = new UtenteDAOImpl();
+                    List<Utente> tuttiUtenti = utenteDAO.findAll();
+                    
+                    if (tuttiUtenti.isEmpty()) {
+                        JOptionPane.showMessageDialog(frameAdminView, 
+                            "Non ci sono utenti registrati nel sistema.", 
+                            "Nessun utente", 
+                            JOptionPane.INFORMATION_MESSAGE);
+                        return;
                     }
-
-                    adminTextArea.append("Totale hackathon organizzati: " + hackathonList.size());
+                    
+                    // Recupera gli hackathon dell'organizzatore
+                    var hackathonList = controllerOrganizzatore.getHackathonDiOrganizzatore(adminLogged);
+                    
+                    if (hackathonList.isEmpty()) {
+                        JOptionPane.showMessageDialog(frameAdminView, 
+                            "Devi prima creare un hackathon per poter invitare giudici.", 
+                            "Nessun hackathon", 
+                            JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    
+                    // Crea array per la selezione dell'hackathon
+                    String[] hackathonTitoli = new String[hackathonList.size()];
+                    for (int i = 0; i < hackathonList.size(); i++) {
+                        hackathonTitoli[i] = hackathonList.get(i).getTitoloIdentificativo();
+                    }
+                    
+                    // Seleziona l'hackathon
+                    String hackathonSelezionato = (String) JOptionPane.showInputDialog(
+                        frameAdminView,
+                        "Seleziona uno dei TUOI hackathon per cui invitare il giudice:\n" +
+                        "(Puoi invitare giudici solo per gli hackathon di cui sei organizzatore)",
+                        "Selezione Hackathon - Solo i tuoi eventi",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        hackathonTitoli,
+                        hackathonTitoli[0]
+                    );
+                    
+                    if (hackathonSelezionato == null) {
+                        return; // Utente ha cancellato
+                    }
+                    
+                    // Crea array per la selezione dell'utente
+                    String[] utentiNomi = new String[tuttiUtenti.size()];
+                    for (int i = 0; i < tuttiUtenti.size(); i++) {
+                        utentiNomi[i] = tuttiUtenti.get(i).getName();
+                    }
+                    
+                    // Mostra lista scrollabile degli utenti
+                    JList<String> utentiList = new JList<>(utentiNomi);
+                    utentiList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    utentiList.setVisibleRowCount(10);
+                    
+                    JScrollPane scrollPane = new JScrollPane(utentiList);
+                    scrollPane.setPreferredSize(new java.awt.Dimension(300, 200));
+                    
+                    int result = JOptionPane.showConfirmDialog(
+                        frameAdminView,
+                        scrollPane,
+                        "Seleziona l'utente da invitare come giudice",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.PLAIN_MESSAGE
+                    );
+                    
+                    if (result == JOptionPane.OK_OPTION) {
+                        String utenteSelezionato = utentiList.getSelectedValue();
+                        
+                        if (utenteSelezionato == null) {
+                            JOptionPane.showMessageDialog(frameAdminView, 
+                                "Devi selezionare un utente dalla lista.", 
+                                "Nessuna selezione", 
+                                JOptionPane.WARNING_MESSAGE);
+                            return;
+                        }
+                        
+                        // Invia l'invito con verifica di autorizzazione
+                        try {
+                            InvitoGiudiceDAOImpl invitoDAO = new InvitoGiudiceDAOImpl();
+                            boolean invitato = invitoDAO.creaInvitoConVerifica(
+                                adminLogged.getName(), 
+                                utenteSelezionato, 
+                                hackathonSelezionato
+                            );
+                            
+                            if (invitato) {
+                                JOptionPane.showMessageDialog(frameAdminView, 
+                                    "Invito inviato con successo a " + utenteSelezionato + 
+                                    " per l'hackathon \"" + hackathonSelezionato + "\"!", 
+                                    "Invito inviato", 
+                                    JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(frameAdminView, 
+                                    "Errore nell'invio dell'invito. L'utente potrebbe essere già stato invitato.", 
+                                    "Errore invito", 
+                                    JOptionPane.ERROR_MESSAGE);
+                            }
+                        } catch (SecurityException secEx) {
+                            JOptionPane.showMessageDialog(frameAdminView, 
+                                "Errore di autorizzazione: " + secEx.getMessage(), 
+                                "Non autorizzato", 
+                                JOptionPane.ERROR_MESSAGE);
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(frameAdminView, 
+                                "Errore durante l'invio dell'invito: " + ex.getMessage(), 
+                                "Errore", 
+                                JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                    
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frameAdminView, 
+                        "Errore nel recupero degli utenti: " + ex.getMessage(), 
+                        "Errore", 
+                        JOptionPane.ERROR_MESSAGE);
                 }
-
-                // Scorri automaticamente all'inizio del testo
-                adminTextArea.setCaretPosition(0);
             }
         });
+    }
+    
+    /**
+     * Inizializza il pannello con i pulsanti dinamici per ogni hackathon organizzato.
+     */
+    private void initializeHackathonButtonsPanel(Organizzatore adminLogged, ControllerOrganizzatore controllerOrganizzatore) {
+        // Pulisce il pannello esistente
+        hackathonContentPanel.removeAll();
+        hackathonContentPanel.setLayout(new BoxLayout(hackathonContentPanel, BoxLayout.Y_AXIS));
+        
+        // Recupera gli hackathon dell'organizzatore
+        var hackathonList = controllerOrganizzatore.getHackathonDiOrganizzatore(adminLogged);
+        
+        if (hackathonList.isEmpty()) {
+            // Se non ci sono hackathon, mostra un messaggio
+            JLabel noHackathonLabel = new JLabel("Non hai ancora creato nessun hackathon.");
+            noHackathonLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            hackathonContentPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+            hackathonContentPanel.add(noHackathonLabel);
+            
+            JLabel instructionLabel = new JLabel("Utilizza 'Crea Hackathon' per organizzare il tuo primo evento!");
+            instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            hackathonContentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            hackathonContentPanel.add(instructionLabel);
+        } else {
+            // Crea un pulsante per ogni hackathon
+            JLabel titleLabel = new JLabel("I TUOI HACKATHON (clicca per i dettagli):");
+            titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
+            hackathonContentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            hackathonContentPanel.add(titleLabel);
+            hackathonContentPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+            
+            for (int i = 0; i < hackathonList.size(); i++) {
+                Hackathon hackathon = hackathonList.get(i);
+                
+                // Crea il pulsante per questo hackathon
+                JButton hackathonButton = new JButton();
+                hackathonButton.setText("<html><div style='text-align: center;'>" +
+                    "<b>" + hackathon.getTitoloIdentificativo() + "</b><br>" +
+                    "Data: " + hackathon.getDataInizio() + " - " + hackathon.getDataFine() + "<br>" +
+                    "Sede: " + hackathon.getSede() + "</div></html>");
+                
+                hackathonButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+                hackathonButton.setMaximumSize(new Dimension(500, 80));
+                hackathonButton.setPreferredSize(new Dimension(500, 80));
+                
+                // Aggiungi listener per mostrare i dettagli
+                final Hackathon finalHackathon = hackathon;
+                hackathonButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        showHackathonDetails(finalHackathon);
+                    }
+                });
+                
+                hackathonContentPanel.add(hackathonButton);
+                hackathonContentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            }
+        }
+        
+        // Aggiorna la visualizzazione
+        hackathonContentPanel.revalidate();
+        hackathonContentPanel.repaint();
+    }
+    
+    /**
+     * Mostra i dettagli di un hackathon in una finestra di dialogo.
+     */
+    private void showHackathonDetails(Hackathon hackathon) {
+        String details = hackathon.printInfoEvento();
+        
+        JTextArea detailsArea = new JTextArea(details);
+        detailsArea.setEditable(false);
+        detailsArea.setWrapStyleWord(true);
+        detailsArea.setLineWrap(true);
+        detailsArea.setCaretPosition(0);
+        
+        JScrollPane scrollPane = new JScrollPane(detailsArea);
+        scrollPane.setPreferredSize(new Dimension(500, 300));
+        
+        JOptionPane.showMessageDialog(frameAdminView, 
+            scrollPane, 
+            "Dettagli Hackathon: " + hackathon.getTitoloIdentificativo(), 
+            JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    /**
+     * Aggiorna la visualizzazione degli hackathon dopo modifiche.
+     */
+    public void refreshHackathonList(Organizzatore adminLogged, ControllerOrganizzatore controllerOrganizzatore) {
+        initializeHackathonButtonsPanel(adminLogged, controllerOrganizzatore);
     }
 }
