@@ -38,6 +38,23 @@ public class Team {
         this.nomeTeam = nomeTeam;
         this.documentazione = new ArrayList<>();
     }
+    
+    /**
+     * Costruttore semplificato per uso interno nei DAO.
+     * Utilizzato per creare istanze temporanee di Team senza un hackathon completo.
+     * 
+     * @param nomeTeam Nome del team (non nullo/vuoto).
+     * @throws IllegalArgumentException Se nomeTeam è null/vuoto.
+     */
+    public Team(String nomeTeam) {
+        if (nomeTeam == null || nomeTeam.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nome team non valido");
+        }
+        this.membro = new ArrayList<>();
+        this.eventoPartecipazione = null; // Usato solo per DAO
+        this.nomeTeam = nomeTeam;
+        this.documentazione = new ArrayList<>();
+    }
 
     /**
      * Restituisce la lista dei membri.

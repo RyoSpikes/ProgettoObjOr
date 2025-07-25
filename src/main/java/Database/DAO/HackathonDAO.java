@@ -81,4 +81,13 @@ public interface HackathonDAO extends GenericDAO<Hackathon, String> {
      * @throws SQLException in caso di errore nel database
      */
     String generaClassificaHackathon(String titoloIdentificativo) throws SQLException;
+    
+    /**
+     * Verifica se un hackathon è terminato (data fine evento superata).
+     *
+     * @param titoloIdentificativo Titolo dell'hackathon
+     * @return true se l'hackathon è terminato, false altrimenti
+     * @throws SQLException in caso di errore nel database
+     */
+    boolean isHackathonTerminato(String titoloIdentificativo) throws SQLException;
 }

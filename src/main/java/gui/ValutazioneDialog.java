@@ -3,7 +3,6 @@ package gui;
 import Database.DAO.Impl.ValutazioneDAOImpl;
 import model.Documento;
 import model.Giudice;
-import model.Valutazione;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +11,8 @@ import java.awt.event.ActionListener;
 import java.sql.SQLException;
 
 /**
- * Dialog per la valutazione di un documento da parte di un giudice.
+ * Dialog per la valutazione testuale di un documento da parte di un giudice.
+ * Permette ai giudici di inserire commenti e valutazioni sui documenti caricati dai team.
  */
 public class ValutazioneDialog extends JDialog {
     
@@ -81,7 +81,7 @@ public class ValutazioneDialog extends JDialog {
         scrollContenuto.setBorder(BorderFactory.createTitledBorder("Contenuto Documento"));
         scrollContenuto.setPreferredSize(new Dimension(480, 150));
         
-        // Panel valutazione
+        // Panel valutazione testuale
         JScrollPane scrollValutazione = new JScrollPane(textAreaGiudizio);
         scrollValutazione.setPreferredSize(new Dimension(480, 120));
         
@@ -124,6 +124,7 @@ public class ValutazioneDialog extends JDialog {
      */
     private void salvaValutazione() {
         String giudizio = textAreaGiudizio.getText().trim();
+        String titoloHackathon = documento.getSource().getHackathon().getTitoloIdentificativo();
         
         if (giudizio.isEmpty()) {
             JOptionPane.showMessageDialog(this, 
@@ -145,12 +146,11 @@ public class ValutazioneDialog extends JDialog {
                 return;
             }
             
-            // Salva direttamente la valutazione usando i metodi del DAO
-            boolean success = valutazioneDAO.save(giudizio, documento.getIdDocumento(), 
-                                                giudice.getName(), 
-                                                documento.getSource().getHackathon().getTitoloIdentificativo());
+            // Salva la valutazione testuale
+            boolean successValutazione = valutazioneDAO.save(giudizio, documento.getIdDocumento(), 
+                                                giudice.getName(), titoloHackathon);
             
-            if (success) {
+            if (successValutazione) {
                 JOptionPane.showMessageDialog(this, 
                     "Valutazione salvata con successo!", 
                     "Successo", 

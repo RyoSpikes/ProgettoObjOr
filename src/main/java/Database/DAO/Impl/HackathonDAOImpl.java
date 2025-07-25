@@ -346,4 +346,27 @@ public class HackathonDAOImpl implements HackathonDAO {
             throw new SQLException("Errore durante la generazione della classifica: " + e.getMessage(), e);
         }
     }
+    
+    @Override
+    public boolean isHackathonTerminato(String titoloIdentificativo) throws SQLException {
+        String sql = """
+                SELECT COUNT(*) 
+                FROM HACKATHON 
+                WHERE Titolo_identificativo = ? AND DataFine_evento < CURRENT_DATE
+                """;
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, titoloIdentificativo);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Errore durante la verifica termine hackathon: " + e.getMessage(), e);
+        }
+        
+        return false;
+    }
 }

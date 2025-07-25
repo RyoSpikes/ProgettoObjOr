@@ -3,9 +3,9 @@ package gui;
 import Database.DAO.Impl.DocumentoDAOImpl;
 import Database.DAO.Impl.MembershipDAOImpl;
 import Database.DAO.Impl.HackathonDAOImpl;
+import Database.DAO.Impl.VotoDAOImpl;
 import model.Utente;
 import model.Documento;
-import model.Giudice;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -24,11 +24,11 @@ public class JudgeView {
     private JTextArea MENUGIUDICETextArea;
     private JPanel mainPanel;
     private JButton mostraClassificaButton;
+    private JButton assegnaVotoFinaleButton;
 
     private JFrame judgeViewFrame;
     private String titoloHackathon;
     private Utente giudice;
-    private JFrame parentFrame;
     private DocumentoDAOImpl documentoDAO;
     private MembershipDAOImpl membershipDAO;
     private HackathonDAOImpl hackathonDAO;
@@ -38,12 +38,11 @@ public class JudgeView {
      * 
      * @param titoloHackathon Il titolo dell'hackathon da giudicare
      * @param giudice L'utente che funge da giudice
-     * @param parentFrame Il frame genitore
+     * @param parentFrame Il frame genitore per la gestione delle finestre
      */
     public JudgeView(String titoloHackathon, Utente giudice, JFrame parentFrame) {
         this.titoloHackathon = titoloHackathon;
         this.giudice = giudice;
-        this.parentFrame = parentFrame;
         
         // Inizializza l'interfaccia utente dal form
         $$$setupUI$$$();
@@ -61,16 +60,16 @@ public class JudgeView {
         judgeViewFrame.setContentPane(mainPanel);
         judgeViewFrame.pack();
         judgeViewFrame.setSize(700, 500);
-        judgeViewFrame.setLocationRelativeTo(parentFrame);
+        judgeViewFrame.setLocationRelativeTo(null);
         
         // Listener per gestire la chiusura della finestra
         judgeViewFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                judgeViewFrame.dispose();
                 if (parentFrame != null) {
                     parentFrame.setVisible(true);
                 }
-                judgeViewFrame.dispose();
             }
         });
         
@@ -132,6 +131,16 @@ public class JudgeView {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     mostraClassificaHackathon();
+                }
+            });
+        }
+        
+        // Listener per il pulsante "Aggiungi Voto Finale"
+        if (assegnaVotoFinaleButton != null) {
+            assegnaVotoFinaleButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    aggiungiVotoFinale();
                 }
             });
         }
@@ -371,6 +380,146 @@ public class JudgeView {
                 MENUGIUDICETextArea.append("❌ ERRORE DI INIZIALIZZAZIONE\n\n");
                 MENUGIUDICETextArea.append("Il sistema non è stato inizializzato correttamente.\n");
             }
+        }
+    }
+
+    /**
+     * Permette al giudice di selezionare un team e assegnare un voto finale.
+     * Il voto può essere assegnato solo se l'hackathon è terminato.
+     */
+    private void aggiungiVotoFinale() {
+        try {
+            // Verifica che l'hackathon sia terminato
+            if (hackathonDAO.isHackathonTerminato(titoloHackathon)) {
+                
+                // Ottieni tutti i team per questo hackathon
+                List<String> teamNames = membershipDAO.getTeamsForHackathon(titoloHackathon);
+                
+                if (teamNames == null || teamNames.isEmpty()) {
+                    JOptionPane.showMessageDialog(judgeViewFrame, 
+                        "Non ci sono team registrati per questo hackathon.", 
+                        "Nessun team", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+                
+                // Crea un array per la selezione
+                String[] teamArray = teamNames.toArray(new String[0]);
+                
+                // Mostra dialog per selezionare il team
+                String teamSelezionato = (String) JOptionPane.showInputDialog(
+                    judgeViewFrame,
+                    "Seleziona il team da votare:",
+                    "Aggiungi Voto Finale",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    teamArray,
+                    teamArray[0]
+                );
+                
+                if (teamSelezionato != null) {
+                    // Verifica se il giudice ha già votato questo team
+                    VotoDAOImpl votoDAO = new VotoDAOImpl();
+                    
+                    if (votoDAO.hasGiudiceVotatoTeam(giudice.getName(), titoloHackathon, teamSelezionato)) {
+                        JOptionPane.showMessageDialog(judgeViewFrame, 
+                            "Hai già votato il team '" + teamSelezionato + "'.\n" +
+                            "Non è possibile modificare il voto.", 
+                            "Voto già assegnato", 
+                            JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    
+                    // Ottieni l'ultimo documento del team
+                    List<Documento> documenti = documentoDAO.getDocumentiByTeam(teamSelezionato, titoloHackathon);
+                    
+                    if (documenti == null || documenti.isEmpty()) {
+                        JOptionPane.showMessageDialog(judgeViewFrame, 
+                            "Il team '" + teamSelezionato + "' non ha caricato alcun documento.\n" +
+                            "Non è possibile assegnare un voto.", 
+                            "Nessun documento", 
+                            JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    
+                    // Ottieni l'ultimo documento (il più recente)
+                    Documento ultimoDocumento = documenti.get(documenti.size() - 1);
+                    
+                    // Mostra dialog per inserire il voto
+                    String votoString = JOptionPane.showInputDialog(
+                        judgeViewFrame,
+                        "Ultimo documento del team '" + teamSelezionato + "':\n" +
+                        "Titolo: " + ultimoDocumento.getTitle() + "\n\n" +
+                        "Inserisci il voto finale (1-10):",
+                        "Voto Finale per " + teamSelezionato,
+                        JOptionPane.QUESTION_MESSAGE
+                    );
+                    
+                    if (votoString != null && !votoString.trim().isEmpty()) {
+                        try {
+                            int voto = Integer.parseInt(votoString.trim());
+                            
+                            if (voto < 1 || voto > 10) {
+                                JOptionPane.showMessageDialog(judgeViewFrame, 
+                                    "Il voto deve essere compreso tra 1 e 10.", 
+                                    "Voto non valido", 
+                                    JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                            
+                            // Salva il voto nel database
+                            boolean success = votoDAO.save(giudice.getName(), titoloHackathon, teamSelezionato, voto);
+                            
+                            if (success) {
+                                JOptionPane.showMessageDialog(judgeViewFrame, 
+                                    "Voto assegnato con successo!\n" +
+                                    "Team: " + teamSelezionato + "\n" +
+                                    "Voto: " + voto + "/10", 
+                                    "Voto salvato", 
+                                    JOptionPane.INFORMATION_MESSAGE);
+                                
+                                // Aggiorna la vista mostrando un messaggio nella text area
+                                if (MENUGIUDICETextArea != null) {
+                                    MENUGIUDICETextArea.append("\n" + "═".repeat(50) + "\n");
+                                    MENUGIUDICETextArea.append("✅ VOTO ASSEGNATO\n");
+                                    MENUGIUDICETextArea.append("Team: " + teamSelezionato + "\n");
+                                    MENUGIUDICETextArea.append("Voto: " + voto + "/10\n");
+                                    MENUGIUDICETextArea.append("Documento valutato: " + ultimoDocumento.getTitle() + "\n");
+                                    MENUGIUDICETextArea.append("═".repeat(50) + "\n");
+                                }
+                            } else {
+                                JOptionPane.showMessageDialog(judgeViewFrame, 
+                                    "Errore durante il salvataggio del voto.\n" +
+                                    "Riprova più tardi.", 
+                                    "Errore", 
+                                    JOptionPane.ERROR_MESSAGE);
+                            }
+                            
+                        } catch (NumberFormatException e) {
+                            JOptionPane.showMessageDialog(judgeViewFrame, 
+                                "Inserisci un numero valido (1-10).", 
+                                "Formato non valido", 
+                                JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
+                
+            } else {
+                // Hackathon non terminato
+                JOptionPane.showMessageDialog(judgeViewFrame, 
+                    "Non è possibile assegnare voti finali.\n" +
+                    "L'hackathon '" + titoloHackathon + "' non è ancora terminato.\n\n" +
+                    "I voti finali possono essere assegnati solo dopo la fine dell'evento.", 
+                    "Hackathon in corso", 
+                    JOptionPane.WARNING_MESSAGE);
+            }
+            
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(judgeViewFrame, 
+                "Errore durante l'operazione: " + ex.getMessage(), 
+                "Errore", 
+                JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }
 

@@ -26,6 +26,7 @@ public class AdminView {
     private JButton creaHackathonButton; // Pulsante per creare un nuovo hackathon.
     private JButton invitaGiudiceButton; // Pulsante per invitare giudici.
     private JTextArea textArea1; // Campo richiesto dal form binding.
+    private JScrollPane scrollPane; // ScrollPane per l'area di testo delle hackathon.
     private JPanel hackathonContentPanel; // Pannello per la visualizzazione dinamica degli hackathon.
 
     /**
@@ -271,6 +272,14 @@ public class AdminView {
         textArea1.setText(hackathonText.toString());
         textArea1.setEditable(false);
         textArea1.setCaretPosition(0); // Torna all'inizio del testo
+        
+        // Se il JScrollPane è disponibile, assicurati che venga mostrato dall'inizio
+        if (scrollPane != null) {
+            SwingUtilities.invokeLater(() -> {
+                scrollPane.getVerticalScrollBar().setValue(0);
+                scrollPane.getHorizontalScrollBar().setValue(0);
+            });
+        }
         
         System.out.println("DEBUG: Caricate " + hackathonList.size() + " hackathon in textArea1");
     }
