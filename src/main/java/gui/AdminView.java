@@ -8,7 +8,6 @@ import model.Utente;
 import controller.ControllerOrganizzatore;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -16,28 +15,34 @@ import java.awt.event.WindowEvent;
 import java.util.List;
 
 /**
- * La classe AdminView rappresenta l'interfaccia grafica per l'amministratore.
- * Consente di creare e visualizzare gli hackathon associati a un organizzatore.
+ * La classe AdminView rappresenta l'interfaccia grafica per l'amministratore/organizzatore.
+ * Consente di creare e visualizzare gli hackathon associati a un organizzatore, 
+ * oltre a invitare giudici per la valutazione dei progetti.
  */
 public class AdminView {
     private JFrame frameAdminView; // Finestra principale della vista amministratore.
     private JPanel panelAdmin; // Pannello principale della vista amministratore.
     private JTextArea adminTextArea; // Area di testo per visualizzare informazioni.
     private JButton creaHackathonButton; // Pulsante per creare un nuovo hackathon.
-    private JButton invitaGiudiceButton;
-    private JTextArea textArea1;
-    private JPanel hackathonContentPanel; // Pannello interno per i contenuti dinamici degli hackathon
+    private JButton invitaGiudiceButton; // Pulsante per invitare giudici.
+    private JTextArea textArea1; // Campo richiesto dal form binding.
+    private JPanel hackathonContentPanel; // Pannello per la visualizzazione dinamica degli hackathon.
 
     /**
      * Costruttore della classe AdminView.
      * Inizializza l'interfaccia grafica e gestisce le azioni dei pulsanti.
      *
-     * @param adminLogged L'organizzatore attualmente loggato.
-     * @param frameCalling Il frame chiamante che ha aperto questa vista.
-     * @param controllerOrganizzatore Il controller per la gestione degli hackathon.
+     * @param adminLogged L'organizzatore attualmente loggato
+     * @param frameCalling Il frame chiamante che ha aperto questa vista
+     * @param controllerOrganizzatore Il controller per la gestione degli hackathon
      */
     public AdminView(Organizzatore adminLogged, JFrame frameCalling, ControllerOrganizzatore controllerOrganizzatore) {
         frameAdminView = new JFrame("Pannello Organizzatore - " + adminLogged.getName() + " (I tuoi hackathon)");
+        
+        // Inizializza solo hackathonContentPanel che non è nel form
+        hackathonContentPanel = new JPanel();
+        hackathonContentPanel.setLayout(new BoxLayout(hackathonContentPanel, BoxLayout.Y_AXIS));
+        
         frameAdminView.setContentPane(panelAdmin);
 
         // Listener per gestire la chiusura della finestra
@@ -62,7 +67,9 @@ public class AdminView {
         if (adminTextArea != null) {
             adminTextArea.setVisible(false);
         }
-        initializeHackathonButtonsPanel(adminLogged, controllerOrganizzatore);
+        
+        // Carica e mostra le hackathon nella textArea1
+        loadHackathonInTextArea(adminLogged, controllerOrganizzatore);
 
         // Listener per il pulsante "Crea Hackathon"
         creaHackathonButton.addActionListener(new ActionListener() {
@@ -70,8 +77,8 @@ public class AdminView {
             public void actionPerformed(ActionEvent e) {
                 new CreaHackathonForm(adminLogged, frameAdminView, frameCalling, controllerOrganizzatore);
                 frameAdminView.setVisible(false);
-                // Nota: quando si torna alla AdminView, i pulsanti verranno aggiornati automaticamente
-                // perché viene creata una nuova istanza della vista
+                // Quando si torna alla AdminView, verrà creata una nuova istanza
+                // che caricherà automaticamente tutti gli hackathon aggiornati dal database
             }
         });
 
@@ -93,7 +100,7 @@ public class AdminView {
                     }
                     
                     // Recupera gli hackathon dell'organizzatore
-                    var hackathonList = controllerOrganizzatore.getHackathonDiOrganizzatore(adminLogged);
+                    List<Hackathon> hackathonList = controllerOrganizzatore.getHackathonDiOrganizzatore(adminLogged);
                     
                     if (hackathonList.isEmpty()) {
                         JOptionPane.showMessageDialog(frameAdminView, 
@@ -203,94 +210,68 @@ public class AdminView {
     }
     
     /**
-     * Inizializza il pannello con i pulsanti dinamici per ogni hackathon organizzato.
+     * Carica e visualizza le hackathon dell'organizzatore nella textArea1.
+     * 
+     * @param adminLogged L'organizzatore di cui visualizzare gli hackathon
+     * @param controllerOrganizzatore Il controller per recuperare i dati dal database
      */
-    private void initializeHackathonButtonsPanel(Organizzatore adminLogged, ControllerOrganizzatore controllerOrganizzatore) {
-        // Pulisce il pannello esistente
-        hackathonContentPanel.removeAll();
-        hackathonContentPanel.setLayout(new BoxLayout(hackathonContentPanel, BoxLayout.Y_AXIS));
+    private void loadHackathonInTextArea(Organizzatore adminLogged, ControllerOrganizzatore controllerOrganizzatore) {
+        if (textArea1 == null) {
+            System.out.println("ERRORE: textArea1 è null, impossibile visualizzare le hackathon");
+            return;
+        }
         
         // Recupera gli hackathon dell'organizzatore
-        var hackathonList = controllerOrganizzatore.getHackathonDiOrganizzatore(adminLogged);
+        List<Hackathon> hackathonList = controllerOrganizzatore.getHackathonDiOrganizzatore(adminLogged);
+        
+        StringBuilder hackathonText = new StringBuilder();
         
         if (hackathonList.isEmpty()) {
-            // Se non ci sono hackathon, mostra un messaggio
-            JLabel noHackathonLabel = new JLabel("Non hai ancora creato nessun hackathon.");
-            noHackathonLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            hackathonContentPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-            hackathonContentPanel.add(noHackathonLabel);
-            
-            JLabel instructionLabel = new JLabel("Utilizza 'Crea Hackathon' per organizzare il tuo primo evento!");
-            instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            hackathonContentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            hackathonContentPanel.add(instructionLabel);
+            hackathonText.append("═══════════════════════════════════════════════════════════════\n");
+            hackathonText.append("                    PANNELLO ORGANIZZATORE\n");
+            hackathonText.append("═══════════════════════════════════════════════════════════════\n\n");
+            hackathonText.append("Benvenuto ").append(adminLogged.getName()).append("!\n\n");
+            hackathonText.append("📋 Non hai ancora creato nessun hackathon.\n\n");
+            hackathonText.append("💡 Utilizza il pulsante 'Crea Hackathon' per organizzare\n");
+            hackathonText.append("   il tuo primo evento!\n\n");
+            hackathonText.append("🔧 Funzionalità disponibili:\n");
+            hackathonText.append("   • Crea Hackathon: Organizza un nuovo evento\n");
+            hackathonText.append("   • Invita Giudice: Invita esperti per valutare i progetti\n");
         } else {
-            // Crea un pulsante per ogni hackathon
-            JLabel titleLabel = new JLabel("I TUOI HACKATHON (clicca per i dettagli):");
-            titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
-            hackathonContentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            hackathonContentPanel.add(titleLabel);
-            hackathonContentPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+            hackathonText.append("═══════════════════════════════════════════════════════════════\n");
+            hackathonText.append("                    I TUOI HACKATHON\n");
+            hackathonText.append("                Organizzatore: ").append(adminLogged.getName()).append("\n");
+            hackathonText.append("═══════════════════════════════════════════════════════════════\n\n");
+            hackathonText.append("📊 Totale hackathon organizzati: ").append(hackathonList.size()).append("\n\n");
             
             for (int i = 0; i < hackathonList.size(); i++) {
                 Hackathon hackathon = hackathonList.get(i);
                 
-                // Crea il pulsante per questo hackathon
-                JButton hackathonButton = new JButton();
-                hackathonButton.setText("<html><div style='text-align: center;'>" +
-                    "<b>" + hackathon.getTitoloIdentificativo() + "</b><br>" +
-                    "Data: " + hackathon.getDataInizio() + " - " + hackathon.getDataFine() + "<br>" +
-                    "Sede: " + hackathon.getSede() + "</div></html>");
+                hackathonText.append("🏆 HACKATHON #").append(i + 1).append("\n");
+                hackathonText.append("───────────────────────────────────────────────────────────────\n");
+                hackathonText.append("📌 Titolo: ").append(hackathon.getTitoloIdentificativo()).append("\n");
+                hackathonText.append("📝 Descrizione: ").append(hackathon.getDescrizioneProblema()).append("\n");
+                hackathonText.append("📅 Periodo evento: ").append(hackathon.getDataInizio())
+                             .append(" → ").append(hackathon.getDataFine()).append("\n");
+                hackathonText.append("📍 Sede: ").append(hackathon.getSede()).append("\n");
+                hackathonText.append("👥 Max partecipanti: ").append(hackathon.getMaxNumIscritti()).append("\n");
+                hackathonText.append("� Organizzatore: ").append(hackathon.getOrganizzatore()).append("\n");
                 
-                hackathonButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-                hackathonButton.setMaximumSize(new Dimension(500, 80));
-                hackathonButton.setPreferredSize(new Dimension(500, 80));
-                
-                // Aggiungi listener per mostrare i dettagli
-                final Hackathon finalHackathon = hackathon;
-                hackathonButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        showHackathonDetails(finalHackathon);
-                    }
-                });
-                
-                hackathonContentPanel.add(hackathonButton);
-                hackathonContentPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+                if (i < hackathonList.size() - 1) {
+                    hackathonText.append("\n");
+                }
             }
+            
+            hackathonText.append("\n═══════════════════════════════════════════════════════════════\n");
+            hackathonText.append("💡 Utilizza 'Invita Giudice' per aggiungere valutatori ai tuoi eventi\n");
+            hackathonText.append("🔄 Le informazioni vengono aggiornate automaticamente\n");
         }
         
-        // Aggiorna la visualizzazione
-        hackathonContentPanel.revalidate();
-        hackathonContentPanel.repaint();
-    }
-    
-    /**
-     * Mostra i dettagli di un hackathon in una finestra di dialogo.
-     */
-    private void showHackathonDetails(Hackathon hackathon) {
-        String details = hackathon.printInfoEvento();
+        // Imposta il testo nella textArea1
+        textArea1.setText(hackathonText.toString());
+        textArea1.setEditable(false);
+        textArea1.setCaretPosition(0); // Torna all'inizio del testo
         
-        JTextArea detailsArea = new JTextArea(details);
-        detailsArea.setEditable(false);
-        detailsArea.setWrapStyleWord(true);
-        detailsArea.setLineWrap(true);
-        detailsArea.setCaretPosition(0);
-        
-        JScrollPane scrollPane = new JScrollPane(detailsArea);
-        scrollPane.setPreferredSize(new Dimension(500, 300));
-        
-        JOptionPane.showMessageDialog(frameAdminView, 
-            scrollPane, 
-            "Dettagli Hackathon: " + hackathon.getTitoloIdentificativo(), 
-            JOptionPane.INFORMATION_MESSAGE);
-    }
-    
-    /**
-     * Aggiorna la visualizzazione degli hackathon dopo modifiche.
-     */
-    public void refreshHackathonList(Organizzatore adminLogged, ControllerOrganizzatore controllerOrganizzatore) {
-        initializeHackathonButtonsPanel(adminLogged, controllerOrganizzatore);
+        System.out.println("DEBUG: Caricate " + hackathonList.size() + " hackathon in textArea1");
     }
 }

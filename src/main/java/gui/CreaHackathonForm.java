@@ -186,8 +186,9 @@ public class CreaHackathonForm {
                                 "🎉 Hackathon Creato",
                                 JOptionPane.INFORMATION_MESSAGE);
 
-                        // Torna alla finestra precedente
-                        frameCalling.setVisible(true);
+                        // Crea una nuova AdminView con i dati aggiornati dal database
+                        frameCalling.dispose(); // Chiude la vecchia AdminView
+                        new AdminView(adminLogged, frameMain, controllerOrganizzatore); // Crea nuova AdminView aggiornata
                         frame.dispose();
                     } else {
                         JOptionPane.showMessageDialog(null,
