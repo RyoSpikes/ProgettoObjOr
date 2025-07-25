@@ -93,11 +93,6 @@ public class ControllerOrganizzatore extends Controller {
         return hList;
     }
 
-    // TODO: Implementare il metodo per recuperare la lista di hackathon di un singolo organizzatore.
-    /*public ArrayList<Hackathon> getListaHackathon(Organizzatore org) {
-        return org.getHackathonOrganizzata;
-    }*/
-
     /**
      * Aggiunge un nuovo organizzatore alla lista.
      *
