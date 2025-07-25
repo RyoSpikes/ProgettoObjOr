@@ -70,4 +70,15 @@ public interface HackathonDAO extends GenericDAO<Hackathon, String> {
      * @throws SQLException in caso di errore nel database
      */
     boolean aggiornaClassifica(String titoloIdentificativo, String classifica) throws SQLException;
+    
+    /**
+     * Genera la classifica di un hackathon utilizzando la funzione del database.
+     * Questa funzione verifica che l'hackathon sia terminato e che tutti i giudici
+     * abbiano espresso i loro voti prima di generare la classifica finale.
+     *
+     * @param titoloIdentificativo Titolo dell'hackathon
+     * @return La stringa della classifica generata, o un messaggio di errore
+     * @throws SQLException in caso di errore nel database
+     */
+    String generaClassificaHackathon(String titoloIdentificativo) throws SQLException;
 }

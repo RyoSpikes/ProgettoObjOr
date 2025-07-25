@@ -3,8 +3,12 @@ package gui;
 import controller.TeamController;
 import model.Team;
 import model.Utente;
+import model.Documento;
+import Database.DAO.Impl.HackathonDAOImpl;
+import Database.DAO.Impl.DocumentoDAOImpl;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -26,6 +30,8 @@ public class TeamView {
     private Utente userLogged;
     private JFrame parentFrame;
     private TeamController teamController;
+    private HackathonDAOImpl hackathonDAO;
+    private DocumentoDAOImpl documentoDAO;
 
     /**
      * Costruttore della classe TeamView.
@@ -40,6 +46,14 @@ public class TeamView {
         this.userLogged = userLogged;
         this.parentFrame = parentFrame;
         this.teamController = teamController;
+        
+        // Inizializza i DAO
+        try {
+            this.hackathonDAO = new HackathonDAOImpl();
+            this.documentoDAO = new DocumentoDAOImpl();
+        } catch (Exception e) {
+            System.err.println("Errore nell'inizializzazione dei DAO: " + e.getMessage());
+        }
         
         teamViewFrame = new JFrame("Team View - " + team.getNomeTeam());
         teamViewFrame.setContentPane(panel1);
@@ -95,8 +109,36 @@ public class TeamView {
                 } else {
                     TeamTextArea.append("Nessun membro trovato.\n");
                 }
+                
+                TeamTextArea.append("\n");
+                
+                // Carica i documenti del team
+                if (documentoDAO != null) {
+                    var documenti = documentoDAO.getDocumentiByTeam(
+                        team.getNomeTeam(), 
+                        team.getHackathon().getTitoloIdentificativo()
+                    );
+                    
+                    TeamTextArea.append("=== DOCUMENTI CARICATI ===\n");
+                    if (documenti != null && !documenti.isEmpty()) {
+                        for (var documento : documenti) {
+                            TeamTextArea.append("📄 " + documento.getTitle() + "\n");
+                            // Mostra una preview del contenuto (prime 100 caratteri)
+                            String preview = documento.getText();
+                            if (preview.length() > 100) {
+                                preview = preview.substring(0, 100) + "...";
+                            }
+                            TeamTextArea.append("   " + preview.replaceAll("\n", " ") + "\n\n");
+                        }
+                        TeamTextArea.append("📊 Totale documenti: " + documenti.size() + "\n");
+                    } else {
+                        TeamTextArea.append("Nessun documento caricato ancora.\n");
+                        TeamTextArea.append("💡 Usa il bottone 'Inserisci Documento' per aggiungerne uno.\n");
+                    }
+                }
+                
             } catch (Exception e) {
-                TeamTextArea.append("Errore nel caricamento dei membri: " + e.getMessage() + "\n");
+                TeamTextArea.append("Errore nel caricamento delle informazioni: " + e.getMessage() + "\n");
             }
         }
     }
@@ -110,21 +152,17 @@ public class TeamView {
             inserisciDocumentoButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // TODO: Implementare l'inserimento di documenti
-                    JOptionPane.showMessageDialog(teamViewFrame, 
-                        "Funzionalità di inserimento documenti non ancora implementata.", 
-                        "In sviluppo", 
-                        JOptionPane.INFORMATION_MESSAGE);
+                    apriFinstraInserimentoDocumento();
                 }
             });
         }
         
-        // Listener per il pulsante "FOZZA NAPOLI" (lasciato vuoto come richiesto)
+        // Listener per il pulsante "FOZZA NAPOLI" - Utilizzato per mostrare la classifica
         if (FOZZANAPOLIButton != null) {
             FOZZANAPOLIButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // Lasciato vuoto come richiesto
+                    mostraClassificaHackathon();
                 }
             });
         }
@@ -174,6 +212,256 @@ public class TeamView {
                     }
                 }
             });
+        }
+    }
+    
+    /**
+     * Apre una finestra di dialogo per l'inserimento di un nuovo documento.
+     */
+    private void apriFinstraInserimentoDocumento() {
+        // Crea un dialogo personalizzato
+        JDialog dialogoInserimento = new JDialog(teamViewFrame, "Inserisci Nuovo Documento", true);
+        dialogoInserimento.setSize(500, 400);
+        dialogoInserimento.setLocationRelativeTo(teamViewFrame);
+        
+        // Panel principale
+        JPanel panelPrincipale = new JPanel();
+        panelPrincipale.setLayout(new BoxLayout(panelPrincipale, BoxLayout.Y_AXIS));
+        panelPrincipale.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        // Titolo
+        JLabel labelTitolo = new JLabel("📄 Inserimento Nuovo Documento");
+        labelTitolo.setFont(labelTitolo.getFont().deriveFont(16f));
+        labelTitolo.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        
+        // Info team
+        JLabel labelTeam = new JLabel("Team: " + team.getNomeTeam() + " | Hackathon: " + team.getHackathon().getTitoloIdentificativo());
+        labelTeam.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        
+        // Campo titolo documento
+        JLabel labelTitoloDoc = new JLabel("Titolo del documento:");
+        JTextField campoTitolo = new JTextField();
+        campoTitolo.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, campoTitolo.getPreferredSize().height));
+        
+        // Campo contenuto documento
+        JLabel labelContenuto = new JLabel("Contenuto del documento:");
+        JTextArea areaContenuto = new JTextArea(8, 40);
+        areaContenuto.setLineWrap(true);
+        areaContenuto.setWrapStyleWord(true);
+        JScrollPane scrollContenuto = new JScrollPane(areaContenuto);
+        
+        // Panel per i bottoni
+        JPanel panelBottoni = new JPanel();
+        panelBottoni.setLayout(new FlowLayout());
+        
+        JButton bottoneInserisci = new JButton("💾 Inserisci Documento");
+        JButton bottoneAnnulla = new JButton("❌ Annulla");
+        
+        // Listener per il bottone Inserisci
+        bottoneInserisci.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String titolo = campoTitolo.getText().trim();
+                String contenuto = areaContenuto.getText().trim();
+                
+                // Validazione input
+                if (titolo.isEmpty()) {
+                    JOptionPane.showMessageDialog(dialogoInserimento, 
+                        "Il titolo del documento è obbligatorio.", 
+                        "Campo mancante", 
+                        JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                
+                if (contenuto.isEmpty()) {
+                    JOptionPane.showMessageDialog(dialogoInserimento, 
+                        "Il contenuto del documento è obbligatorio.", 
+                        "Campo mancante", 
+                        JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                
+                // Controlla lunghezza massima (in base allo schema DB)
+                if (titolo.length() > 30) {
+                    JOptionPane.showMessageDialog(dialogoInserimento, 
+                        "Il titolo non può superare i 30 caratteri.", 
+                        "Titolo troppo lungo", 
+                        JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                
+                try {
+                    // Crea il documento
+                    Documento nuovoDocumento = new Documento(team, titolo, contenuto);
+                    
+                    // Salva nel database
+                    if (documentoDAO.save(nuovoDocumento)) {
+                        JOptionPane.showMessageDialog(dialogoInserimento, 
+                            "Documento inserito con successo!", 
+                            "Successo", 
+                            JOptionPane.INFORMATION_MESSAGE);
+                        
+                        dialogoInserimento.dispose();
+                        
+                        // Ricarica le informazioni del team per mostrare il nuovo documento
+                        caricaInformazioniTeam();
+                        
+                    } else {
+                        JOptionPane.showMessageDialog(dialogoInserimento, 
+                            "Errore durante l'inserimento del documento.", 
+                            "Errore", 
+                            JOptionPane.ERROR_MESSAGE);
+                    }
+                    
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(dialogoInserimento, 
+                        "Errore durante l'inserimento: " + ex.getMessage(), 
+                        "Errore", 
+                        JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
+                }
+            }
+        });
+        
+        // Listener per il bottone Annulla
+        bottoneAnnulla.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialogoInserimento.dispose();
+            }
+        });
+        
+        // Aggiungi componenti al panel
+        panelPrincipale.add(labelTitolo);
+        panelPrincipale.add(Box.createVerticalStrut(10));
+        panelPrincipale.add(labelTeam);
+        panelPrincipale.add(Box.createVerticalStrut(20));
+        panelPrincipale.add(labelTitoloDoc);
+        panelPrincipale.add(Box.createVerticalStrut(5));
+        panelPrincipale.add(campoTitolo);
+        panelPrincipale.add(Box.createVerticalStrut(15));
+        panelPrincipale.add(labelContenuto);
+        panelPrincipale.add(Box.createVerticalStrut(5));
+        panelPrincipale.add(scrollContenuto);
+        panelPrincipale.add(Box.createVerticalStrut(20));
+        
+        panelBottoni.add(bottoneInserisci);
+        panelBottoni.add(bottoneAnnulla);
+        panelPrincipale.add(panelBottoni);
+        
+        dialogoInserimento.add(panelPrincipale);
+        dialogoInserimento.setVisible(true);
+    }
+    
+    /**
+     * Mostra la classifica dell'hackathon utilizzando la funzione del database.
+     */
+    private void mostraClassificaHackathon() {
+        if (TeamTextArea != null && hackathonDAO != null && team != null && team.getHackathon() != null) {
+            try {
+                String titoloHackathon = team.getHackathon().getTitoloIdentificativo();
+                
+                TeamTextArea.setText("");
+                TeamTextArea.append("🏆 CLASSIFICA HACKATHON: " + titoloHackathon + "\n");
+                TeamTextArea.append("═".repeat(70) + "\n\n");
+                TeamTextArea.append("⏳ Elaborazione in corso...\n\n");
+                
+                // Chiama la funzione del database per generare la classifica
+                String risultatoClassifica = hackathonDAO.generaClassificaHackathon(titoloHackathon);
+                
+                TeamTextArea.setText("");
+                TeamTextArea.append("🏆 CLASSIFICA HACKATHON: " + titoloHackathon + "\n");
+                TeamTextArea.append("═".repeat(70) + "\n\n");
+                
+                // Verifica se il risultato è un errore
+                if (risultatoClassifica.startsWith("Errore:")) {
+                    TeamTextArea.append("❌ " + risultatoClassifica + "\n\n");
+                    
+                    // Aggiungi suggerimenti basati sul tipo di errore
+                    if (risultatoClassifica.contains("prima della fine dell'hackathon")) {
+                        TeamTextArea.append("💡 La classifica sarà disponibile al termine dell'hackathon.\n");
+                        TeamTextArea.append("📅 Data fine evento: " + team.getHackathon().getDataFine() + "\n");
+                    } else if (risultatoClassifica.contains("Mancano") && risultatoClassifica.contains("voti")) {
+                        TeamTextArea.append("💡 I giudici stanno ancora valutando i team.\n");
+                        TeamTextArea.append("⏳ La classifica sarà disponibile quando tutti i voti saranno stati espressi.\n");
+                    }
+                    
+                } else {
+                    // Classifica generata con successo - formatta e mostra
+                    TeamTextArea.append("✅ Ecco la classifica finale!\n\n");
+                    
+                    String[] righeClassifica = risultatoClassifica.split("\n");
+                    int posizioneTeamCorrente = -1;
+                    
+                    for (int i = 0; i < righeClassifica.length; i++) {
+                        String riga = righeClassifica[i];
+                        if (riga.trim().isEmpty()) continue;
+                        
+                        String[] parti = riga.trim().split(" ");
+                        if (parti.length >= 3) {
+                            int posizione = Integer.parseInt(parti[0]);
+                            String nomeTeam = parti[1];
+                            String punteggio = parti[2];
+                            
+                            // Verifica se questo è il team dell'utente
+                            boolean isTeamCorrente = nomeTeam.equals(team.getNomeTeam());
+                            if (isTeamCorrente) {
+                                posizioneTeamCorrente = posizione;
+                            }
+                            
+                            // Icone per le prime posizioni
+                            String icona = "";
+                            if (posizione == 1) {
+                                icona = "🥇 ";
+                            } else if (posizione == 2) {
+                                icona = "🥈 ";
+                            } else if (posizione == 3) {
+                                icona = "🥉 ";
+                            } else {
+                                icona = "   ";
+                            }
+                            
+                            // Evidenzia il team dell'utente
+                            String prefisso = isTeamCorrente ? "➤ " : "  ";
+                            String suffisso = isTeamCorrente ? " ⬅ IL TUO TEAM" : "";
+                            
+                            TeamTextArea.append(String.format("%s%s%d°. %-25s Punteggio: %s%s\n", 
+                                prefisso, icona, posizione, nomeTeam, punteggio, suffisso));
+                        }
+                    }
+                    
+                    TeamTextArea.append("\n" + "═".repeat(70) + "\n");
+                    
+                    // Messaggio personalizzato in base alla posizione
+                    if (posizioneTeamCorrente > 0) {
+                        if (posizioneTeamCorrente == 1) {
+                            TeamTextArea.append("🎉 CONGRATULAZIONI! Il vostro team è al PRIMO POSTO! 🎉\n");
+                        } else if (posizioneTeamCorrente <= 3) {
+                            TeamTextArea.append("🏆 Ottimo lavoro! Il vostro team è sul podio!\n");
+                        } else {
+                            TeamTextArea.append("👏 Buon lavoro! Posizione del vostro team: " + posizioneTeamCorrente + "°\n");
+                        }
+                    }
+                    
+                    TeamTextArea.append("📊 Totale team partecipanti: " + righeClassifica.length + "\n");
+                }
+                
+                // Posiziona il cursore all'inizio
+                TeamTextArea.setCaretPosition(0);
+                
+            } catch (Exception ex) {
+                TeamTextArea.setText("");
+                TeamTextArea.append("❌ ERRORE NELLA VISUALIZZAZIONE DELLA CLASSIFICA\n\n");
+                TeamTextArea.append("Dettagli errore: " + ex.getMessage() + "\n\n");
+                TeamTextArea.append("Verifica la connessione al database e riprova.");
+                ex.printStackTrace(); // Per debug
+            }
+        } else {
+            if (TeamTextArea != null) {
+                TeamTextArea.setText("");
+                TeamTextArea.append("❌ ERRORE DI INIZIALIZZAZIONE\n\n");
+                TeamTextArea.append("Impossibile accedere alle informazioni necessarie.\n");
+            }
         }
     }
 }

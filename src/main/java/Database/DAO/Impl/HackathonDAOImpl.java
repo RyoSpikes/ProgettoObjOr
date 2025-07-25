@@ -327,4 +327,23 @@ public class HackathonDAOImpl implements HackathonDAO {
             throw new SQLException("Errore nella creazione dell'oggetto Hackathon: " + e.getMessage(), e);
         }
     }
+    
+    @Override
+    public String generaClassificaHackathon(String titoloIdentificativo) throws SQLException {
+        String sql = "SELECT genera_classifica_hackathon(?)";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, titoloIdentificativo);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString(1);
+                } else {
+                    return "Errore: Nessun risultato dalla funzione di generazione classifica";
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Errore durante la generazione della classifica: " + e.getMessage(), e);
+        }
+    }
 }

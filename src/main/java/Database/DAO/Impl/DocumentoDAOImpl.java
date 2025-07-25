@@ -66,6 +66,7 @@ public class DocumentoDAOImpl implements DocumentoDAO {
                     Team team = new Team(hackathon, nomeTeam);
                     
                     Documento documento = new Documento(
+                        rs.getInt("ID_documento"),
                         team,
                         rs.getString("Titolo_doc"),
                         rs.getString("Contenuto")
@@ -99,6 +100,7 @@ public class DocumentoDAOImpl implements DocumentoDAO {
                     Team team = new Team(hackathon, rs.getString("Nome_team"));
                     
                     Documento documento = new Documento(
+                        rs.getInt("ID_documento"),
                         team,
                         rs.getString("Titolo_doc"),
                         rs.getString("Contenuto")
