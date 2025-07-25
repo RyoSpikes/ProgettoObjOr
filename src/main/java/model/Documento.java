@@ -8,8 +8,12 @@ import java.util.ArrayList;
  */
 public class Documento {
 
-    //TODO: Aggiungere ID_doc
     //TODO: Aggiungere dataStesura
+
+    /**
+     * ID univoco del documento nel database.
+     */
+    private final int idDocumento;
 
     //TODO: Cambiare text -> contenuto
     /**
@@ -35,22 +39,45 @@ public class Documento {
     /**
      * Costruttore del documento.
      *
+     * @param idDocumento ID univoco del documento nel database
      * @param source Team proprietario del documento (non nullo)
      * @param title  Titolo univoco del documento (non nullo)
      * @param text   Contenuto testuale del documento (non nullo/vuoto)
      * @throws IllegalArgumentException Se source o text sono null, o se text è vuoto
      */
-    public Documento(Team source, String title, String text) {
+    public Documento(int idDocumento, Team source, String title, String text) {
         if (title == null) {
             throw new IllegalArgumentException("Il titolo del documento non può essere nullo");
         }
         if (text == null || text.trim().isEmpty()) {
             throw new IllegalArgumentException("Il testo del documento non può essere nullo o vuoto");
         }
+        this.idDocumento = idDocumento;
         this.text = text;
         this.title = title;
         this.source = source;
         this.valutazioni = new ArrayList<>();
+    }
+
+    /**
+     * Costruttore del documento senza ID (per nuovi documenti).
+     *
+     * @param source Team proprietario del documento (non nullo)
+     * @param title  Titolo univoco del documento (non nullo)
+     * @param text   Contenuto testuale del documento (non nullo/vuoto)
+     * @throws IllegalArgumentException Se source o text sono null, o se text è vuoto
+     */
+    public Documento(Team source, String title, String text) {
+        this(0, source, title, text); // ID 0 per documenti non ancora salvati
+    }
+
+    /**
+     * Restituisce l'ID del documento.
+     *
+     * @return ID del documento
+     */
+    public int getIdDocumento() {
+        return idDocumento;
     }
 
     /**
