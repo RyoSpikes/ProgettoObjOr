@@ -93,11 +93,6 @@ public class ControllerOrganizzatore extends Controller {
         return hList;
     }
 
-    // TODO: Implementare il metodo per recuperare la lista di hackathon di un singolo organizzatore.
-    /*public ArrayList<Hackathon> getListaHackathon(Organizzatore org) {
-        return org.getHackathonOrganizzata;
-    }*/
-
     /**
      * Aggiunge un nuovo organizzatore alla lista.
      *
@@ -149,6 +144,7 @@ public class ControllerOrganizzatore extends Controller {
         return null;
     }
 
+    //TODO: Eliminare idNum
     /**
      * Aggiunge un nuovo hackathon per un organizzatore specifico (metodo legacy).
      *
@@ -172,6 +168,7 @@ public class ControllerOrganizzatore extends Controller {
         }
     }
 
+    //TODO: Correggere la logica sulla descrizioneProblema, per traccia la descrizione è decisa dai giudici
     /**
      * Crea un nuovo hackathon e lo salva nel database PostgreSQL.
      *

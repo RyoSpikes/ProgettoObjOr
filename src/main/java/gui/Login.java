@@ -2,7 +2,8 @@ package gui;
 
 import javax.swing.*;
 import model.*;
-import controller.*;
+import controller.ControllerOrganizzatore;
+import controller.Controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
