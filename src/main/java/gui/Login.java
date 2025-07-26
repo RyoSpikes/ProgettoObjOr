@@ -2,8 +2,8 @@ package gui;
 
 import javax.swing.*;
 import model.*;
-import controller.ControllerOrganizzatore;
-import controller.Controller;
+import controller.HackathonController;
+import controller.UserController;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,11 +27,11 @@ public class Login {
      * Costruttore della classe Login.
      * Inizializza l'interfaccia grafica e gestisce le azioni per il login degli utenti.
      *
-     * @param controllerOrganizzatore Il controller per la gestione degli organizzatori.
+     * @param hackathonController Il controller per la gestione degli organizzatori.
      * @param controller Il controller per la gestione degli utenti.
      * @param frameCalling Il frame chiamante che ha aperto questa finestra.
      */
-    public Login(ControllerOrganizzatore controllerOrganizzatore, Controller controller, JFrame frameCalling) {
+    public Login(HackathonController hackathonController, UserController controller, JFrame frameCalling) {
         logFrame = new JFrame("Login");
         logFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         logFrame.setContentPane(loginPanel);
@@ -76,11 +76,11 @@ public class Login {
                 try {
                     if (adminCheckBox.isSelected()) {
                         // Login come organizzatore
-                        Organizzatore orgLoggato = controllerOrganizzatore.loginOrganizzatore(username, password);
+                        Organizzatore orgLoggato = hackathonController.loginOrganizzatore(username, password);
 
                         if (orgLoggato != null) {
                             System.out.println("Login riuscito per organizzatore: " + username);
-                            new AdminView(orgLoggato, frameCalling, controllerOrganizzatore);
+                            new AdminView(orgLoggato, frameCalling, hackathonController);
                             logFrame.dispose();
                         } else {
                             JOptionPane.showMessageDialog(null,
@@ -94,7 +94,7 @@ public class Login {
 
                         if (utenteLoggato != null) {
                             System.out.println("Login riuscito per utente: " + username);
-                            new UserView(utenteLoggato, frameCalling, controllerOrganizzatore, controller);
+                            new UserView(utenteLoggato, frameCalling, hackathonController, controller);
                             logFrame.dispose();
                         } else {
                             JOptionPane.showMessageDialog(null,

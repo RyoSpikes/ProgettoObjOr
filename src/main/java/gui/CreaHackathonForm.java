@@ -1,7 +1,7 @@
 package gui;
 
 import model.Organizzatore;
-import controller.ControllerOrganizzatore;
+import controller.HackathonController;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.time.LocalDateTime;
-import java.sql.SQLException;
 import java.time.DateTimeException;
 
 /**
@@ -54,9 +53,9 @@ public class CreaHackathonForm {
      * @param adminLogged L'organizzatore attualmente loggato.
      * @param frameCalling Il frame chiamante che ha aperto questa finestra.
      * @param frameMain Il frame principale dell'applicazione.
-     * @param controllerOrganizzatore Il controller per la gestione degli hackathon.
+     * @param hackathonController Il controller per la gestione degli hackathon.
      */
-    public CreaHackathonForm(Organizzatore adminLogged, JFrame frameCalling, JFrame frameMain, ControllerOrganizzatore controllerOrganizzatore) {
+    public CreaHackathonForm(Organizzatore adminLogged, JFrame frameCalling, JFrame frameMain, HackathonController hackathonController) {
         // ⚠️ VERIFICA DI SICUREZZA: Controllo che tutti i componenti siano inizializzati
         if (panelCreaHackathon == null) {
             JOptionPane.showMessageDialog(null,
@@ -162,7 +161,7 @@ public class CreaHackathonForm {
                     int maxNumIscritti = (Integer) comboBoxNumMaxIscritti.getSelectedItem();
 
                     // ✅ CREAZIONE HACKATHON NEL DATABASE
-                    boolean successo = controllerOrganizzatore.creaHackathon(
+                    HackathonController.CreazioneHackathonRisultato risultato = hackathonController.creaHackathonSicuro(
                             titoloIdentificativo,
                             adminLogged,
                             sede,
@@ -175,36 +174,28 @@ public class CreaHackathonForm {
                             maxNumMembriTeam
                     );
 
-                    if (successo) {
+                    if (risultato == HackathonController.CreazioneHackathonRisultato.SUCCESSO) {
                         JOptionPane.showMessageDialog(null,
                                 "✅ Hackathon '" + titoloIdentificativo + "' creato con successo!\n\n" +
                                 "📅 Periodo evento: " + formatData(dataInizioEvento) + " → " + formatData(dataFineEvento) + "\n" +
                                 "📝 Registrazioni: " + formatData(dataInizioRegistrazione) + " → " + formatData(dataFineRegistrazione) + "\n" +
                                 "👥 Max partecipanti: " + maxNumIscritti + "\n" +
-                                "🎯 Max membri per team: " + maxNumMembriTeam + "\n\n" +
-                                "💾 L'hackathon è stato salvato nel database PostgreSQL.",
+                                "🎯 Max membri per team: " + maxNumMembriTeam + "\n",
                                 "🎉 Hackathon Creato",
                                 JOptionPane.INFORMATION_MESSAGE);
 
                         // Crea una nuova AdminView con i dati aggiornati dal database
                         frameCalling.dispose(); // Chiude la vecchia AdminView
-                        new AdminView(adminLogged, frameMain, controllerOrganizzatore); // Crea nuova AdminView aggiornata
+                        new AdminView(adminLogged, frameMain, hackathonController); // Crea nuova AdminView aggiornata
                         frame.dispose();
                     } else {
+                        // Gestisce gli errori basandosi sul risultato dell'enum
+                        String messaggioErrore = gestisciErroreCreazione(risultato, titoloIdentificativo);
                         JOptionPane.showMessageDialog(null,
-                                "❌ Errore durante la creazione dell'hackathon.\n\n" +
-                                "L'hackathon non è stato salvato nel database.\n" +
-                                "Controlla che tutti i dati siano corretti e riprova.",
-                                "💥 Errore Creazione",
-                                JOptionPane.ERROR_MESSAGE);
+                            messaggioErrore,
+                            "❌ Errore Creazione",
+                            JOptionPane.ERROR_MESSAGE);
                     }
-
-                } catch (SQLException ex) {
-                    String messaggioErrore = gestisciErroreDatabase(ex);
-                    JOptionPane.showMessageDialog(null,
-                        messaggioErrore,
-                        "❌ Errore Database",
-                        JOptionPane.ERROR_MESSAGE);
 
                 } catch (DateTimeException ex) {
                     JOptionPane.showMessageDialog(null,
@@ -294,32 +285,38 @@ public class CreaHackathonForm {
     }
 
     /**
-     * Gestisce e formatta gli errori del database per l'utente.
+     * Gestisce e formatta gli errori di creazione hackathon per l'utente.
      */
-    private String gestisciErroreDatabase(SQLException ex) {
-        String sqlState = ex.getSQLState();
+    private String gestisciErroreCreazione(HackathonController.CreazioneHackathonRisultato risultato, String titoloHackathon) {
+        switch (risultato) {
+            case ERRORE_TITOLO_DUPLICATO:
+                return "❌ Esiste già un hackathon con questo titolo!\n\n" +
+                       "Titolo: '" + titoloHackathon + "'\n\n" +
+                       "💡 Suggerimento: Prova con un titolo diverso o aggiungi un suffisso (es. 'v2', '2025', etc.).";
 
-        if ("23505".equals(sqlState)) { // Violazione unique constraint
-            return "❌ Esiste già un hackathon con questo titolo!\n\n" +
-                   "Titolo: '" + fieldTitolo.getText().trim() + "'\n\n" +
-                   "💡 Suggerimento: Prova con un titolo diverso o aggiungi un suffisso (es. 'v2', '2025', etc.).";
+            case ERRORE_ORGANIZZATORE_NON_VALIDO:
+                return "❌ Organizzatore non valido!\n\n" +
+                       "L'organizzatore specificato non esiste nel database.\n\n" +
+                       "💡 Questo è un errore interno, contatta il supporto tecnico.";
 
-        } else if ("23503".equals(sqlState)) { // Violazione foreign key
-            return "❌ Organizzatore non valido!\n\n" +
-                   "L'organizzatore specificato non esiste nel database.\n\n" +
-                   "💡 Questo è un errore interno, contatta il supporto tecnico.";
+            case ERRORE_DATE_NON_VALIDE:
+                return "📅 Le date inserite non sono valide!\n\n" +
+                       "• La registrazione deve terminare almeno 2 giorni prima dell'evento\n" +
+                       "• Tutte le date devono essere coerenti tra loro\n" +
+                       "• Le date non possono essere nel passato\n\n" +
+                       "💡 Controlla nuovamente le date e riprova.";
 
-        } else if ("23514".equals(sqlState)) { // Violazione check constraint
-            return "📅 Le date inserite violano i vincoli del database:\n\n" +
-                   "• La registrazione deve terminare almeno 2 giorni prima dell'evento\n" +
-                   "• Tutte le date devono essere coerenti tra loro\n" +
-                   "• Le date non possono essere nel passato\n\n" +
-                   "💡 Controlla nuovamente le date e riprova.";
+            case ERRORE_DAO_NON_DISPONIBILE:
+                return "❌ Servizio database non disponibile!\n\n" +
+                       "Il sistema non riesce a connettersi al database.\n\n" +
+                       "💡 Soluzione: Controlla la connessione e riprova tra qualche minuto.";
 
-        } else {
-            return "❌ Errore del database:\n\n" + ex.getMessage() + "\n\n" +
-                   "Codice errore: " + (sqlState != null ? sqlState : "Sconosciuto") + "\n\n" +
-                   "💡 Se il problema persiste, contatta il supporto tecnico.";
+            case ERRORE_GENERICO:
+            default:
+                return "❌ Errore durante la creazione dell'hackathon.\n\n" +
+                       "L'hackathon non è stato salvato nel database.\n" +
+                       "Controlla che tutti i dati siano corretti e riprova.\n\n" +
+                       "💡 Se il problema persiste, contatta il supporto tecnico.";
         }
     }
 

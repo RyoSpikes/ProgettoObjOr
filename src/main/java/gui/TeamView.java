@@ -1,11 +1,10 @@
 package gui;
 
 import controller.TeamController;
+import controller.HackathonController;
 import model.Team;
 import model.Utente;
 import model.Documento;
-import Database.DAO.Impl.HackathonDAOImpl;
-import Database.DAO.Impl.DocumentoDAOImpl;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,9 +28,10 @@ public class TeamView {
     private Team team;
     private Utente userLogged;
     private JFrame parentFrame;
+    
+    // Controller per gestire la logica di business
     private TeamController teamController;
-    private HackathonDAOImpl hackathonDAO;
-    private DocumentoDAOImpl documentoDAO;
+    private HackathonController hackathonController;
 
     /**
      * Costruttore della classe TeamView.
@@ -49,8 +49,8 @@ public class TeamView {
         
         // Inizializza i DAO
         try {
-            this.hackathonDAO = new HackathonDAOImpl();
-            this.documentoDAO = new DocumentoDAOImpl();
+            this.teamController = new TeamController();
+            this.hackathonController = new HackathonController();
         } catch (Exception e) {
             System.err.println("Errore nell'inizializzazione dei DAO: " + e.getMessage());
         }
@@ -113,13 +113,11 @@ public class TeamView {
                 TeamTextArea.append("\n");
                 
                 // Carica i documenti del team
-                if (documentoDAO != null) {
-                    var documenti = documentoDAO.getDocumentiByTeam(
-                        team.getNomeTeam(), 
-                        team.getHackathon().getTitoloIdentificativo()
-                    );
-                    
-                    TeamTextArea.append("=== DOCUMENTI CARICATI ===\n");
+                if (hackathonController != null) {
+                    var documenti = hackathonController.getDocumentiByTeam(
+                            team.getNomeTeam(),
+                            team.getHackathon().getTitoloIdentificativo()
+                    );                    TeamTextArea.append("=== DOCUMENTI CARICATI ===\n");
                     if (documenti != null && !documenti.isEmpty()) {
                         for (var documento : documenti) {
                             TeamTextArea.append("📄 " + documento.getTitle() + "\n");
@@ -295,7 +293,7 @@ public class TeamView {
                     Documento nuovoDocumento = new Documento(team, titolo, contenuto);
                     
                     // Salva nel database
-                    if (documentoDAO.save(nuovoDocumento)) {
+                    if (hackathonController.salvaDocumento(nuovoDocumento)) {
                         JOptionPane.showMessageDialog(dialogoInserimento, 
                             "Documento inserito con successo!", 
                             "Successo", 
@@ -357,7 +355,7 @@ public class TeamView {
      * Mostra la classifica dell'hackathon utilizzando la funzione del database.
      */
     private void mostraClassificaHackathon() {
-        if (TeamTextArea != null && hackathonDAO != null && team != null && team.getHackathon() != null) {
+        if (TeamTextArea != null && hackathonController != null && team != null && team.getHackathon() != null) {
             try {
                 String titoloHackathon = team.getHackathon().getTitoloIdentificativo();
                 
@@ -367,7 +365,7 @@ public class TeamView {
                 TeamTextArea.append("⏳ Elaborazione in corso...\n\n");
                 
                 // Chiama la funzione del database per generare la classifica
-                String risultatoClassifica = hackathonDAO.generaClassificaHackathon(titoloHackathon);
+                String risultatoClassifica = hackathonController.generaClassificaHackathon(titoloHackathon);
                 
                 TeamTextArea.setText("");
                 TeamTextArea.append("🏆 CLASSIFICA HACKATHON: " + titoloHackathon + "\n");

@@ -97,4 +97,14 @@ public interface TeamDAO extends GenericDAO<Team, TeamDAO.TeamKey> {
      * @throws SQLException Se si verifica un errore durante l'operazione
      */
     boolean updatePunteggioFinale(String nomeTeam, String titoloHackathon, int punteggioFinale) throws SQLException;
+    
+    /**
+     * Cerca team il cui nome contiene il testo specificato (ricerca LIKE).
+     * 
+     * @param titoloHackathon Il titolo dell'hackathon in cui cercare
+     * @param nomeTeamParziale Il testo da cercare nel nome del team
+     * @return Lista dei team che contengono il testo nel nome
+     * @throws SQLException Se si verifica un errore durante l'accesso al database
+     */
+    List<Team> searchTeamsByName(String titoloHackathon, String nomeTeamParziale) throws SQLException;
 }

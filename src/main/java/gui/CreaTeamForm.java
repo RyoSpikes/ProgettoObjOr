@@ -1,6 +1,6 @@
 package gui;
 
-import controller.ControllerOrganizzatore;
+import controller.HackathonController;
 import controller.TeamController;
 import model.Hackathon;
 import model.Team;
@@ -29,9 +29,9 @@ public class CreaTeamForm {
      *
      * @param userLogged L'utente attualmente loggato.
      * @param frameCalling Il frame chiamante che ha aperto questa finestra.
-     * @param controllerOrganizzatore Il controller utilizzato per gestire gli hackathon.
+     * @param hackathonController Il controller utilizzato per gestire gli hackathon.
      */
-    public CreaTeamForm(Utente userLogged, JFrame frameCalling, ControllerOrganizzatore controllerOrganizzatore) {
+    public CreaTeamForm(Utente userLogged, JFrame frameCalling, HackathonController hackathonController) {
         // Inizializza il TeamController per gestire le operazioni sui team
         TeamController teamController = new TeamController();
         
@@ -54,7 +54,7 @@ public class CreaTeamForm {
         frame.setLocationRelativeTo(null);
 
         // Popola il ComboBox con la lista degli hackathon disponibili.
-        for(Hackathon h : controllerOrganizzatore.getListaHackathon()) {
+        for(Hackathon h : hackathonController.getListaHackathon()) {
             hackathonComboBox.addItem(h);
         }
 

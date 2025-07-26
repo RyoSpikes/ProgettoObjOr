@@ -1,9 +1,8 @@
 package gui;
 
-import controller.Controller;
-import controller.ControllerOrganizzatore;
+import controller.UserController;
+import controller.HackathonController;
 import controller.TeamController;
-import Database.DAO.Impl.InvitoGiudiceDAOImpl;
 import model.Utente;
 import model.Team;
 
@@ -29,7 +28,6 @@ public class UserView {
     private JButton gestisciTeamButton; // Pulsante per gestire il team (aprire TeamView).
     private JButton menuGiudiceButton;
     private TeamController teamController; // Controller per la gestione dei team.
-    private InvitoGiudiceDAOImpl invitoGiudiceDAO; // DAO per la gestione degli inviti a giudice.
 
     /**
      * Costruttore della classe UserView.
@@ -37,18 +35,20 @@ public class UserView {
      *
      * @param userLogged L'utente attualmente loggato.
      * @param frameHome Il frame principale dell'applicazione.
-     * @param controllerOrganizzatore Il controller per la gestione degli organizzatori.
+     * @param hackathonController Il controller per la gestione degli organizzatori.
      * @param controllerUtente Il controller per la gestione degli utenti.
+    /**
+     * Costruttore della classe UserView.
+     * Inizializza l'interfaccia grafica e gestisce le azioni dei pulsanti.
+     *
+     * @param userLogged L'utente attualmente loggato
+     * @param frameHome Il frame principale dell'applicazione
+     * @param hackathonController Il controller per la gestione degli organizzatori
+     * @param controllerUtente Il controller per la gestione degli utenti
      */
-    public UserView(Utente userLogged, JFrame frameHome, ControllerOrganizzatore controllerOrganizzatore, Controller controllerUtente) {
-        // Inizializza il TeamController e il DAO degli inviti
+    public UserView(Utente userLogged, JFrame frameHome, HackathonController hackathonController, UserController controllerUtente) {
+        // Inizializza il TeamController
         this.teamController = new TeamController();
-        try {
-            this.invitoGiudiceDAO = new InvitoGiudiceDAOImpl();
-        } catch (Exception e) {
-            System.err.println("Errore nell'inizializzazione di InvitoGiudiceDAO: " + e.getMessage());
-            this.invitoGiudiceDAO = null;
-        }
         
         userViewFrame = new JFrame("User View");
         userViewFrame.setContentPane(userPanel);
@@ -73,7 +73,7 @@ public class UserView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 userViewFrame.setVisible(false);
-                new CreaTeamForm(userLogged, userViewFrame, controllerOrganizzatore);
+                new CreaTeamForm(userLogged, userViewFrame, hackathonController);
             }
         });
 
@@ -81,16 +81,8 @@ public class UserView {
         mostraInvitiButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (invitoGiudiceDAO == null) {
-                    JOptionPane.showMessageDialog(userViewFrame, 
-                        "Errore: servizio inviti non disponibile.", 
-                        "Errore", 
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                
                 try {
-                    List<String> inviti = invitoGiudiceDAO.getInvitiByUser(userLogged.getName());
+                    List<String> inviti = hackathonController.getInvitiGiudice(userLogged.getName());
                     
                     if (inviti != null && !inviti.isEmpty()) {
                         String[] invitiArray = inviti.toArray(new String[0]);
@@ -117,7 +109,7 @@ public class UserView {
                             );
                             
                             if (result == JOptionPane.YES_OPTION) {
-                                boolean success = invitoGiudiceDAO.accettaInvito(userLogged.getName(), titoloHackathon);
+                                boolean success = hackathonController.accettaInvito(userLogged.getName(), titoloHackathon);
                                 if (success) {
                                     JOptionPane.showMessageDialog(userViewFrame,
                                         "Invito accettato! Ora sei un giudice per l'hackathon '" + titoloHackathon + "'",
@@ -130,7 +122,7 @@ public class UserView {
                                         JOptionPane.ERROR_MESSAGE);
                                 }
                             } else {
-                                boolean success = invitoGiudiceDAO.rifiutaInvito(userLogged.getName(), titoloHackathon);
+                                boolean success = hackathonController.rifiutaInvito(userLogged.getName(), titoloHackathon);
                                 if (success) {
                                     JOptionPane.showMessageDialog(userViewFrame,
                                         "Invito rifiutato.",
@@ -158,8 +150,8 @@ public class UserView {
         scegliTeamButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ScegliTeam(userLogged, userViewFrame, controllerOrganizzatore, controllerUtente);
-                userViewFrame.setVisible(false);
+                new ScegliTeam(userLogged, userViewFrame, hackathonController, controllerUtente);
+                // Rimosso userViewFrame.setVisible(false); - UserView deve rimanere visibile
             }
         });
 
@@ -224,8 +216,9 @@ public class UserView {
             }
         });
 
-        // Listener per il pulsante "Gestisci Team".
-        gestisciTeamButton.addActionListener(new ActionListener() {
+        // Listener per il pulsante "Gestisci Team" (se presente nel form).
+        if (gestisciTeamButton != null) {
+            gestisciTeamButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -285,21 +278,14 @@ public class UserView {
                 }
             }
         });
+        } // Fine del controllo if (gestisciTeamButton != null)
 
         // Listener per il pulsante "Menu Giudice".
         menuGiudiceButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (invitoGiudiceDAO == null) {
-                    JOptionPane.showMessageDialog(userViewFrame, 
-                        "Errore: servizio giudice non disponibile.", 
-                        "Errore", 
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                
                 try {
-                    List<String> hackathons = invitoGiudiceDAO.getHackathonAsGiudice(userLogged.getName());
+                    List<String> hackathons = hackathonController.getHackathonAsGiudice(userLogged.getName());
                     
                     if (hackathons != null && !hackathons.isEmpty()) {
                         String[] hackathonsArray = hackathons.toArray(new String[0]);
@@ -348,3 +334,4 @@ public class UserView {
     }
     
 }
+

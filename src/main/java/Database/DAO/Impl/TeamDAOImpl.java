@@ -218,6 +218,36 @@ public class TeamDAOImpl implements TeamDAO {
     }
 
     /**
+     * Cerca team il cui nome contiene il testo specificato (ricerca LIKE).
+     * 
+     * @param titoloHackathon Il titolo dell'hackathon in cui cercare
+     * @param nomeTeamParziale Il testo da cercare nel nome del team
+     * @return Lista dei team che contengono il testo nel nome
+     * @throws SQLException Se si verifica un errore durante l'accesso al database
+     */
+    public List<Team> searchTeamsByName(String titoloHackathon, String nomeTeamParziale) throws SQLException {
+        List<Team> teams = new ArrayList<>();
+        String sql = "SELECT Nome_team, Titolo_hackathon, Punteggio_finale FROM TEAM " +
+                     "WHERE Titolo_hackathon = ? AND Nome_team ILIKE ? " +
+                     "ORDER BY Nome_team";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, titoloHackathon);
+            stmt.setString(2, "%" + nomeTeamParziale + "%"); // Cerca ovunque nel nome
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    teams.add(createTeamFromResultSet(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Errore durante la ricerca dei team: " + e.getMessage(), e);
+        }
+        
+        return teams;
+    }
+
+    /**
      * Metodo helper per creare un oggetto Team da un ResultSet.
      * Nota: Per creare un Team completo, serve l'oggetto Hackathon.
      * Questa implementazione crea un Team parziale. 

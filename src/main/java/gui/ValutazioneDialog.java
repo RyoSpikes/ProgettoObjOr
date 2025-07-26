@@ -1,6 +1,6 @@
 package gui;
 
-import Database.DAO.Impl.ValutazioneDAOImpl;
+import controller.HackathonController;
 import model.Documento;
 import model.Giudice;
 
@@ -8,7 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 
 /**
  * Dialog per la valutazione testuale di un documento da parte di un giudice.
@@ -18,6 +17,7 @@ public class ValutazioneDialog extends JDialog {
     
     private final Documento documento;
     private final Giudice giudice;
+    private final HackathonController hackathonController;
     private JTextArea textAreaGiudizio;
     private JButton buttonSalva;
     private JButton buttonAnnulla;
@@ -33,6 +33,7 @@ public class ValutazioneDialog extends JDialog {
         super(parent, "Valutazione Documento", true);
         this.documento = documento;
         this.giudice = giudice;
+        this.hackathonController = new HackathonController();
         
         initializeComponents();
         layoutComponents();
@@ -135,10 +136,8 @@ public class ValutazioneDialog extends JDialog {
         }
         
         try {
-            ValutazioneDAOImpl valutazioneDAO = new ValutazioneDAOImpl();
-            
             // Controlla se il giudice ha già valutato questo documento
-            if (valutazioneDAO.hasGiudiceValutatoDocumento(giudice.getName(), documento.getIdDocumento())) {
+            if (hackathonController.hasGiudiceValutatoDocumento(giudice.getName(), documento.getIdDocumento())) {
                 JOptionPane.showMessageDialog(this, 
                     "Hai già valutato questo documento.", 
                     "Attenzione", 
@@ -146,8 +145,8 @@ public class ValutazioneDialog extends JDialog {
                 return;
             }
             
-            // Salva la valutazione testuale
-            boolean successValutazione = valutazioneDAO.save(giudizio, documento.getIdDocumento(), 
+            // Salva la valutazione testuale usando il controller
+            boolean successValutazione = hackathonController.salvaValutazioneTestuale(giudizio, documento.getIdDocumento(), 
                                                 giudice.getName(), titoloHackathon);
             
             if (successValutazione) {
@@ -162,10 +161,9 @@ public class ValutazioneDialog extends JDialog {
                     "Errore", 
                     JOptionPane.ERROR_MESSAGE);
             }
-            
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, 
-                "Errore database: " + ex.getMessage(), 
+                "Errore imprevisto: " + ex.getMessage(), 
                 "Errore", 
                 JOptionPane.ERROR_MESSAGE);
         }

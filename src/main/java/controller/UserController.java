@@ -1,6 +1,5 @@
 package controller;
 import model.*;
-import utilities.RandomStringGenerator;
 import Database.DAO.Impl.UtenteDAOImpl;
 
 import javax.swing.*;
@@ -8,19 +7,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
- * La classe Controller gestisce una lista di utenti e fornisce metodi per la gestione degli utenti,
+ * La classe UserController gestisce una lista di utenti e fornisce metodi per la gestione degli utenti,
  * come l'aggiunta di nuovi utenti e la verifica delle credenziali di accesso.
  * Ora integrata con il database PostgreSQL.
  */
-public class Controller {
+public class UserController {
     private ArrayList<Utente> listaUtenti; // Lista degli utenti gestiti dal controller (cache locale).
     private UtenteDAOImpl utenteDAO; // DAO per l'accesso al database.
 
     /**
-     * Costruttore della classe Controller.
+     * Costruttore della classe UserController.
      * Inizializza la lista degli utenti e la connessione al database.
      */
-    public Controller()
+    public UserController()
     {
         listaUtenti = new ArrayList<>();
         try {

@@ -1,9 +1,7 @@
 package gui;
 
-import Database.DAO.Impl.DocumentoDAOImpl;
-import Database.DAO.Impl.MembershipDAOImpl;
-import Database.DAO.Impl.HackathonDAOImpl;
-import Database.DAO.Impl.VotoDAOImpl;
+import controller.HackathonController;
+import controller.TeamController;
 import model.Utente;
 import model.Documento;
 
@@ -29,9 +27,10 @@ public class JudgeView {
     private JFrame judgeViewFrame;
     private String titoloHackathon;
     private Utente giudice;
-    private DocumentoDAOImpl documentoDAO;
-    private MembershipDAOImpl membershipDAO;
-    private HackathonDAOImpl hackathonDAO;
+    
+    // Controller per gestire la logica di business
+    private HackathonController hackathonController;
+    private TeamController teamController;
 
     /**
      * Costruttore della classe JudgeView.
@@ -49,9 +48,8 @@ public class JudgeView {
         
         // Inizializza i DAO
         try {
-            this.documentoDAO = new DocumentoDAOImpl();
-            this.membershipDAO = new MembershipDAOImpl();
-            this.hackathonDAO = new HackathonDAOImpl();
+            this.hackathonController = new HackathonController();
+            this.teamController = new TeamController();
         } catch (Exception e) {
             System.err.println("Errore nell'inizializzazione dei DAO: " + e.getMessage());
         }
@@ -95,12 +93,12 @@ public class JudgeView {
             MENUGIUDICETextArea.append("• Usa 'Visualizza Team' per aprire la vista di un team\n");
             MENUGIUDICETextArea.append("• Usa 'Mostra Documenti' per vedere i documenti caricati\n\n");
             MENUGIUDICETextArea.append("Seleziona un'opzione per iniziare...\n");
-            
+
             // Posiziona il cursore all'inizio
             MENUGIUDICETextArea.setCaretPosition(0);
         }
     }
-    
+
     /**
      * Configura i listener dei pulsanti.
      */
@@ -114,7 +112,7 @@ public class JudgeView {
                 }
             });
         }
-        
+
         // Listener per il pulsante "Mostra Documenti"
         if (mostraDocumentiButton != null) {
             mostraDocumentiButton.addActionListener(new ActionListener() {
@@ -124,7 +122,7 @@ public class JudgeView {
                 }
             });
         }
-        
+
         // Listener per il pulsante "Mostra Classifica"
         if (mostraClassificaButton != null) {
             mostraClassificaButton.addActionListener(new ActionListener() {
@@ -134,7 +132,7 @@ public class JudgeView {
                 }
             });
         }
-        
+
         // Listener per il pulsante "Aggiungi Voto Finale"
         if (assegnaVotoFinaleButton != null) {
             assegnaVotoFinaleButton.addActionListener(new ActionListener() {
@@ -145,27 +143,27 @@ public class JudgeView {
             });
         }
     }
-    
+
     /**
      * Mostra tutti i team dell'hackathon nella textarea.
      */
     private void mostraTeamHackathon() {
-        if (MENUGIUDICETextArea != null && membershipDAO != null) {
+        if (MENUGIUDICETextArea != null && hackathonController != null) {
             try {
                 // Ottieni tutti i team per questo hackathon
-                List<String> teamNames = membershipDAO.getTeamsForHackathon(titoloHackathon);
-                
+                List<String> teamNames = hackathonController.getNomiTeamHackathon(titoloHackathon);
+
                 if (teamNames != null && !teamNames.isEmpty()) {
                     MENUGIUDICETextArea.setText("");
                     MENUGIUDICETextArea.append("🏆 TEAM DELL'HACKATHON: " + titoloHackathon + "\n");
                     MENUGIUDICETextArea.append("═".repeat(60) + "\n\n");
-                    
+
                     int teamNumber = 1;
                     for (String teamName : teamNames) {
                         MENUGIUDICETextArea.append("🔸 Team " + teamNumber + ": " + teamName + "\n");
-                        
+
                         // Ottieni i membri del team
-                        List<Utente> membri = membershipDAO.getTeamMembers(teamName, titoloHackathon);
+                        List<Utente> membri = teamController.getMembershipDAO().getTeamMembers(teamName, titoloHackathon);
                         if (membri != null && !membri.isEmpty()) {
                             MENUGIUDICETextArea.append("   👥 Membri:\n");
                             for (Utente membro : membri) {
@@ -177,7 +175,7 @@ public class JudgeView {
                         MENUGIUDICETextArea.append("\n");
                         teamNumber++;
                     }
-                    
+
                     MENUGIUDICETextArea.append("═".repeat(60) + "\n");
                     MENUGIUDICETextArea.append("📊 Totale team: " + teamNames.size() + "\n");
                     MENUGIUDICETextArea.setCaretPosition(0);
@@ -189,7 +187,7 @@ public class JudgeView {
                     MENUGIUDICETextArea.append("o potrebbero esserci problemi di connessione al database.\n");
                     MENUGIUDICETextArea.setCaretPosition(0);
                 }
-                
+
             } catch (Exception ex) {
                 MENUGIUDICETextArea.setText("");
                 MENUGIUDICETextArea.append("❌ ERRORE NEL CARICAMENTO DEI TEAM\n\n");
@@ -204,88 +202,81 @@ public class JudgeView {
             }
         }
     }
-    
+
     /**
      * Mostra una finestra per selezionare e valutare un documento.
      */
     private void mostraDocumentiHackathon() {
-        if (documentoDAO == null) {
-            JOptionPane.showMessageDialog(judgeViewFrame, 
-                "Errore di inizializzazione del sistema.", 
-                "Errore", 
-                JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
         try {
-            // Ottieni tutti i documenti per questo hackathon
-            List<Documento> documenti = documentoDAO.getDocumentiByHackathon(titoloHackathon);
+            // Crea un controller per gestire i documenti
+            controller.HackathonController hackathonController = new controller.HackathonController();
             
+            // Verifica se ci sono documenti per questo hackathon
+            List<Documento> documenti = hackathonController.getDocumentiHackathon(titoloHackathon);
+
             if (documenti == null || documenti.isEmpty()) {
-                JOptionPane.showMessageDialog(judgeViewFrame, 
+                JOptionPane.showMessageDialog(judgeViewFrame,
                     "Nessun documento trovato per questo hackathon.\n" +
-                    "I team potrebbero non aver ancora caricato documenti.", 
-                    "Nessun Documento", 
+                    "I team potrebbero non aver ancora caricato documenti.",
+                    "Nessun Documento",
                     JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            
-            // Crea array di opzioni per il dropdown
-            String[] opzioniDocumenti = new String[documenti.size()];
-            for (int i = 0; i < documenti.size(); i++) {
-                Documento doc = documenti.get(i);
-                opzioniDocumenti[i] = String.format("[%s] %s", 
-                    doc.getSource().getNomeTeam(), 
-                    doc.getTitle());
-            }
-            
-            // Mostra dialog di selezione documento
-            String documentoSelezionato = (String) JOptionPane.showInputDialog(
-                judgeViewFrame,
-                "Seleziona il documento da valutare:",
-                "Selezione Documento",
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                opzioniDocumenti,
-                opzioniDocumenti[0]
-            );
-            
-            if (documentoSelezionato == null) {
-                return; // Utente ha annullato
-            }
-            
-            // Trova il documento selezionato
-            int indiceSelezionato = -1;
-            for (int i = 0; i < opzioniDocumenti.length; i++) {
-                if (opzioniDocumenti[i].equals(documentoSelezionato)) {
-                    indiceSelezionato = i;
-                    break;
+
+            // Apri il dialog di ricerca documento con ricerca dinamica
+            new CercaDocumentoDialog(judgeViewFrame, titoloHackathon, giudice, hackathonController, 
+                new CercaDocumentoDialog.DocumentoSelectionCallback() {
+                @Override
+                public boolean onDocumentoSelected(Documento docDaValutare) {
+                    try {
+                        // Controlla se il giudice ha già valutato questo documento tramite il controller
+                        boolean giaValutato = hackathonController.hasGiudiceValutatoDocumento(
+                            giudice.getName(), 
+                            docDaValutare.getIdDocumento()
+                        );
+                        
+                        if (giaValutato) {
+                            JOptionPane.showMessageDialog(judgeViewFrame, 
+                                "Hai già valutato questo documento.\nSeleziona un altro documento per continuare.", 
+                                "Documento già valutato", 
+                                JOptionPane.INFORMATION_MESSAGE);
+                            return false; // Non chiude il dialog, permette di selezionare altri documenti
+                        }
+                        
+                        // Crea il giudice dal modello esistente
+                        model.Giudice giudiceModel = new model.Giudice(
+                            giudice.getName(),
+                            giudice.getPassword(),
+                            docDaValutare.getSource().getHackathon()
+                        );
+
+                        // Apri dialog di valutazione
+                        ValutazioneDialog valutazioneDialog = new ValutazioneDialog(
+                            judgeViewFrame,
+                            docDaValutare,
+                            giudiceModel
+                        );
+                        valutazioneDialog.setVisible(true);
+                        
+                        // Il dialog di valutazione è modale, quindi quando si chiude, 
+                        // assumiamo che l'operazione sia completata (successo o annullamento)
+                        // Per ora manteniamo aperto il dialog di ricerca per permettere altre valutazioni
+                        return false; // Non chiude il dialog di ricerca
+                        
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(judgeViewFrame,
+                            "Errore durante il controllo della valutazione:\n" + ex.getMessage(),
+                            "Errore",
+                            JOptionPane.ERROR_MESSAGE);
+                        return false; // Non chiude il dialog in caso di errore
+                    }
                 }
-            }
-            
-            if (indiceSelezionato != -1) {
-                Documento docDaValutare = documenti.get(indiceSelezionato);
-                
-                // Importiamo e creiamo il giudice dal modello esistente
-                model.Giudice giudiceModel = new model.Giudice(
-                    giudice.getName(), 
-                    giudice.getPassword(), 
-                    docDaValutare.getSource().getHackathon()
-                );
-                
-                // Apri dialog di valutazione
-                ValutazioneDialog valutazioneDialog = new ValutazioneDialog(
-                    judgeViewFrame, 
-                    docDaValutare, 
-                    giudiceModel
-                );
-                valutazioneDialog.setVisible(true);
-            }
-            
+            });
+
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(judgeViewFrame, 
-                "Errore durante il caricamento dei documenti:\n" + ex.getMessage(), 
-                "Errore Database", 
+            JOptionPane.showMessageDialog(judgeViewFrame,
+                "Errore durante il caricamento dei documenti:\n" + ex.getMessage(),
+                "Errore Database",
                 JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
@@ -295,24 +286,24 @@ public class JudgeView {
      * Mostra la classifica dell'hackathon utilizzando la funzione del database.
      */
     private void mostraClassificaHackathon() {
-        if (MENUGIUDICETextArea != null && hackathonDAO != null) {
+        if (MENUGIUDICETextArea != null && hackathonController != null) {
             try {
                 MENUGIUDICETextArea.setText("");
                 MENUGIUDICETextArea.append("🏆 GENERAZIONE CLASSIFICA HACKATHON: " + titoloHackathon + "\n");
                 MENUGIUDICETextArea.append("═".repeat(70) + "\n\n");
                 MENUGIUDICETextArea.append("⏳ Elaborazione in corso...\n\n");
-                
+
                 // Chiama la funzione del database per generare la classifica
-                String risultatoClassifica = hackathonDAO.generaClassificaHackathon(titoloHackathon);
-                
+                String risultatoClassifica = hackathonController.generaClassificaHackathon(titoloHackathon);
+
                 MENUGIUDICETextArea.setText("");
                 MENUGIUDICETextArea.append("🏆 CLASSIFICA HACKATHON: " + titoloHackathon + "\n");
                 MENUGIUDICETextArea.append("═".repeat(70) + "\n\n");
-                
+
                 // Verifica se il risultato è un errore
                 if (risultatoClassifica.startsWith("Errore:")) {
                     MENUGIUDICETextArea.append("❌ " + risultatoClassifica + "\n\n");
-                    
+
                     // Aggiungi suggerimenti basati sul tipo di errore
                     if (risultatoClassifica.contains("prima della fine dell'hackathon")) {
                         MENUGIUDICETextArea.append("💡 Suggerimento: La classifica può essere generata solo dopo la fine dell'hackathon.\n");
@@ -322,22 +313,22 @@ public class JudgeView {
                     } else if (risultatoClassifica.contains("non trovato")) {
                         MENUGIUDICETextArea.append("💡 Suggerimento: Verifica che il nome dell'hackathon sia corretto.\n");
                     }
-                    
+
                 } else {
                     // Classifica generata con successo - formatta e mostra
                     MENUGIUDICETextArea.append("✅ Classifica generata con successo!\n\n");
-                    
+
                     String[] righeClassifica = risultatoClassifica.split("\n");
-                    
+
                     for (String riga : righeClassifica) {
                         if (riga.trim().isEmpty()) continue;
-                        
+
                         String[] parti = riga.trim().split(" ");
                         if (parti.length >= 3) {
                             int posizione = Integer.parseInt(parti[0]);
                             String nomeTeam = parti[1];
                             String punteggio = parti[2];
-                            
+
                             // Icone per le prime posizioni
                             String icona = "";
                             if (posizione == 1) {
@@ -349,20 +340,20 @@ public class JudgeView {
                             } else {
                                 icona = "   ";
                             }
-                            
-                            MENUGIUDICETextArea.append(String.format("%s%d°. %-25s Punteggio: %s\n", 
+
+                            MENUGIUDICETextArea.append(String.format("%s%d°. %-25s Punteggio: %s\n",
                                 icona, posizione, nomeTeam, punteggio));
                         }
                     }
-                    
+
                     MENUGIUDICETextArea.append("\n" + "═".repeat(70) + "\n");
                     MENUGIUDICETextArea.append("📊 Classifica aggiornata nel database\n");
                     MENUGIUDICETextArea.append("🎯 Totale team classificati: " + righeClassifica.length + "\n");
                 }
-                
+
                 // Posiziona il cursore all'inizio
                 MENUGIUDICETextArea.setCaretPosition(0);
-                
+
             } catch (Exception ex) {
                 MENUGIUDICETextArea.setText("");
                 MENUGIUDICETextArea.append("❌ ERRORE NELLA GENERAZIONE DELLA CLASSIFICA\n\n");
@@ -390,22 +381,22 @@ public class JudgeView {
     private void aggiungiVotoFinale() {
         try {
             // Verifica che l'hackathon sia terminato
-            if (hackathonDAO.isHackathonTerminato(titoloHackathon)) {
-                
+            if (hackathonController.isHackathonTerminato(titoloHackathon)) {
+
                 // Ottieni tutti i team per questo hackathon
-                List<String> teamNames = membershipDAO.getTeamsForHackathon(titoloHackathon);
-                
+                List<String> teamNames = hackathonController.getNomiTeamHackathon(titoloHackathon);
+
                 if (teamNames == null || teamNames.isEmpty()) {
-                    JOptionPane.showMessageDialog(judgeViewFrame, 
-                        "Non ci sono team registrati per questo hackathon.", 
-                        "Nessun team", 
+                    JOptionPane.showMessageDialog(judgeViewFrame,
+                        "Non ci sono team registrati per questo hackathon.",
+                        "Nessun team",
                         JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
-                
+
                 // Crea un array per la selezione
                 String[] teamArray = teamNames.toArray(new String[0]);
-                
+
                 // Mostra dialog per selezionare il team
                 String teamSelezionato = (String) JOptionPane.showInputDialog(
                     judgeViewFrame,
@@ -416,35 +407,33 @@ public class JudgeView {
                     teamArray,
                     teamArray[0]
                 );
-                
+
                 if (teamSelezionato != null) {
                     // Verifica se il giudice ha già votato questo team
-                    VotoDAOImpl votoDAO = new VotoDAOImpl();
-                    
-                    if (votoDAO.hasGiudiceVotatoTeam(giudice.getName(), titoloHackathon, teamSelezionato)) {
-                        JOptionPane.showMessageDialog(judgeViewFrame, 
+                    if (hackathonController.hasGiudiceVotatoTeam(giudice.getName(), titoloHackathon, teamSelezionato)) {
+                        JOptionPane.showMessageDialog(judgeViewFrame,
                             "Hai già votato il team '" + teamSelezionato + "'.\n" +
-                            "Non è possibile modificare il voto.", 
-                            "Voto già assegnato", 
+                            "Non è possibile modificare il voto.",
+                            "Voto già assegnato",
                             JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                    
+
                     // Ottieni l'ultimo documento del team
-                    List<Documento> documenti = documentoDAO.getDocumentiByTeam(teamSelezionato, titoloHackathon);
-                    
+                    List<Documento> documenti = hackathonController.getDocumentiByTeam(teamSelezionato, titoloHackathon);
+
                     if (documenti == null || documenti.isEmpty()) {
-                        JOptionPane.showMessageDialog(judgeViewFrame, 
+                        JOptionPane.showMessageDialog(judgeViewFrame,
                             "Il team '" + teamSelezionato + "' non ha caricato alcun documento.\n" +
-                            "Non è possibile assegnare un voto.", 
-                            "Nessun documento", 
+                            "Non è possibile assegnare un voto.",
+                            "Nessun documento",
                             JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                    
+
                     // Ottieni l'ultimo documento (il più recente)
                     Documento ultimoDocumento = documenti.get(documenti.size() - 1);
-                    
+
                     // Mostra dialog per inserire il voto
                     String votoString = JOptionPane.showInputDialog(
                         judgeViewFrame,
@@ -454,30 +443,30 @@ public class JudgeView {
                         "Voto Finale per " + teamSelezionato,
                         JOptionPane.QUESTION_MESSAGE
                     );
-                    
+
                     if (votoString != null && !votoString.trim().isEmpty()) {
                         try {
                             int voto = Integer.parseInt(votoString.trim());
-                            
+
                             if (voto < 1 || voto > 10) {
-                                JOptionPane.showMessageDialog(judgeViewFrame, 
-                                    "Il voto deve essere compreso tra 1 e 10.", 
-                                    "Voto non valido", 
+                                JOptionPane.showMessageDialog(judgeViewFrame,
+                                    "Il voto deve essere compreso tra 1 e 10.",
+                                    "Voto non valido",
                                     JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
-                            
-                            // Salva il voto nel database
-                            boolean success = votoDAO.save(giudice.getName(), titoloHackathon, teamSelezionato, voto);
-                            
+
+                            // Salva il voto nel database usando il controller
+                            boolean success = hackathonController.assegnaVotoFinale(titoloHackathon, teamSelezionato, voto, giudice);
+
                             if (success) {
-                                JOptionPane.showMessageDialog(judgeViewFrame, 
+                                JOptionPane.showMessageDialog(judgeViewFrame,
                                     "Voto assegnato con successo!\n" +
                                     "Team: " + teamSelezionato + "\n" +
-                                    "Voto: " + voto + "/10", 
-                                    "Voto salvato", 
+                                    "Voto: " + voto + "/10",
+                                    "Voto salvato",
                                     JOptionPane.INFORMATION_MESSAGE);
-                                
+
                                 // Aggiorna la vista mostrando un messaggio nella text area
                                 if (MENUGIUDICETextArea != null) {
                                     MENUGIUDICETextArea.append("\n" + "═".repeat(50) + "\n");
@@ -488,36 +477,36 @@ public class JudgeView {
                                     MENUGIUDICETextArea.append("═".repeat(50) + "\n");
                                 }
                             } else {
-                                JOptionPane.showMessageDialog(judgeViewFrame, 
+                                JOptionPane.showMessageDialog(judgeViewFrame,
                                     "Errore durante il salvataggio del voto.\n" +
-                                    "Riprova più tardi.", 
-                                    "Errore", 
+                                    "Riprova più tardi.",
+                                    "Errore",
                                     JOptionPane.ERROR_MESSAGE);
                             }
-                            
+
                         } catch (NumberFormatException e) {
-                            JOptionPane.showMessageDialog(judgeViewFrame, 
-                                "Inserisci un numero valido (1-10).", 
-                                "Formato non valido", 
+                            JOptionPane.showMessageDialog(judgeViewFrame,
+                                "Inserisci un numero valido (1-10).",
+                                "Formato non valido",
                                 JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }
-                
+
             } else {
                 // Hackathon non terminato
-                JOptionPane.showMessageDialog(judgeViewFrame, 
+                JOptionPane.showMessageDialog(judgeViewFrame,
                     "Non è possibile assegnare voti finali.\n" +
                     "L'hackathon '" + titoloHackathon + "' non è ancora terminato.\n\n" +
-                    "I voti finali possono essere assegnati solo dopo la fine dell'evento.", 
-                    "Hackathon in corso", 
+                    "I voti finali possono essere assegnati solo dopo la fine dell'evento.",
+                    "Hackathon in corso",
                     JOptionPane.WARNING_MESSAGE);
             }
-            
+
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(judgeViewFrame, 
-                "Errore durante l'operazione: " + ex.getMessage(), 
-                "Errore", 
+            JOptionPane.showMessageDialog(judgeViewFrame,
+                "Errore durante l'operazione: " + ex.getMessage(),
+                "Errore",
                 JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
@@ -532,3 +521,4 @@ public class JudgeView {
         // dal file JudgeView.form quando il progetto viene compilato
     }
 }
+

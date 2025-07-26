@@ -7,6 +7,7 @@ import model.*;
 import javax.swing.*;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Controller per la gestione dei team e delle membership.
@@ -156,7 +157,106 @@ public class TeamController {
         }
     }
     
+    /**
+     * Ottiene tutti i team per un hackathon specifico.
+     * 
+     * @param titoloHackathon Il titolo dell'hackathon
+     * @return Lista di team per l'hackathon o null in caso di errore
+     */
+    public List<Team> getTeamsByHackathon(String titoloHackathon) {
+        if (teamDAO == null) {
+            return null;
+        }
+        
+        try {
+            return teamDAO.findByHackathon(titoloHackathon);
+        } catch (SQLException e) {
+            System.err.println("Errore durante il recupero dei team per l'hackathon '" + titoloHackathon + "': " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Ottiene il numero di membri di un team.
+     * 
+     * @param nomeTeam Nome del team
+     * @param titoloHackathon Titolo dell'hackathon
+     * @return Numero di membri del team
+     */
+    public int getNumeroMembriTeam(String nomeTeam, String titoloHackathon) {
+        if (membershipDAO == null) {
+            return 0;
+        }
+        
+        try {
+            return membershipDAO.countTeamMembers(nomeTeam, titoloHackathon);
+        } catch (SQLException e) {
+            System.err.println("Errore durante il conteggio dei membri del team '" + nomeTeam + "': " + e.getMessage());
+            return 0;
+        }
+    }
+    
     // NOTA: I metodi di semplice query sono stati rimossi dal controller.
+    /**
+     * Conta il numero di membri di un team.
+     * Versione sicura che non lancia SQLException.
+     *
+     * @param nomeTeam Il nome del team
+     * @param titoloHackathon Il titolo dell'hackathon
+     * @return Il numero di membri del team, 0 in caso di errore
+     */
+    public int contaMembriTeam(String nomeTeam, String titoloHackathon) {
+        try {
+            return teamDAO.countMembers(nomeTeam, titoloHackathon);
+        } catch (SQLException e) {
+            System.err.println("Errore nel conteggio membri team: " + e.getMessage());
+            return 0; // Ritorna 0 in caso di errore
+        }
+    }
+
+    /**
+     * Verifica se un utente può unirsi a un team specifico.
+     * Versione sicura che non lancia SQLException.
+     *
+     * @param team Il team da verificare
+     * @param utente L'utente che vuole unirsi
+     * @return true se l'utente può unirsi al team, false altrimenti
+     */
+    public boolean puoUtenterUnirsiAlTeam(Team team, Utente utente) {
+        try {
+            // Verifica se il periodo di registrazione è ancora aperto
+            LocalDate dataFineRegistrazione = team.getHackathon().getDataFineRegistrazioni().toLocalDate();
+            if (LocalDate.now().isAfter(dataFineRegistrazione)) {
+                return false; // Registrazioni chiuse
+            }
+
+            // Verifica se l'utente è già in un team per questo hackathon
+            String teamCorrente = membershipDAO.getUserTeamForHackathon(
+                utente.getName(), team.getHackathon().getTitoloIdentificativo());
+
+            if (teamCorrente != null) {
+                return false; // Già in un team
+            }
+
+            // Verifica se il team è al completo
+            int membri = teamDAO.countMembers(
+                team.getNomeTeam(),
+                team.getHackathon().getTitoloIdentificativo()
+            );
+
+            int maxMembri = team.getHackathon().getMaxMembriTeam();
+            if (membri >= maxMembri) {
+                return false; // Team pieno
+            }
+
+            return true; // Può unirsi
+
+        } catch (SQLException e) {
+            System.err.println("Errore nella verifica unione team: " + e.getMessage());
+            return false; // In caso di errore, non permettere l'unione per sicurezza
+        }
+    }
+
     // Per operazioni semplici, utilizzare direttamente le DAO:
     // - teamDAO.findByHackathon() per ottenere team di un hackathon
     // - membershipDAO.getTeamForUserAndHackathon() per team di un utente
@@ -174,5 +274,29 @@ public class TeamController {
     
     public MembershipDAOImpl getMembershipDAO() {
         return membershipDAO;
+    }
+
+    /**
+     * Restituisce il nome del team corrente dell'utente per un hackathon specifico
+     * (metodo sicuro per la GUI)
+     */
+    public String getTeamCorrenteUtente(String nomeUtente, String titoloHackathon) {
+        try {
+            return membershipDAO.getUserTeamForHackathon(nomeUtente, titoloHackathon);
+        } catch (SQLException e) {
+            return null; // Ritorna null se non ha team o in caso di errore
+        }
+    }
+
+    /**
+     * Metodo per ottenere tutti i team in modo sicuro per la GUI
+     * (restituisce lista vuota in caso di errore invece di lanciare eccezione)
+     */
+    public List<Team> getAllTeamsSafe() {
+        try {
+            return teamDAO.findAll();
+        } catch (SQLException e) {
+            return new java.util.ArrayList<>(); // Restituisce lista vuota in caso di errore
+        }
     }
 }

@@ -1,7 +1,7 @@
 package gui;
 
-import controller.Controller;
-import controller.ControllerOrganizzatore;
+import controller.UserController;
+import controller.HackathonController;
 import model.*;
 
 import javax.swing.*;
@@ -22,8 +22,8 @@ public class Home {
     private JButton stampaOrganizzatoriBtn; // Pulsante per stampare la lista degli organizzatori.
 
     public static JFrame frame; // Finestra principale dell'applicazione.
-    private final Controller userController; // Controller per la gestione degli utenti.
-    private final ControllerOrganizzatore orgController; // Controller per la gestione degli organizzatori.
+    private final UserController userController; // Controller per la gestione degli utenti.
+    private final HackathonController orgController; // Controller per la gestione degli organizzatori.
 
     /**
      * Metodo principale dell'applicazione.
@@ -50,8 +50,8 @@ public class Home {
      * Inizializza i controller e configura i listener per i pulsanti.
      */
     public Home() {
-        userController = new Controller();
-        orgController = new ControllerOrganizzatore();
+        userController = new UserController();
+        orgController = new HackathonController();
 
         // Ensure homeTextArea is not null before using it
         if (homeTextArea != null) {

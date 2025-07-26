@@ -1,88 +1,118 @@
 package gui;
 
-import controller.Controller;
-import controller.ControllerOrganizzatore;
+import controller.UserController;
+import controller.HackathonController;
 import controller.TeamController;
 import model.*;
+import utilities.DynamicSearchHelper;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List;
 
 /**
- * La classe ScegliTeam rappresenta un'interfaccia grafica per consentire a un utente di selezionare un team
- * associato a un hackathon. L'utente può scegliere un hackathon e successivamente un team da una lista.
+ * La classe ScegliTeam rappresenta un'interfaccia grafica per consentire a un utente di cercare
+ * e selezionare un team tramite ricerca dinamica con lista cliccabile.
  */
 public class ScegliTeam {
-    private JPanel panelScegliTeam; // Pannello principale della finestra.
     private JComboBox<Hackathon> hackathonComboBox; // ComboBox per selezionare un hackathon.
-    private JComboBox<Team> teamComboBox; // ComboBox per selezionare un team.
+    private JTextField nomeTeamField; // Campo di testo per inserire il nome del team.
+    private JList<Team> teamList; // Lista per mostrare i team trovati.
+    private DefaultListModel<Team> listModel; // Modello per la lista dei team.
     private JButton btnInvio; // Pulsante per confermare la selezione del team.
+    private JLabel infoLabel; // Label per mostrare informazioni sui risultati.
+    private DynamicSearchHelper<Team> searchHelper; // Helper per la ricerca dinamica.
+    private TeamController teamController; // Controller per gestire i team.
 
     /**
      * Costruttore della classe ScegliTeam.
      *
      * @param userLogged L'utente attualmente loggato.
      * @param frameCalling Il frame chiamante che ha aperto questa finestra.
-     * @param controllerOrganizzatore Il controller per la gestione degli organizzatori e degli hackathon.
+     * @param hackathonController Il controller per la gestione degli organizzatori e degli hackathon.
      * @param controllerUtente Il controller per la gestione degli utenti.
      */
-    public ScegliTeam(Utente userLogged, JFrame frameCalling, ControllerOrganizzatore controllerOrganizzatore, Controller controllerUtente) {
+    public ScegliTeam(Utente userLogged, JFrame frameCalling, HackathonController hackathonController, UserController controllerUtente) {
         // Inizializza il TeamController per gestire le operazioni sui team
-        TeamController teamController = new TeamController();
-        
-        JFrame frame = new JFrame("Scelta Team");
-        frame.setContentPane(panelScegliTeam);
-        frame.pack();
+        this.teamController = new TeamController();
 
-        // Listener per gestire la chiusura della finestra.
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                frameCalling.setVisible(true);
-                frame.dispose();
-            }
-        });
+        // Crea la finestra di dialogo personalizzata
+        JDialog dialog = new JDialog(frameCalling, "Scegli Team", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(600, 500);
+        dialog.setLocationRelativeTo(frameCalling);
 
-        frame.setVisible(true);
-        frame.setSize(600, 300);
-        frame.setResizable(false);
-        frame.setLocationRelativeTo(null);
+        // Crea il pannello principale
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        // Pannello superiore per la selezione dell'hackathon
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topPanel.add(new JLabel("Seleziona Hackathon:"));
+        hackathonComboBox = new JComboBox<>();
+        topPanel.add(hackathonComboBox);
+
+        // Pannello per la ricerca
+        JPanel searchPanel = new JPanel(new BorderLayout(5, 5));
+        searchPanel.setBorder(BorderFactory.createTitledBorder("Ricerca Team"));
+        searchPanel.add(new JLabel("Cerca Nome Team:"), BorderLayout.WEST);
+        nomeTeamField = new JTextField(20);
+        nomeTeamField.setToolTipText("Digita per cercare team in tempo reale");
+        searchPanel.add(nomeTeamField, BorderLayout.CENTER);
+
+        // Pannello centrale per la lista dei team
+        JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
+        centerPanel.setBorder(BorderFactory.createTitledBorder("Team Disponibili"));
+
+        // Inizializza la lista e il modello
+        listModel = new DefaultListModel<>();
+        teamList = new JList<>(listModel);
+        teamList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        teamList.setEnabled(false);
+
+        // Renderer personalizzato per la lista
+        teamList.setCellRenderer(new TeamListCellRenderer(teamController, userLogged));
+
+        // ScrollPane per la lista
+        JScrollPane listScrollPane = new JScrollPane(teamList);
+        listScrollPane.setPreferredSize(new Dimension(500, 200));
+        centerPanel.add(listScrollPane, BorderLayout.CENTER);
+
+        // Label informativa
+        infoLabel = new JLabel("Seleziona un hackathon e digita per cercare");
+        infoLabel.setOpaque(true);
+        infoLabel.setBackground(Color.LIGHT_GRAY);
+        infoLabel.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
+        centerPanel.add(infoLabel, BorderLayout.SOUTH);
+
+        // Pannello inferiore per i pulsanti
+        JPanel bottomPanel = new JPanel(new FlowLayout());
+        btnInvio = new JButton("Entra nel Team");
+        btnInvio.setEnabled(false);
+        JButton btnAnnulla = new JButton("Annulla");
+        bottomPanel.add(btnInvio);
+        bottomPanel.add(btnAnnulla);
+
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        mainPanel.add(searchPanel, BorderLayout.CENTER);
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        // Layout manager per il centro
+        JPanel combinedCenter = new JPanel(new BorderLayout());
+        combinedCenter.add(searchPanel, BorderLayout.NORTH);
+        combinedCenter.add(centerPanel, BorderLayout.CENTER);
+        mainPanel.add(combinedCenter, BorderLayout.CENTER);
+
+        dialog.setContentPane(mainPanel);
 
         // Popola il ComboBox con la lista degli hackathon disponibili.
-        for(Hackathon h : controllerOrganizzatore.getListaHackathon()) {
+        for(Hackathon h : hackathonController.getListaHackathon()) {
             hackathonComboBox.addItem(h);
         }
-
-        // Listener per aggiornare i team disponibili in base all'hackathon selezionato.
-        hackathonComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                teamComboBox.removeAllItems();
-
-                Hackathon hackathonSelezionato = (Hackathon) hackathonComboBox.getSelectedItem();
-                if (hackathonSelezionato != null) {
-                    try {
-                        // Usa direttamente TeamDAO per operazioni semplici di query
-                        for (Team team : teamController.getTeamDAO().findByHackathon(hackathonSelezionato.getTitoloIdentificativo())) {
-                            teamComboBox.addItem(team);
-                        }
-                    } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(frame, 
-                            "Errore nel caricamento dei team:\n" + ex.getMessage(), 
-                            "Errore database", JOptionPane.ERROR_MESSAGE);
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(frame, 
-                            "Errore imprevisto nel caricamento dei team:\n" + ex.getMessage(), 
-                            "Errore", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            }
-        });
 
         // Imposta il renderer per visualizzare i titoli degli hackathon nel ComboBox.
         hackathonComboBox.setRenderer(new DefaultListCellRenderer() {
@@ -97,60 +127,205 @@ public class ScegliTeam {
             }
         });
 
-        // Imposta il renderer per visualizzare i nomi dei team nel ComboBox.
-        teamComboBox.setRenderer(new DefaultListCellRenderer() {
+        // Inizializza l'helper per la ricerca dinamica (sarà configurato quando si seleziona un hackathon)
+        searchHelper = null;
+
+        // Listener per il cambio di hackathon
+        hackathonComboBox.addActionListener(new ActionListener() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                          boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof Team) {
-                    setText(((Team) value).getNomeTeam());
-                }
-                return this;
+            public void actionPerformed(ActionEvent e) {
+            Hackathon hackathonSelezionato = (Hackathon) hackathonComboBox.getSelectedItem();
+            
+            if (hackathonSelezionato == null) {
+                listModel.clear();
+                teamList.setEnabled(false);
+                btnInvio.setEnabled(false);
+                infoLabel.setText("Seleziona un hackathon");
+                infoLabel.setBackground(Color.LIGHT_GRAY);
+                searchHelper = null;
+                return;
+            }
+
+            // Ottieni tutti i team per l'hackathon selezionato
+            List<Team> teamDisponibili = teamController.getTeamsByHackathon(hackathonSelezionato.getTitoloIdentificativo());
+            
+            if (teamDisponibili == null || teamDisponibili.isEmpty()) {
+                listModel.clear();
+                teamList.setEnabled(false);
+                btnInvio.setEnabled(false);
+                infoLabel.setText("Nessun team trovato per questo hackathon");
+                infoLabel.setBackground(new Color(255, 200, 200)); // Rosso chiaro
+                searchHelper = null;
+                return;
+            }
+
+            // Inizializza o aggiorna l'helper per la ricerca dinamica
+            if (searchHelper == null) {
+                searchHelper = new DynamicSearchHelper<>(
+                    nomeTeamField,
+                    teamList,
+                    listModel,
+                    infoLabel,
+                    teamDisponibili,
+                    team -> team.getNomeTeam(), // Estrae il nome per la ricerca
+                    () -> {
+                        // Callback per quando la selezione cambia
+                        Team teamSelezionato = teamList.getSelectedValue();
+                        if (teamSelezionato != null) {
+                            int numMembri = teamController.contaMembriTeam(
+                                teamSelezionato.getNomeTeam(),
+                                teamSelezionato.getHackathon().getTitoloIdentificativo()
+                            );
+
+                            // Controlla se l'utente può unirsi al team
+                            boolean puo_unirsi = teamController.puoUtenterUnirsiAlTeam(teamSelezionato, userLogged);
+
+                            infoLabel.setText(String.format(
+                                "<html><b>Team selezionato:</b> %s<br><b>Membri attuali:</b> %d<br><b>Stato:</b> %s</html>",
+                                teamSelezionato.getNomeTeam(),
+                                numMembri,
+                                puo_unirsi ? "Disponibile" : "Non disponibile"
+                            ));
+
+                            btnInvio.setEnabled(puo_unirsi);
+                        } else {
+                            btnInvio.setEnabled(false);
+                        }
+                    }
+                );
+            } else {
+                // Aggiorna l'helper con i nuovi team
+                searchHelper.updateAllItems(teamDisponibili);
+            }
             }
         });
 
-        // Listener per il pulsante "Invio".
+        // Listener per il pulsante "Entra nel Team"
         btnInvio.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                Team teamSelezionato = searchHelper != null ? searchHelper.getSelectedItem() : null;
+                if (teamSelezionato == null) {
+                    JOptionPane.showMessageDialog(dialog, "Seleziona un team dalla lista!",
+                            "Errore", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 try {
-                    Team teamSelezionato = (Team) teamComboBox.getSelectedItem();
-                    if (teamSelezionato == null) {
-                        JOptionPane.showMessageDialog(frame, "Seleziona un team!", 
-                            "Errore di validazione", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    
                     // Aggiunge l'utente al team utilizzando il TeamController
                     teamController.aggiungiUtenteATeam(userLogged, teamSelezionato);
-                    
+
                     // Notifica successo
-                    JOptionPane.showMessageDialog(frame, 
-                        "Sei stato aggiunto con successo al team '" + teamSelezionato.getNomeTeam() + "'!", 
-                        "Adesione completata", JOptionPane.INFORMATION_MESSAGE);
-                    
-                    frameCalling.setVisible(true);
-                    frame.dispose();
+                    JOptionPane.showMessageDialog(dialog,
+                            "Sei stato aggiunto con successo al team '" + teamSelezionato.getNomeTeam() + "'!",
+                            "Adesione completata", JOptionPane.INFORMATION_MESSAGE);
+
+                    dialog.dispose(); // Chiude solo il dialog, non l'applicazione
                 }
                 catch (IllegalArgumentException ex) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Errore nell'adesione al team:\n" + ex.getMessage(), 
-                        "Errore", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog,
+                            "Errore nell'adesione al team:\n" + ex.getMessage(),
+                            "Errore", JOptionPane.ERROR_MESSAGE);
                 }
                 catch (IllegalStateException ex) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Operazione non consentita:\n" + ex.getMessage(), 
-                        "Avviso", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog,
+                            "Operazione non consentita:\n" + ex.getMessage(),
+                            "Avviso", JOptionPane.WARNING_MESSAGE);
                 }
                 catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Errore imprevisto:\n" + ex.getMessage(), 
-                        "Errore", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog,
+                            "Errore imprevisto:\n" + ex.getMessage(),
+                            "Errore", JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();
                 }
             }
         });
 
+        // Listener per il pulsante "Annulla"
+        btnAnnulla.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialog.dispose(); // Chiude solo il dialog, non l'applicazione
+            }
+        });
+
+        dialog.setVisible(true);
+    }
+
+}
+
+/**
+ * Renderer personalizzato per la lista dei team
+ */
+class TeamListCellRenderer extends DefaultListCellRenderer {
+    private TeamController teamController;
+    private Utente utente;
+
+    public TeamListCellRenderer(TeamController teamController, Utente utente) {
+        this.teamController = teamController;
+        this.utente = utente;
+    }
+
+    @Override
+    public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                  boolean isSelected, boolean cellHasFocus) {
+        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+        if (value instanceof Team) {
+            Team team = (Team) value;
+
+            int membri = teamController.contaMembriTeam(
+                team.getNomeTeam(),
+                team.getHackathon().getTitoloIdentificativo()
+            );
+            int maxMembri = team.getHackathon().getMaxMembriTeam();
+
+            // Testo da mostrare
+            setText(String.format("%s (%d/%d membri)",
+                team.getNomeTeam(), membri, maxMembri));
+
+            // Verifica lo stato del team usando il metodo sicuro del controller
+            boolean puo_unirsi = teamController.puoUtenterUnirsiAlTeam(team, utente);
+            String motivazione = "";
+
+            // Verifica se il periodo di registrazione è ancora aperto
+            LocalDate dataFineRegistrazione = team.getHackathon().getDataFineRegistrazioni().toLocalDate();
+            if (LocalDate.now().isAfter(dataFineRegistrazione)) {
+                puo_unirsi = false;
+                motivazione = "Registrazioni chiuse";
+            }
+
+            // Verifica se l'utente è già in un team per questo hackathon
+            String teamCorrente = teamController.getTeamCorrenteUtente(utente.getName(), team.getHackathon().getTitoloIdentificativo());
+
+            if (teamCorrente != null) {
+                puo_unirsi = false;
+                if (teamCorrente.equals(team.getNomeTeam())) {
+                    motivazione = "Sei già membro di questo team";
+                    setForeground(isSelected ? Color.WHITE : new Color(0, 100, 0)); // Verde scuro
+                } else {
+                    motivazione = "Sei già in un altro team";
+                }
+            }
+
+            // Verifica se il team è al completo
+            if (membri >= maxMembri && puo_unirsi) {
+                puo_unirsi = false;
+                motivazione = "Team al completo";
+            }
+
+            // Imposta colori e tooltip
+            if (!puo_unirsi) {
+                if (!motivazione.equals("Sei già membro di questo team")) {
+                    setForeground(isSelected ? Color.WHITE : Color.GRAY);
+                }
+                setToolTipText(motivazione);
+            } else {
+                setForeground(isSelected ? Color.WHITE : Color.BLACK);
+                setToolTipText("Clicca per selezionare questo team");
+            }
+        }
+
+        return this;
     }
 }
