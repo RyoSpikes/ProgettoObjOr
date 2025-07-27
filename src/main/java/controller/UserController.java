@@ -77,11 +77,8 @@ public class UserController {
         }
         catch (SQLException ex) {
             System.err.println("Errore SQL durante il salvataggio: " + ex.getMessage());
-            JOptionPane.showMessageDialog(null, 
-                "Errore durante il salvataggio nel database: " + ex.getMessage(), 
-                "Errore Database", 
-                JOptionPane.ERROR_MESSAGE);
-            throw new IllegalArgumentException("Errore database: " + ex.getMessage());
+            // Non mostrare più JOptionPane qui, lascia che sia gestito dall'interfaccia
+            throw new IllegalArgumentException(ex.getMessage());
         }
     }
 

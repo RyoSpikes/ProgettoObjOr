@@ -1,6 +1,7 @@
 package controller;
 
 import model.*;
+import utilities.ErrorMessageTranslator;
 
 import javax.swing.*;
 import java.sql.SQLException;
@@ -572,7 +573,9 @@ public class HackathonController extends UserController {
             return votoDAO.save(giudice.getName(), titoloHackathon, nomeTeam, votoFinale);
         } catch (SQLException e) {
             System.err.println("Errore nell'assegnazione del voto: " + e.getMessage());
-            return false;
+            // Lancia un'eccezione con messaggio tradotto per l'utente
+            String userFriendlyMessage = ErrorMessageTranslator.translateError(e.getMessage());
+            throw new RuntimeException(userFriendlyMessage, e);
         }
     }
 

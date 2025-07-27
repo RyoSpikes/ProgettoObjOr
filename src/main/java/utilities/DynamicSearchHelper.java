@@ -173,14 +173,19 @@ public class DynamicSearchHelper<T> {
      * @param newItems Nuova lista di elementi
      */
     public void updateAllItems(List<T> newItems) {
+        System.out.println("DEBUG DynamicSearchHelper: Aggiornamento lista con " + (newItems != null ? newItems.size() : 0) + " elementi");
+        
         // Sostituisce completamente la lista corrente
         allItems.clear();
         if (newItems != null) {
             allItems.addAll(newItems);
+            System.out.println("DEBUG DynamicSearchHelper: Lista aggiornata, ora contiene " + allItems.size() + " elementi");
         }
         
         // Ricarica la vista
         String currentSearch = searchField.getText().trim();
+        System.out.println("DEBUG DynamicSearchHelper: Testo di ricerca corrente: '" + currentSearch + "'");
+        
         if (currentSearch.isEmpty()) {
             loadAllItems();
         } else {

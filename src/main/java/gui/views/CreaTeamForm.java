@@ -1,4 +1,4 @@
-package gui.forms;
+package gui.views;
 
 import controller.HackathonController;
 import model.Hackathon;
@@ -33,6 +33,9 @@ public class CreaTeamForm {
     public CreaTeamForm(Utente userLogged, JFrame frameCalling, HackathonController hackathonController) {
         
         JFrame frame = new JFrame("Creazione Team");
+        
+        // Crea l'interfaccia manualmente
+        createInterface();
         frame.setContentPane(panelCreaTeam);
         frame.pack();
 
@@ -118,5 +121,50 @@ public class CreaTeamForm {
                 }
             }
         });
+    }
+    
+    /**
+     * Crea l'interfaccia utente manualmente.
+     */
+    private void createInterface() {
+        panelCreaTeam = new JPanel(new BorderLayout());
+        panelCreaTeam.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        // Header
+        JLabel titleLabel = new JLabel("Crea un nuovo Team", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+        panelCreaTeam.add(titleLabel, BorderLayout.NORTH);
+        
+        // Form panel
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        
+        // Nome team
+        gbc.gridx = 0; gbc.gridy = 0; gbc.anchor = GridBagConstraints.WEST;
+        formPanel.add(new JLabel("Nome Team:"), gbc);
+        
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
+        nomeTeamField = new JTextField(20);
+        formPanel.add(nomeTeamField, gbc);
+        
+        // Hackathon selection
+        gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        formPanel.add(new JLabel("Hackathon:"), gbc);
+        
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
+        hackathonComboBox = new JComboBox<>();
+        formPanel.add(hackathonComboBox, gbc);
+        
+        panelCreaTeam.add(formPanel, BorderLayout.CENTER);
+        
+        // Button panel
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        creaTeamButton = new JButton("Crea Team");
+        creaTeamButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        buttonPanel.add(creaTeamButton);
+        
+        panelCreaTeam.add(buttonPanel, BorderLayout.SOUTH);
     }
 }

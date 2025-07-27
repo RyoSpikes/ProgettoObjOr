@@ -56,26 +56,58 @@ public class Home {
      * Metodo principale dell'applicazione.
      */
     public static void main(String[] args) {
+        // Pulisce eventuali risorse precedenti
+        cleanupPreviousResources();
+        
         // Imposta look and feel moderno
         setupModernLookAndFeel();
         
         SwingUtilities.invokeLater(() -> {
-            Home homeInstance = new Home();
-            frame = new JFrame("Hackathon Management System");
-            frame.setContentPane(homeInstance.mainPanel);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(1000, 750);
-            frame.setResizable(true);
-            frame.setLocationRelativeTo(null);
-            
-            // Icona personalizzata se disponibile
             try {
-                frame.setIconImage(Toolkit.getDefaultToolkit().getImage("resources/icon.png"));
+                Home homeInstance = new Home();
+                
+                // Controllo di sicurezza per evitare il problema "contentpane cannot be set to null"
+                if (homeInstance.mainPanel == null) {
+                    System.err.println("Errore: mainPanel non inizializzato correttamente");
+                    homeInstance.createModernComponents(); // Forza la creazione dei componenti
+                }
+                
+                frame = new JFrame("Hackathon Management System");
+                
+                // Controllo di sicurezza prima di settare il content pane
+                if (homeInstance.mainPanel != null) {
+                    frame.setContentPane(homeInstance.mainPanel);
+                } else {
+                    System.err.println("Errore critico: impossibile inizializzare mainPanel");
+                    return;
+                }
+                
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(1000, 750);
+                frame.setResizable(true);
+                frame.setLocationRelativeTo(null);
+                
+                // Icona personalizzata se disponibile
+                try {
+                    frame.setIconImage(Toolkit.getDefaultToolkit().getImage("resources/icon.png"));
+                } catch (Exception e) {
+                    // Ignora se l'icona non è disponibile
+                }
+                
+                frame.setVisible(true);
             } catch (Exception e) {
-                // Ignora se l'icona non è disponibile
+                e.printStackTrace();
+                System.err.println("Errore durante l'inizializzazione dell'applicazione: " + e.getMessage());
+                
+                // Fallback: crea una finestra di errore semplice
+                JFrame errorFrame = new JFrame("Errore");
+                JLabel errorLabel = new JLabel("Errore durante l'avvio dell'applicazione. Prova a cancellare la cartella target.", SwingConstants.CENTER);
+                errorFrame.add(errorLabel);
+                errorFrame.setSize(400, 100);
+                errorFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                errorFrame.setLocationRelativeTo(null);
+                errorFrame.setVisible(true);
             }
-            
-            frame.setVisible(true);
         });
     }
     
@@ -93,6 +125,29 @@ public class Home {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Pulisce eventuali risorse precedenti per evitare conflitti
+     * quando l'applicazione viene riavviata senza cancellare target.
+     */
+    private static void cleanupPreviousResources() {
+        try {
+            // Forza la garbage collection
+            System.gc();
+            
+            // Chiudi eventuali frame precedenti
+            if (frame != null && frame.isDisplayable()) {
+                frame.dispose();
+                frame = null;
+            }
+            
+            // Reset delle proprietà UI se necessario
+            UIManager.getDefaults().clear();
+            
+        } catch (Exception e) {
+            System.err.println("Avviso: errore durante la pulizia delle risorse precedenti: " + e.getMessage());
+        }
+    }
 
     /**
      * Costruttore della classe Home - Implementazione moderna.
@@ -100,42 +155,74 @@ public class Home {
     public Home() {
         hackathonController = new HackathonController();
         
-        createModernComponents();
-        setupModernLayout();
-        setupEventListeners();
+        try {
+            createModernComponents();
+            setupModernLayout();
+            setupEventListeners();
+            
+            // Controllo finale che tutti i componenti siano stati inizializzati
+            if (mainPanel == null) {
+                throw new RuntimeException("Errore: mainPanel non è stato inizializzato correttamente");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Errore nell'inizializzazione di Home: " + e.getMessage());
+            
+            // Crea un panel di fallback minimo
+            mainPanel = new JPanel(new BorderLayout());
+            JLabel errorLabel = new JLabel("Errore durante l'inizializzazione", SwingConstants.CENTER);
+            errorLabel.setFont(new Font("Arial", Font.BOLD, 16));
+            mainPanel.add(errorLabel, BorderLayout.CENTER);
+        }
     }
     
     /**
      * Crea tutti i componenti con stile moderno.
      */
     private void createModernComponents() {
-        // Panel principale con gradiente come ModernTeamView
-        mainPanel = new JPanel(new BorderLayout(20, 20)) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                int w = getWidth(), h = getHeight();
-                Color color1 = new Color(245, 250, 255); // Light Alice Blue
-                Color color2 = new Color(230, 245, 255); // Lighter Steel Blue
-                GradientPaint gp = new GradientPaint(0, 0, color1, 0, h, color2);
-                g2d.setPaint(gp);
-                g2d.fillRect(0, 0, w, h);
+        try {
+            // Panel principale con gradiente come ModernTeamView
+            mainPanel = new JPanel(new BorderLayout(20, 20)) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                    int w = getWidth(), h = getHeight();
+                    Color color1 = new Color(245, 250, 255); // Light Alice Blue
+                    Color color2 = new Color(230, 245, 255); // Lighter Steel Blue
+                    GradientPaint gp = new GradientPaint(0, 0, color1, 0, h, color2);
+                    g2d.setPaint(gp);
+                    g2d.fillRect(0, 0, w, h);
+                }
+            };
+            mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+            
+            // Componenti header
+            createHeaderComponents();
+            
+            // Area informazioni con stile moderno
+            createInformationArea();
+            
+            // Lista interattiva organizzatori
+            createInteractiveOrganizersList();
+            
+            // Pulsanti moderni
+            createModernButtons();
+            
+            // Verifica che tutti i componenti essenziali siano stati creati
+            if (mainPanel == null) {
+                throw new RuntimeException("mainPanel non inizializzato");
             }
-        };
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
-        
-        // Componenti header
-        createHeaderComponents();
-        
-        // Area informazioni con stile moderno
-        createInformationArea();
-        
-        // Lista interattiva organizzatori
-        createInteractiveOrganizersList();
-        
-        // Pulsanti moderni
-        createModernButtons();
+            
+        } catch (Exception e) {
+            System.err.println("Errore in createModernComponents: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Crea un panel di emergenza semplice
+            mainPanel = new JPanel(new BorderLayout());
+            JLabel errorLabel = new JLabel("Errore nell'inizializzazione dei componenti", SwingConstants.CENTER);
+            mainPanel.add(errorLabel, BorderLayout.CENTER);
+        }
     }
     
     /**
@@ -209,7 +296,7 @@ public class Home {
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 8));
         footerPanel.setOpaque(false);
         
-        JLabel versionLabel = new JLabel("v2.0 - Interfaccia Rivisitata");
+        JLabel versionLabel = new JLabel("v2.0 - Luca Lucci, Gioele Manzoni");
         versionLabel.setFont(new Font("Segoe UI", Font.ITALIC, 10));
         versionLabel.setForeground(new Color(128, 128, 128));
         
@@ -485,7 +572,7 @@ public class Home {
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 8));
         footerPanel.setOpaque(false);
         
-        JLabel versionLabel = new JLabel("v2.0 - Interfaccia Rivisitata");
+        JLabel versionLabel = new JLabel("v2.0 - Luca Lucci, Gioele Manzoni");
         versionLabel.setFont(new Font("Segoe UI", Font.ITALIC, 10));
         versionLabel.setForeground(new Color(128, 128, 128));
         

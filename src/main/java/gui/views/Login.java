@@ -5,6 +5,7 @@ import gui.components.ModernButton;
 import model.*;
 import controller.HackathonController;
 import controller.UserController;
+import utilities.ErrorMessageTranslator;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -53,7 +54,7 @@ public class Login {
 
         logFrame.pack();
         logFrame.setVisible(true);
-        logFrame.setSize(450, 350);
+        logFrame.setSize(500, 550); // Finestra più alta per contenere tutto
         logFrame.setResizable(false);
         logFrame.setLocationRelativeTo(null);
         
@@ -69,15 +70,16 @@ public class Login {
      */
     private void initializeComponents() {
         // Crea il campo username con configurazione completa e sicura
-        fieldUsername = new JTextField(20);
-        fieldUsername.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        fieldUsername = new JTextField(25); // Più lungo
+        fieldUsername.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        fieldUsername.setPreferredSize(new Dimension(280, 40)); // Dimensioni specifiche
         fieldUsername.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
-            BorderFactory.createEmptyBorder(8, 12, 8, 12)
+            BorderFactory.createLineBorder(new Color(70, 130, 180), 2, true), // Bordo più spesso e colorato
+            BorderFactory.createEmptyBorder(10, 15, 10, 15) // Padding maggiore
         ));
         fieldUsername.setBackground(Color.WHITE);
-        fieldUsername.setForeground(Color.BLACK);
-        fieldUsername.setCaretColor(Color.BLACK);
+        fieldUsername.setForeground(new Color(50, 50, 50));
+        fieldUsername.setCaretColor(new Color(70, 130, 180));
         
         // Configurazioni di base per assicurarsi che il campo sia completamente funzionale
         fieldUsername.setEditable(true);
@@ -92,7 +94,21 @@ public class Login {
             public void focusGained(java.awt.event.FocusEvent e) {
                 SwingUtilities.invokeLater(() -> {
                     fieldUsername.setCaretPosition(fieldUsername.getText().length());
+                    // Cambia colore del bordo quando ha il focus
+                    fieldUsername.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(34, 139, 34), 2, true),
+                        BorderFactory.createEmptyBorder(10, 15, 10, 15)
+                    ));
                 });
+            }
+            
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                // Ripristina il colore del bordo quando perde il focus
+                fieldUsername.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(70, 130, 180), 2, true),
+                    BorderFactory.createEmptyBorder(10, 15, 10, 15)
+                ));
             }
         });
         
@@ -107,15 +123,16 @@ public class Login {
         });
         
         // Crea il campo password con configurazione completa e sicura
-        fieldPassword = new JPasswordField(20);
-        fieldPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        fieldPassword = new JPasswordField(25); // Più lungo
+        fieldPassword.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        fieldPassword.setPreferredSize(new Dimension(280, 40)); // Dimensioni specifiche
         fieldPassword.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
-            BorderFactory.createEmptyBorder(8, 12, 8, 12)
+            BorderFactory.createLineBorder(new Color(70, 130, 180), 2, true), // Bordo più spesso e colorato
+            BorderFactory.createEmptyBorder(10, 15, 10, 15) // Padding maggiore
         ));
         fieldPassword.setBackground(Color.WHITE);
-        fieldPassword.setForeground(Color.BLACK);
-        fieldPassword.setCaretColor(Color.BLACK);
+        fieldPassword.setForeground(new Color(50, 50, 50));
+        fieldPassword.setCaretColor(new Color(70, 130, 180));
         
         // Configurazioni di base per assicurarsi che il campo sia completamente funzionale
         fieldPassword.setEditable(true);
@@ -130,7 +147,21 @@ public class Login {
             public void focusGained(java.awt.event.FocusEvent e) {
                 SwingUtilities.invokeLater(() -> {
                     fieldPassword.setCaretPosition(fieldPassword.getPassword().length);
+                    // Cambia colore del bordo quando ha il focus
+                    fieldPassword.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(34, 139, 34), 2, true),
+                        BorderFactory.createEmptyBorder(10, 15, 10, 15)
+                    ));
                 });
+            }
+            
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                // Ripristina il colore del bordo quando perde il focus
+                fieldPassword.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(70, 130, 180), 2, true),
+                    BorderFactory.createEmptyBorder(10, 15, 10, 15)
+                ));
             }
         });
         
@@ -156,16 +187,19 @@ public class Login {
         fieldUsername.addKeyListener(enterKeyListener);
         fieldPassword.addKeyListener(enterKeyListener);
         
+        // Pulsanti con stile moderno e dimensioni maggiori
         accediBtn = ModernButton.createPrimaryButton("Accedi");
-        accediBtn.setPreferredSize(new Dimension(120, 35));
+        accediBtn.setPreferredSize(new Dimension(130, 40));
         accediBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         
         registratiBtn = ModernButton.createSuccessButton("Registrati");
-        registratiBtn.setPreferredSize(new Dimension(120, 35));
+        registratiBtn.setPreferredSize(new Dimension(130, 40));
         registratiBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         
+        // Checkbox con stile migliorato
         adminCheckBox = new JCheckBox("Login come Organizzatore");
         adminCheckBox.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        adminCheckBox.setForeground(new Color(70, 130, 180));
         adminCheckBox.setBackground(Color.WHITE);
         adminCheckBox.setFocusable(false); // Evita conflitti di focus
     }
@@ -175,52 +209,61 @@ public class Login {
      */
     private void layoutComponents() {
         loginPanel = new JPanel(new BorderLayout());
-        loginPanel.setBackground(Color.WHITE);
+        loginPanel.setBackground(new Color(245, 248, 252));
         loginPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
         
         // Pannello header con titolo
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        headerPanel.setBackground(Color.WHITE);
-        JLabel titleLabel = new JLabel("Accesso Sistema Hackathon");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        headerPanel.setBackground(new Color(245, 248, 252));
+        
+        JLabel titleLabel = new JLabel("Sistema Hackathon");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
         titleLabel.setForeground(new Color(70, 130, 180));
         headerPanel.add(titleLabel);
         
-        // Pannello centrale con form
+        // Pannello centrale con form semplificato
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(Color.WHITE);
+        formPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+            BorderFactory.createEmptyBorder(40, 40, 40, 40)
+        ));
+        
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(15, 10, 15, 10);
         
         // Username
-        gbc.gridx = 0; gbc.gridy = 0; gbc.anchor = GridBagConstraints.EAST;
+        gbc.gridx = 0; gbc.gridy = 0; gbc.anchor = GridBagConstraints.WEST;
         JLabel userLabel = new JLabel("Username:");
-        userLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        userLabel.setLabelFor(fieldUsername); // Associa la label al campo
+        userLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        userLabel.setForeground(new Color(70, 130, 180));
         formPanel.add(userLabel, gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.WEST; gbc.fill = GridBagConstraints.HORIZONTAL;
+        
+        gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
         formPanel.add(fieldUsername, gbc);
         
         // Password
-        gbc.gridx = 0; gbc.gridy = 1; gbc.anchor = GridBagConstraints.EAST; gbc.fill = GridBagConstraints.NONE;
+        gbc.gridx = 0; gbc.gridy = 2; gbc.fill = GridBagConstraints.NONE;
         JLabel passLabel = new JLabel("Password:");
-        passLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        passLabel.setLabelFor(fieldPassword); // Associa la label al campo
+        passLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        passLabel.setForeground(new Color(70, 130, 180));
         formPanel.add(passLabel, gbc);
-        gbc.gridx = 1; gbc.anchor = GridBagConstraints.WEST; gbc.fill = GridBagConstraints.HORIZONTAL;
+        
+        gbc.gridx = 0; gbc.gridy = 3; gbc.fill = GridBagConstraints.HORIZONTAL;
         formPanel.add(fieldPassword, gbc);
         
         // Checkbox admin
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER; gbc.fill = GridBagConstraints.NONE;
+        gbc.gridx = 0; gbc.gridy = 4; gbc.anchor = GridBagConstraints.CENTER; gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(25, 10, 20, 10);
         formPanel.add(adminCheckBox, gbc);
         
         // Pannello pulsanti
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-        buttonPanel.setBackground(Color.WHITE);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 25));
+        buttonPanel.setBackground(new Color(245, 248, 252));
         buttonPanel.add(accediBtn);
         buttonPanel.add(registratiBtn);
         
-        // Assembla il layout
+        // Assembla il layout principale
         loginPanel.add(headerPanel, BorderLayout.NORTH);
         loginPanel.add(formPanel, BorderLayout.CENTER);
         loginPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -377,8 +420,16 @@ public class Login {
                     fieldPassword.setText("");
                     adminCheckBox.setSelected(false);
                 } catch (IllegalArgumentException ex) {
+                    String userFriendlyMessage = ErrorMessageTranslator.translateError(ex.getMessage());
                     JOptionPane.showMessageDialog(logFrame,
-                            "❌ Errore durante la registrazione:\n" + ex.getMessage(),
+                            userFriendlyMessage,
+                            "Errore di Registrazione",
+                            JOptionPane.ERROR_MESSAGE);
+                } catch (Exception ex) {
+                    // Cattura errori di database e altri errori generici
+                    String userFriendlyMessage = ErrorMessageTranslator.translateError(ex.getMessage());
+                    JOptionPane.showMessageDialog(logFrame,
+                            userFriendlyMessage,
                             "Errore di Registrazione",
                             JOptionPane.ERROR_MESSAGE);
                 } finally {
