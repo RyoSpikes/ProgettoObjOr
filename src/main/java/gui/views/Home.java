@@ -296,7 +296,7 @@ public class Home {
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 8));
         footerPanel.setOpaque(false);
         
-        JLabel versionLabel = new JLabel("v2.0 - Interfaccia Rivisitata");
+        JLabel versionLabel = new JLabel("v2.0 - Luca Lucci, Gioele Manzoni");
         versionLabel.setFont(new Font("Segoe UI", Font.ITALIC, 10));
         versionLabel.setForeground(new Color(128, 128, 128));
         
@@ -572,7 +572,7 @@ public class Home {
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 8));
         footerPanel.setOpaque(false);
         
-        JLabel versionLabel = new JLabel("v2.0 - Interfaccia Rivisitata");
+        JLabel versionLabel = new JLabel("v2.0 - Luca Lucci, Gioele Manzoni");
         versionLabel.setFont(new Font("Segoe UI", Font.ITALIC, 10));
         versionLabel.setForeground(new Color(128, 128, 128));
         

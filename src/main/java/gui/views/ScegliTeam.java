@@ -131,6 +131,9 @@ public class ScegliTeam {
             public void actionPerformed(ActionEvent e) {
             Hackathon hackathonSelezionato = (Hackathon) hackathonComboBox.getSelectedItem();
             
+            System.out.println("DEBUG ScegliTeam: Cambiato hackathon a: " + 
+                (hackathonSelezionato != null ? hackathonSelezionato.getTitoloIdentificativo() : "null"));
+            
             if (hackathonSelezionato == null) {
                 listModel.clear();
                 teamList.setEnabled(false);
@@ -144,6 +147,13 @@ public class ScegliTeam {
             // Ottieni tutti i team per l'hackathon selezionato
             List<Team> teamDisponibili = hackathonController.getTeamsByHackathon(hackathonSelezionato.getTitoloIdentificativo());
             
+            System.out.println("DEBUG ScegliTeam: Trovati " + (teamDisponibili != null ? teamDisponibili.size() : 0) + " team per hackathon: " + hackathonSelezionato.getTitoloIdentificativo());
+            if (teamDisponibili != null) {
+                for (Team t : teamDisponibili) {
+                    System.out.println("  - Team: " + t.getNomeTeam());
+                }
+            }
+            
             if (teamDisponibili == null || teamDisponibili.isEmpty()) {
                 listModel.clear();
                 teamList.setEnabled(false);
@@ -151,47 +161,46 @@ public class ScegliTeam {
                 infoLabel.setText("Nessun team trovato per questo hackathon");
                 infoLabel.setBackground(new Color(255, 200, 200)); // Rosso chiaro
                 searchHelper = null;
+                nomeTeamField.setText(""); // Reset campo ricerca
                 return;
             }
 
-            // Inizializza o aggiorna l'helper per la ricerca dinamica
-            if (searchHelper == null) {
-                searchHelper = new DynamicSearchHelper<>(
-                    nomeTeamField,
-                    teamList,
-                    listModel,
-                    infoLabel,
-                    teamDisponibili,
-                    team -> team.getNomeTeam(), // Estrae il nome per la ricerca
-                    () -> {
-                        // Callback per quando la selezione cambia
-                        Team teamSelezionato = teamList.getSelectedValue();
-                        if (teamSelezionato != null) {
-                            int numMembri = hackathonController.contaMembriTeam(
-                                teamSelezionato.getNomeTeam(),
-                                teamSelezionato.getHackathon().getTitoloIdentificativo()
-                            );
+            // Reset del campo di ricerca per evitare confusione
+            nomeTeamField.setText("");
+            
+            // Inizializza sempre un nuovo helper per la ricerca dinamica
+            searchHelper = new DynamicSearchHelper<>(
+                nomeTeamField,
+                teamList,
+                listModel,
+                infoLabel,
+                teamDisponibili,
+                team -> team.getNomeTeam(), // Estrae il nome per la ricerca
+                () -> {
+                    // Callback per quando la selezione cambia
+                    Team teamSelezionato = teamList.getSelectedValue();
+                    if (teamSelezionato != null) {
+                        int numMembri = hackathonController.contaMembriTeam(
+                            teamSelezionato.getNomeTeam(),
+                            teamSelezionato.getHackathon().getTitoloIdentificativo()
+                        );
 
-                            // Controlla se l'utente può unirsi al team
-                            boolean puo_unirsi = hackathonController.puoUtenterUnirsiAlTeam(teamSelezionato, userLogged);
+                        // Controlla se l'utente può unirsi al team
+                        boolean puo_unirsi = hackathonController.puoUtenterUnirsiAlTeam(teamSelezionato, userLogged);
 
-                            infoLabel.setText(String.format(
-                                "<html><b>Team selezionato:</b> %s<br><b>Membri attuali:</b> %d<br><b>Stato:</b> %s</html>",
-                                teamSelezionato.getNomeTeam(),
-                                numMembri,
-                                puo_unirsi ? "Disponibile" : "Non disponibile"
-                            ));
+                        infoLabel.setText(String.format(
+                            "<html><b>Team selezionato:</b> %s<br><b>Membri attuali:</b> %d<br><b>Stato:</b> %s</html>",
+                            teamSelezionato.getNomeTeam(),
+                            numMembri,
+                            puo_unirsi ? "Disponibile" : "Non disponibile"
+                        ));
 
-                            btnInvio.setEnabled(puo_unirsi);
-                        } else {
-                            btnInvio.setEnabled(false);
-                        }
+                        btnInvio.setEnabled(puo_unirsi);
+                    } else {
+                        btnInvio.setEnabled(false);
                     }
-                );
-            } else {
-                // Aggiorna l'helper con i nuovi team
-                searchHelper.updateAllItems(teamDisponibili);
-            }
+                }
+            );
             }
         });
 

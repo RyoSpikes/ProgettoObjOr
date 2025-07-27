@@ -86,13 +86,29 @@ public class MessageDialog extends JDialog {
         messagePanel.setOpaque(false);
         messagePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
         
-        JLabel messageLabel = new JLabel("<html><div style='text-align: center; line-height: 1.4;'>" + 
-                                       message.replace("\n", "<br>") + "</div></html>");
-        messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        messageLabel.setForeground(new Color(85, 85, 85));
-        messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        // Usa JTextArea invece di JLabel per gestire meglio i messaggi lunghi
+        JTextArea messageArea = new JTextArea(message);
+        messageArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        messageArea.setForeground(new Color(85, 85, 85));
+        messageArea.setBackground(Color.WHITE);
+        messageArea.setEditable(false);
+        messageArea.setOpaque(false);
+        messageArea.setLineWrap(true);
+        messageArea.setWrapStyleWord(true);
+        messageArea.setBorder(null);
         
-        messagePanel.add(messageLabel, BorderLayout.CENTER);
+        // Centra il testo
+        messageArea.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        JScrollPane scrollPane = new JScrollPane(messageArea);
+        scrollPane.setBorder(null);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setPreferredSize(new Dimension(350, 110)); // Aumentata l'altezza da 80 a 110
+        
+        messagePanel.add(scrollPane, BorderLayout.CENTER);
         
         return messagePanel;
     }
@@ -142,9 +158,20 @@ public class MessageDialog extends JDialog {
     }
     
     private void setupProperties() {
-        setSize(420, 200);
+        // Calcola dimensioni automatiche basate sul contenuto
+        pack(); // Calcola la dimensione ottimale
+        
+        // Imposta dimensioni minime e massime (aumentata l'altezza)
+        setMinimumSize(new Dimension(350, 200));
+        setMaximumSize(new Dimension(600, 450));
+        
+        // Se la finestra è troppo piccola dopo pack(), usa dimensioni di default (più alta)
+        if (getWidth() < 350 || getHeight() < 200) {
+            setSize(420, 300);
+        }
+        
         setLocationRelativeTo(getParent());
-        setResizable(false);
+        setResizable(true); // Permettere ridimensionamento
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     }
     

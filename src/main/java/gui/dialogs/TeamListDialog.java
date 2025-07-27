@@ -30,12 +30,12 @@ public class TeamListDialog {
             
             // === SCHEDA UNICA: TEAM PARTECIPANTI ===
             JPanel teamPanel = creaSchemaTeam(titoloHackathon, hackathonController, dialog);
-            tabbedPane.addTab("Team Partecipanti", teamPanel);
+            tabbedPane.addTab("👥 Team Partecipanti", teamPanel);
             
             // Pannello inferiore con pulsante di chiusura
             JPanel bottomPanel = new JPanel(new FlowLayout());
             ModernButton btnChiudi = ModernButton.createSecondaryButton("Chiudi");
-            btnChiudi.addActionListener(_ -> dialog.dispose());
+            btnChiudi.addActionListener(e -> dialog.dispose());
             bottomPanel.add(btnChiudi);
             
             // Layout principale
@@ -103,7 +103,7 @@ public class TeamListDialog {
                         punteggio = String.valueOf(team.getVotoFinale()) + " punti";
                     }
                     
-                    setText(team.getNomeTeam() + " (" + numMembri + " membri) - Punteggio: " + punteggio);
+                    setText("👥 " + team.getNomeTeam() + " (" + numMembri + " membri) - Punteggio: " + punteggio);
                 }
                 return this;
             }
@@ -152,7 +152,7 @@ public class TeamListDialog {
         );
         
         // Listener per il pulsante dettagli team
-        btnDettagliTeam.addActionListener(_ -> {
+        btnDettagliTeam.addActionListener(e -> {
             Team selectedTeam = searchHelper.getSelectedItem();
             if (selectedTeam != null) {
                 mostraDettagliTeam(parentDialog, selectedTeam, hackathonController);
@@ -179,7 +179,7 @@ public class TeamListDialog {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
         // Titolo
-        JLabel titleLabel = new JLabel(team.getNomeTeam(), JLabel.CENTER);
+        JLabel titleLabel = new JLabel("👥 " + team.getNomeTeam(), JLabel.CENTER);
         titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
         
@@ -189,13 +189,13 @@ public class TeamListDialog {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(5, 10, 5, 10);
         
-        addInfoRow(infoPanel, gbc, 0, "Hackathon:", 
+        addInfoRow(infoPanel, gbc, 0, "🏆 Hackathon:", 
                   team.getHackathon() != null ? team.getHackathon().getTitoloIdentificativo() : "N/A");
         
         // Ottieni il numero di membri direttamente dal database
         int numMembri = hackathonController.getNumeroMembriTeam(team.getNomeTeam(), 
             team.getHackathon() != null ? team.getHackathon().getTitoloIdentificativo() : "");
-        addInfoRow(infoPanel, gbc, 1, "Numero Membri:", String.valueOf(numMembri));
+        addInfoRow(infoPanel, gbc, 1, "👥 Numero Membri:", String.valueOf(numMembri));
         
         // Aggiungi il punteggio finale
         String punteggio;
@@ -204,7 +204,7 @@ public class TeamListDialog {
         } else {
             punteggio = String.valueOf(team.getVotoFinale()) + " punti";
         }
-        addInfoRow(infoPanel, gbc, 2, "Punteggio Finale:", punteggio);
+        addInfoRow(infoPanel, gbc, 2, "🏆 Punteggio Finale:", punteggio);
         
         // Lista dei membri - caricata dal database
         JPanel membersPanel = new JPanel(new BorderLayout(5, 5));
@@ -232,7 +232,7 @@ public class TeamListDialog {
                     boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof String) {
-                    setText(value.toString());
+                    setText("👤 " + value);
                 }
                 return this;
             }
@@ -245,7 +245,7 @@ public class TeamListDialog {
         // Pulsante chiudi
         JPanel buttonPanel = new JPanel(new FlowLayout());
         ModernButton btnChiudi = ModernButton.createSecondaryButton("Chiudi");
-        btnChiudi.addActionListener(_ -> teamDialog.dispose());
+        btnChiudi.addActionListener(e -> teamDialog.dispose());
         buttonPanel.add(btnChiudi);
         
         // Pannello contenuto centrale che contiene info e membri

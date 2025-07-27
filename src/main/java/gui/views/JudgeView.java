@@ -5,6 +5,7 @@ import gui.dialogs.*;
 import model.Utente;
 import model.Documento;
 import model.Team;
+import utilities.ErrorMessageTranslator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,21 +47,18 @@ public class JudgeView {
         this.giudice = giudice;
         this.hackathonController = hackathonController;
         
-        // Inizializza l'interfaccia utente dal form
-        $$$setupUI$$$();
-        
-        // Applica stile moderno ai pulsanti
-        setupModernButtonStyles();
-        
         // Inizializza i DAO
         if (this.hackathonController == null) {
             throw new IllegalStateException("HackathonController non può essere null");
         }
         
-        judgeViewFrame = new JFrame("Giudice - " + titoloHackathon);
-        judgeViewFrame.setContentPane(mainPanel);
+        judgeViewFrame = new JFrame("Hackathon Management - Area Giudice");
+        
+        // Crea l'interfaccia moderna invece di usare solo il form
+        createModernInterface();
+        
         judgeViewFrame.pack();
-        judgeViewFrame.setSize(700, 500);
+        judgeViewFrame.setSize(700, 550); // Leggermente più alta per header
         judgeViewFrame.setLocationRelativeTo(null);
         
         // Listener per gestire la chiusura della finestra
@@ -77,10 +75,130 @@ public class JudgeView {
         // Carica le informazioni iniziali
         caricaInformazioniIniziali();
         
-        // Configura i listener dei pulsanti
-        setupListeners();
-        
         judgeViewFrame.setVisible(true);
+    }
+    
+    /**
+     * Crea l'interfaccia moderna con header stilizzato.
+     */
+    private void createModernInterface() {
+        // Panel principale con gradiente
+        JPanel modernMainPanel = new JPanel(new BorderLayout(0, 0)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                int w = getWidth(), h = getHeight();
+                Color color1 = new Color(245, 250, 255); // Light Alice Blue
+                Color color2 = new Color(230, 245, 255); // Lighter Steel Blue
+                GradientPaint gp = new GradientPaint(0, 0, color1, 0, h, color2);
+                g2d.setPaint(gp);
+                g2d.fillRect(0, 0, w, h);
+            }
+        };
+        modernMainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Header con titolo moderno
+        JPanel headerPanel = createModernHeader();
+        
+        // Panel centrale con i pulsanti e area di testo
+        JPanel contentPanel = createJudgeContentPanel();
+        
+        modernMainPanel.add(headerPanel, BorderLayout.NORTH);
+        modernMainPanel.add(contentPanel, BorderLayout.CENTER);
+        
+        judgeViewFrame.setContentPane(modernMainPanel);
+        
+        // Applica stile moderno ai pulsanti
+        setupModernButtonStyles();
+    }
+
+    /**
+     * Crea l'header moderno con titolo e informazioni hackathon.
+     */
+    private JPanel createModernHeader() {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false);
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
+
+        // Titolo principale
+        JLabel titleLabel = new JLabel("Pannello Giudice", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titleLabel.setForeground(new Color(25, 25, 112)); // Midnight Blue
+        
+        // Sottotitolo con hackathon e giudice
+        JLabel subtitleLabel = new JLabel("Hackathon: " + titoloHackathon + " | Giudice: " + giudice.getName(), SwingConstants.CENTER);
+        subtitleLabel.setFont(new Font("Segoe UI", Font.ITALIC, 16));
+        subtitleLabel.setForeground(new Color(70, 130, 180)); // Steel Blue
+        
+        // Panel per centrare i titoli
+        JPanel titlePanel = new JPanel(new GridLayout(2, 1, 0, 5));
+        titlePanel.setOpaque(false);
+        titlePanel.add(titleLabel);
+        titlePanel.add(subtitleLabel);
+        
+        headerPanel.add(titlePanel, BorderLayout.CENTER);
+        
+        // Linea separatrice
+        JSeparator separator = new JSeparator();
+        separator.setForeground(new Color(200, 200, 200));
+        headerPanel.add(separator, BorderLayout.SOUTH);
+        
+        return headerPanel;
+    }
+
+    /**
+     * Crea il panel centrale con i pulsanti e area informazioni per il giudice.
+     */
+    private JPanel createJudgeContentPanel() {
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setOpaque(false);
+        
+        // Panel per i pulsanti del giudice
+        JPanel buttonsPanel = new JPanel(new GridLayout(2, 2, 15, 15));
+        buttonsPanel.setOpaque(false);
+        buttonsPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        
+        // Crea i pulsanti se non esistono (compatibilità con form)
+        if (mostraTeamButton == null) mostraTeamButton = new JButton("Mostra Team");
+        if (mostraDocumentiButton == null) mostraDocumentiButton = new JButton("Mostra Documenti");
+        if (mostraClassificaButton == null) mostraClassificaButton = new JButton("Mostra Classifica");
+        if (assegnaVotoFinaleButton == null) assegnaVotoFinaleButton = new JButton("Assegna Voto Finale");
+        
+        // Configura i listener dei pulsanti
+        mostraTeamButton.addActionListener(e -> mostraTeamHackathon());
+        mostraDocumentiButton.addActionListener(e -> mostraDocumentiHackathon());
+        mostraClassificaButton.addActionListener(e -> mostraClassificaHackathon());
+        assegnaVotoFinaleButton.addActionListener(e -> aggiungiVotoFinale());
+        
+        // Aggiungi i pulsanti al panel
+        buttonsPanel.add(mostraTeamButton);
+        buttonsPanel.add(mostraDocumentiButton);
+        buttonsPanel.add(mostraClassificaButton);
+        buttonsPanel.add(assegnaVotoFinaleButton);
+        
+        contentPanel.add(buttonsPanel, BorderLayout.NORTH);
+        
+        // Area di testo informativa per il giudice
+        if (MENUGIUDICETextArea == null) {
+            MENUGIUDICETextArea = new JTextArea(8, 50);
+        }
+        MENUGIUDICETextArea.setEditable(false);
+        MENUGIUDICETextArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        MENUGIUDICETextArea.setOpaque(false);
+        MENUGIUDICETextArea.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(new Color(180, 180, 180)), 
+            "Informazioni Hackathon",
+            0, 0, new Font("Segoe UI", Font.BOLD, 12), new Color(70, 130, 180)));
+        
+        JScrollPane scrollPane = new JScrollPane(MENUGIUDICETextArea);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 40, 0, 40));
+        
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
+        
+        return contentPanel;
     }
     
     /**
@@ -97,82 +215,18 @@ public class JudgeView {
             ));
             
             MENUGIUDICETextArea.setText("");
-            MENUGIUDICETextArea.append("PANNELLO GIUDICE\n\n");
+            MENUGIUDICETextArea.append("INFORMAZIONI GENERALI\n\n");
             MENUGIUDICETextArea.append("Hackathon: " + titoloHackathon + "\n");
             MENUGIUDICETextArea.append("Giudice: " + giudice.getName() + "\n\n");
-            
-            // Sezione istruzioni con stile più chiaro
-            MENUGIUDICETextArea.append("==================================\n");
-            MENUGIUDICETextArea.append("OPERAZIONI DISPONIBILI\n");
-            MENUGIUDICETextArea.append("==================================\n\n");
-            
-            MENUGIUDICETextArea.append("TEAM PARTECIPANTI\n");
-            MENUGIUDICETextArea.append("   - Visualizza tutti i team dell'hackathon\n");
-            MENUGIUDICETextArea.append("   - Ricerca team con filtro in tempo reale\n");
-            MENUGIUDICETextArea.append("   - Visualizza dettagli e membri dei team\n\n");
-            
-            MENUGIUDICETextArea.append("DOCUMENTI\n");
-            MENUGIUDICETextArea.append("   - Consulta i documenti caricati dai team\n");
-            MENUGIUDICETextArea.append("   - Lascia valutazioni sui documenti\n\n");
-            
-            MENUGIUDICETextArea.append("CLASSIFICA\n");
-            MENUGIUDICETextArea.append("   - Visualizza la classifica finale\n");
-            MENUGIUDICETextArea.append("   - Consulta i punteggi assegnati\n\n");
-            
-            MENUGIUDICETextArea.append("VOTO FINALE\n");
-            MENUGIUDICETextArea.append("   - Assegna il voto finale ai team\n");
-            MENUGIUDICETextArea.append("   - Range di voto: 0-10 punti\n\n");
-            
-            MENUGIUDICETextArea.append("==================================\n");
-            MENUGIUDICETextArea.append("Seleziona un'operazione per iniziare...\n");
+            MENUGIUDICETextArea.append("FUNZIONI DISPONIBILI:\n");
+            MENUGIUDICETextArea.append("• Visualizza i team partecipanti\n");
+            MENUGIUDICETextArea.append("• Consulta i documenti caricati\n");
+            MENUGIUDICETextArea.append("• Mostra la classifica attuale\n");
+            MENUGIUDICETextArea.append("• Assegna voti finali ai team\n\n");
+            MENUGIUDICETextArea.append("Seleziona un'opzione dal menu per iniziare la valutazione.");
 
             // Posiziona il cursore all'inizio
             MENUGIUDICETextArea.setCaretPosition(0);
-        }
-    }
-
-    /**
-     * Configura i listener dei pulsanti.
-     */
-    private void setupListeners() {
-        // Listener per il pulsante "Mostra Team"
-        if (mostraTeamButton != null) {
-            mostraTeamButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    mostraTeamHackathon();
-                }
-            });
-        }
-
-        // Listener per il pulsante "Mostra Documenti"
-        if (mostraDocumentiButton != null) {
-            mostraDocumentiButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    mostraDocumentiHackathon();
-                }
-            });
-        }
-
-        // Listener per il pulsante "Mostra Classifica"
-        if (mostraClassificaButton != null) {
-            mostraClassificaButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    mostraClassificaHackathon();
-                }
-            });
-        }
-
-        // Listener per il pulsante "Aggiungi Voto Finale"
-        if (assegnaVotoFinaleButton != null) {
-            assegnaVotoFinaleButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    aggiungiVotoFinale();
-                }
-            });
         }
     }
 
@@ -279,15 +333,20 @@ public class JudgeView {
      */
     private void aggiungiVotoFinale() {
         try {
+            System.out.println("DEBUG: Inizio aggiungiVotoFinale per hackathon: " + titoloHackathon);
+            
             // Verifica che l'hackathon sia terminato
             if (hackathonController.isHackathonTerminato(titoloHackathon)) {
+                System.out.println("DEBUG: Hackathon terminato, procedo con assegnazione voto");
 
                 // Ottieni tutti i team per questo hackathon
                 List<String> teamNames = hackathonController.getNomiTeamHackathon(titoloHackathon);
+                System.out.println("DEBUG: Trovati " + (teamNames != null ? teamNames.size() : 0) + " team");
 
                 if (teamNames == null || teamNames.isEmpty()) {
                     MessageDialog.showInfoMessage(judgeViewFrame,
-                        "Non ci sono team registrati per questo hackathon.");
+                        "Non ci sono team registrati per questo hackathon.\n\n" +
+                        "Attendi che dei team si registrino all'evento.");
                     return;
                 }
 
@@ -305,77 +364,101 @@ public class JudgeView {
                     teamArray[0]
                 );
 
+                System.out.println("DEBUG: Team selezionato: " + teamSelezionato);
+
                 if (teamSelezionato != null) {
                     // Verifica se il giudice ha già votato questo team
-                    if (hackathonController.hasGiudiceVotatoTeam(giudice.getName(), titoloHackathon, teamSelezionato)) {
+                    boolean haGiaVotato = hackathonController.hasGiudiceVotatoTeam(giudice.getName(), titoloHackathon, teamSelezionato);
+                    System.out.println("DEBUG: Il giudice ha già votato il team? " + haGiaVotato);
+                    
+                    if (haGiaVotato) {
                         MessageDialog.showWarningMessage(judgeViewFrame,
                             "Hai già votato il team '" + teamSelezionato + "'.\n\n" +
-                            "MOTIVO: Ogni giudice può assegnare un solo voto per team.\n" +
-                            "Non è possibile modificare o riassegnare il voto una volta confermato.\n\n" +
-                            "Se hai commesso un errore, contatta l'amministratore del sistema.");
+                            "Ogni giudice può votare un team una sola volta.\n" +
+                            "Non è possibile modificare il voto.\n\n" +
+                            "Se c'è un errore, contatta l'amministratore.");
                         return;
                     }
 
                     // Ottieni l'ultimo documento del team
                     List<Documento> documenti = hackathonController.getDocumentiByTeam(teamSelezionato, titoloHackathon);
+                    System.out.println("DEBUG: Trovati " + (documenti != null ? documenti.size() : 0) + " documenti per il team");
 
                     if (documenti == null || documenti.isEmpty()) {
+                        System.out.println("DEBUG: Nessun documento trovato, mostro warning");
                         MessageDialog.showWarningMessage(judgeViewFrame,
-                            "Il team '" + teamSelezionato + "' non ha caricato alcun documento.\n\n" +
-                            "MOTIVO: Non è possibile assegnare un voto a un team senza documenti.\n" +
-                            "Il team deve caricare almeno un documento prima di poter ricevere una valutazione.");
+                            "Il team '" + teamSelezionato + "' non ha caricato documenti.\n\n" +
+                            "Non è possibile votare senza documenti da valutare.\n\n" +
+                            "Il team deve caricare almeno un documento.");
                         return;
                     }
 
                     // Ottieni l'ultimo documento (il più recente)
                     Documento ultimoDocumento = documenti.get(documenti.size() - 1);
+                    System.out.println("DEBUG: Ultimo documento: " + ultimoDocumento.getTitle());
 
                     // Mostra dialog moderno per inserire il voto
+                    System.out.println("DEBUG: Apro dialog per inserire voto");
                     int voto = VotoFinaleDialog.showVotoDialog(
                         judgeViewFrame, 
                         teamSelezionato, 
                         ultimoDocumento.getTitle()
                     );
+                    System.out.println("DEBUG: Voto inserito: " + voto);
 
                     if (voto != -1) { // -1 significa annullato
-                        // Salva il voto nel database usando il controller
-                        boolean success = hackathonController.assegnaVotoFinale(titoloHackathon, teamSelezionato, voto, giudice);
+                        System.out.println("DEBUG: Procedo con salvataggio voto");
+                        try {
+                            // Salva il voto nel database usando il controller
+                            boolean success = hackathonController.assegnaVotoFinale(titoloHackathon, teamSelezionato, voto, giudice);
+                            System.out.println("DEBUG: Risultato salvataggio: " + success);
 
-                        if (success) {
-                            MessageDialog.showSuccessMessage(judgeViewFrame,
-                                "Voto assegnato con successo!\n" +
-                                "Team: " + teamSelezionato + "\n" +
-                                "Voto: " + voto + "/10");
+                            if (success) {
+                                MessageDialog.showSuccessMessage(judgeViewFrame,
+                                    "Voto assegnato con successo!\n" +
+                                    "Team: " + teamSelezionato + "\n" +
+                                    "Voto: " + voto + "/10");
 
-                            // Aggiorna la vista mostrando un messaggio nella text area
-                            if (MENUGIUDICETextArea != null) {
-                                MENUGIUDICETextArea.append("\n" + "=".repeat(50) + "\n");
-                                MENUGIUDICETextArea.append("VOTO ASSEGNATO\n");
-                                MENUGIUDICETextArea.append("Team: " + teamSelezionato + "\n");
-                                MENUGIUDICETextArea.append("Voto: " + voto + "/10\n");
-                                MENUGIUDICETextArea.append("Documento valutato: " + ultimoDocumento.getTitle() + "\n");
-                                MENUGIUDICETextArea.append("=".repeat(50) + "\n");
+                                // Aggiorna la vista mostrando un messaggio nella text area
+                                if (MENUGIUDICETextArea != null) {
+                                    MENUGIUDICETextArea.append("\n" + "=".repeat(50) + "\n");
+                                    MENUGIUDICETextArea.append("VOTO ASSEGNATO\n");
+                                    MENUGIUDICETextArea.append("Team: " + teamSelezionato + "\n");
+                                    MENUGIUDICETextArea.append("Voto: " + voto + "/10\n");
+                                    MENUGIUDICETextArea.append("Documento valutato: " + ultimoDocumento.getTitle() + "\n");
+                                    MENUGIUDICETextArea.append("=".repeat(50) + "\n");
+                                }
+                            } else {
+                                MessageDialog.showErrorMessage(judgeViewFrame,
+                                    "Il voto non è stato salvato correttamente.\n\n" +
+                                    "Riprova più tardi o contatta l'amministratore.");
                             }
-                        } else {
+                        } catch (RuntimeException dbEx) {
+                            // Gestisce le eccezioni dal database con messaggio già tradotto
+                            System.out.println("DEBUG: Errore database: " + dbEx.getMessage());
                             MessageDialog.showErrorMessage(judgeViewFrame,
-                                "Errore durante il salvataggio del voto.\n" +
-                                "Riprova più tardi.");
+                                "Errore durante l'assegnazione del voto:\n\n" +
+                                dbEx.getMessage());
                         }
                     }
                 }
 
             } else {
                 // Hackathon non terminato
+                System.out.println("DEBUG: Hackathon non terminato, mostro warning");
                 MessageDialog.showWarningMessage(judgeViewFrame,
-                    "Non è possibile assegnare voti finali.\n" +
-                    "L'hackathon '" + titoloHackathon + "' non è ancora terminato.\n\n" +
-                    "I voti finali possono essere assegnati solo dopo la fine dell'evento.");
+                    "L'hackathon '" + titoloHackathon + "' è ancora in corso.\n\n" +
+                    "I voti finali possono essere assegnati solo\n" +
+                    "dopo la conclusione dell'evento.\n\n" +
+                    "Attendi che l'hackathon termini.");
             }
 
         } catch (Exception ex) {
-            MessageDialog.showErrorMessage(judgeViewFrame,
-                "Errore durante l'operazione: " + ex.getMessage());
+            System.out.println("DEBUG: Eccezione catturata: " + ex.getMessage());
             ex.printStackTrace();
+            String userFriendlyMessage = ErrorMessageTranslator.translateError(ex.getMessage());
+            MessageDialog.showErrorMessage(judgeViewFrame,
+                "Errore durante l'operazione:\n\n" + userFriendlyMessage);
         }
     }
     
@@ -443,13 +526,5 @@ public class JudgeView {
         });
     }
 
-    /**
-     * Metodo generato automaticamente da IntelliJ IDEA per inizializzare i componenti del form.
-     * Questo metodo viene generato dal file JudgeView.form.
-     */
-    private void $$$setupUI$$$() {
-        // Questo metodo sarà generato automaticamente da IntelliJ IDEA
-        // dal file JudgeView.form quando il progetto viene compilato
-    }
 }
 
