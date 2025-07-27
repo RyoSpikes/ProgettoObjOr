@@ -4,7 +4,6 @@ Database.DAO
 Database.DAO.Impl
 gui.components
 gui.dialogs
-gui.forms
 gui.views
 model
 utilities
