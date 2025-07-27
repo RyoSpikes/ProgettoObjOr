@@ -5,6 +5,7 @@ import gui.components.ModernButton;
 import model.*;
 import controller.HackathonController;
 import controller.UserController;
+import utilities.ErrorMessageTranslator;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -419,8 +420,16 @@ public class Login {
                     fieldPassword.setText("");
                     adminCheckBox.setSelected(false);
                 } catch (IllegalArgumentException ex) {
+                    String userFriendlyMessage = ErrorMessageTranslator.translateError(ex.getMessage());
                     JOptionPane.showMessageDialog(logFrame,
-                            "❌ Errore durante la registrazione:\n" + ex.getMessage(),
+                            userFriendlyMessage,
+                            "Errore di Registrazione",
+                            JOptionPane.ERROR_MESSAGE);
+                } catch (Exception ex) {
+                    // Cattura errori di database e altri errori generici
+                    String userFriendlyMessage = ErrorMessageTranslator.translateError(ex.getMessage());
+                    JOptionPane.showMessageDialog(logFrame,
+                            userFriendlyMessage,
                             "Errore di Registrazione",
                             JOptionPane.ERROR_MESSAGE);
                 } finally {
