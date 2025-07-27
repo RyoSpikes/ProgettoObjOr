@@ -1,4 +1,4 @@
-package gui;
+package gui.views;
 
 import controller.HackathonController;
 import model.Team;

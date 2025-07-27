@@ -1,6 +1,8 @@
-package gui;
+package gui.views;
 
 import controller.HackathonController;
+import gui.dialogs.CercaDocumentoDialog;
+import gui.dialogs.ValutazioneDialog;
 import model.Utente;
 import model.Documento;
 
@@ -36,19 +38,19 @@ public class JudgeView {
      * @param titoloHackathon Il titolo dell'hackathon da giudicare
      * @param giudice L'utente che funge da giudice
      * @param parentFrame Il frame genitore per la gestione delle finestre
+     * @param hackathonController Il controller per le operazioni business
      */
-    public JudgeView(String titoloHackathon, Utente giudice, JFrame parentFrame) {
+    public JudgeView(String titoloHackathon, Utente giudice, JFrame parentFrame, HackathonController hackathonController) {
         this.titoloHackathon = titoloHackathon;
         this.giudice = giudice;
+        this.hackathonController = hackathonController;
         
         // Inizializza l'interfaccia utente dal form
         $$$setupUI$$$();
         
         // Inizializza i DAO
-        try {
-            this.hackathonController = new HackathonController();
-        } catch (Exception e) {
-            System.err.println("Errore nell'inizializzazione dei DAO: " + e.getMessage());
+        if (this.hackathonController == null) {
+            throw new IllegalStateException("HackathonController non può essere null");
         }
         
         judgeViewFrame = new JFrame("Giudice - " + titoloHackathon);
@@ -205,10 +207,7 @@ public class JudgeView {
      */
     private void mostraDocumentiHackathon() {
         try {
-            // Crea un controller per gestire i documenti
-            controller.HackathonController hackathonController = new controller.HackathonController();
-            
-            // Verifica se ci sono documenti per questo hackathon
+            // Usa il controller già disponibile nella classe
             List<Documento> documenti = hackathonController.getDocumentiHackathon(titoloHackathon);
 
             if (documenti == null || documenti.isEmpty()) {
@@ -251,7 +250,8 @@ public class JudgeView {
                         ValutazioneDialog valutazioneDialog = new ValutazioneDialog(
                             judgeViewFrame,
                             docDaValutare,
-                            giudiceModel
+                            giudiceModel,
+                            hackathonController
                         );
                         valutazioneDialog.setVisible(true);
                         

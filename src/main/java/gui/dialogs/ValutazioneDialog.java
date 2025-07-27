@@ -1,4 +1,4 @@
-package gui;
+package gui.dialogs;
 
 import controller.HackathonController;
 import model.Documento;
@@ -28,12 +28,13 @@ public class ValutazioneDialog extends JDialog {
      * @param parent     Finestra padre
      * @param documento  Documento da valutare
      * @param giudice    Giudice che effettua la valutazione
+     * @param hackathonController Controller per operazioni business
      */
-    public ValutazioneDialog(JFrame parent, Documento documento, Giudice giudice) {
+    public ValutazioneDialog(JFrame parent, Documento documento, Giudice giudice, HackathonController hackathonController) {
         super(parent, "Valutazione Documento", true);
         this.documento = documento;
         this.giudice = giudice;
-        this.hackathonController = new HackathonController();
+        this.hackathonController = hackathonController;
         
         initializeComponents();
         layoutComponents();

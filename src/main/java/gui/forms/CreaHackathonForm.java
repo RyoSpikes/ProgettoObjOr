@@ -1,7 +1,8 @@
-package gui;
+package gui.forms;
 
 import model.Organizzatore;
 import controller.HackathonController;
+import gui.views.AdminView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

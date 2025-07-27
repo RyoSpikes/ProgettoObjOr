@@ -1,6 +1,7 @@
-package gui;
+package gui.views;
 
 import controller.HackathonController;
+import gui.forms.CreaTeamForm;
 import model.Utente;
 import model.Team;
 
@@ -208,8 +209,8 @@ public class UserView {
                             }
                             
                             if (teamSelezionato != null) {
-                                // Apri TeamView form invece di InfoTeam
-                                new TeamView(teamSelezionato, userLogged, userViewFrame, hackathonController);
+                                // Apri ModernTeamView direttamente
+                                new ModernTeamView(teamSelezionato, userLogged, userViewFrame, hackathonController);
                             }
                         }
                     } else {
@@ -270,9 +271,9 @@ public class UserView {
                             }
                             
                             if (teamSelezionato != null) {
-                                // Apri TeamView per gestire il team
+                                // Apri ModernTeamView per gestire il team
                                 userViewFrame.setVisible(false);
-                                new TeamView(teamSelezionato, userLogged, userViewFrame, hackathonController);
+                                new ModernTeamView(teamSelezionato, userLogged, userViewFrame, hackathonController);
                             }
                         }
                     } else {
@@ -318,7 +319,7 @@ public class UserView {
                             // Apri JudgeView
                             try {
                                 userViewFrame.setVisible(false);
-                                new JudgeView(titoloHackathon, userLogged, userViewFrame);
+                                new JudgeView(titoloHackathon, userLogged, userViewFrame, hackathonController);
                             } catch (Exception ex) {
                                 userViewFrame.setVisible(true); // Ripristina la visibilità in caso di errore
                                 JOptionPane.showMessageDialog(userViewFrame, 

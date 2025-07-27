@@ -1,4 +1,4 @@
-package gui;
+package gui.forms;
 
 import controller.HackathonController;
 import model.Hackathon;

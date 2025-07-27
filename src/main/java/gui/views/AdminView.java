@@ -1,8 +1,10 @@
-package gui;
+package gui.views;
 
 import model.Hackathon;
 import model.Organizzatore;
 import model.Utente;
+import gui.forms.CreaHackathonForm;
+import gui.dialogs.HackathonInfoDialog;
 import controller.HackathonController;
 import utilities.DynamicSearchHelper;
 
@@ -539,18 +541,21 @@ public class AdminView {
         component.setToolTipText(tooltipText);
         
         // Crea un nuovo timer con ritardo di 800ms
-        tooltipTimer = new Timer(800, actionEvent -> {
-            if (currentTooltipComponent == component) {
-                // Mostra il tooltip solo se il mouse è ancora sullo stesso componente
-                Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
-                SwingUtilities.convertPointFromScreen(mouseLocation, component);
-                
-                if (component.contains(mouseLocation)) {
-                    // Forza la visualizzazione del tooltip simulando un movimento del mouse
-                    ToolTipManager.sharedInstance().mouseMoved(
-                        new MouseEvent(component, MouseEvent.MOUSE_MOVED, 
-                                     System.currentTimeMillis(), 0, 
-                                     mouseLocation.x, mouseLocation.y, 0, false));
+        tooltipTimer = new Timer(800, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currentTooltipComponent == component) {
+                    // Mostra il tooltip solo se il mouse è ancora sullo stesso componente
+                    Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+                    SwingUtilities.convertPointFromScreen(mouseLocation, component);
+                    
+                    if (component.contains(mouseLocation)) {
+                        // Forza la visualizzazione del tooltip simulando un movimento del mouse
+                        ToolTipManager.sharedInstance().mouseMoved(
+                            new MouseEvent(component, MouseEvent.MOUSE_MOVED, 
+                                         System.currentTimeMillis(), 0, 
+                                         mouseLocation.x, mouseLocation.y, 0, false));
+                    }
                 }
             }
         });

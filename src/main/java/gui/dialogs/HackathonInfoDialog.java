@@ -1,4 +1,4 @@
-package gui;
+package gui.dialogs;
 
 import controller.HackathonController;
 import model.*;
