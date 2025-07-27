@@ -1,7 +1,6 @@
 package gui;
 
 import controller.HackathonController;
-import controller.TeamController;
 import model.Hackathon;
 import model.Team;
 import model.Utente;
@@ -32,8 +31,6 @@ public class CreaTeamForm {
      * @param hackathonController Il controller utilizzato per gestire gli hackathon.
      */
     public CreaTeamForm(Utente userLogged, JFrame frameCalling, HackathonController hackathonController) {
-        // Inizializza il TeamController per gestire le operazioni sui team
-        TeamController teamController = new TeamController();
         
         JFrame frame = new JFrame("Creazione Team");
         frame.setContentPane(panelCreaTeam);
@@ -92,7 +89,7 @@ public class CreaTeamForm {
                     }
                     
                     // Crea il team utilizzando il TeamController
-                    Team nuovoTeam = teamController.creaTeam(userLogged, hackathonSelezionato, nomeTeam.trim());
+                    Team nuovoTeam = hackathonController.creaTeam(userLogged, hackathonSelezionato, nomeTeam.trim());
                     
                     // Notifica successo
                     JOptionPane.showMessageDialog(frame, 

@@ -1,8 +1,6 @@
 package gui;
 
-import controller.UserController;
 import controller.HackathonController;
-import controller.TeamController;
 import model.*;
 import utilities.DynamicSearchHelper;
 
@@ -25,19 +23,15 @@ public class ScegliTeam {
     private JButton btnInvio; // Pulsante per confermare la selezione del team.
     private JLabel infoLabel; // Label per mostrare informazioni sui risultati.
     private DynamicSearchHelper<Team> searchHelper; // Helper per la ricerca dinamica.
-    private TeamController teamController; // Controller per gestire i team.
 
     /**
      * Costruttore della classe ScegliTeam.
      *
      * @param userLogged L'utente attualmente loggato.
      * @param frameCalling Il frame chiamante che ha aperto questa finestra.
-     * @param hackathonController Il controller per la gestione degli organizzatori e degli hackathon.
-     * @param controllerUtente Il controller per la gestione degli utenti.
+     * @param hackathonController Il controller principale dell'applicazione.
      */
-    public ScegliTeam(Utente userLogged, JFrame frameCalling, HackathonController hackathonController, UserController controllerUtente) {
-        // Inizializza il TeamController per gestire le operazioni sui team
-        this.teamController = new TeamController();
+    public ScegliTeam(Utente userLogged, JFrame frameCalling, HackathonController hackathonController) {
 
         // Crea la finestra di dialogo personalizzata
         JDialog dialog = new JDialog(frameCalling, "Scegli Team", true);
@@ -74,7 +68,7 @@ public class ScegliTeam {
         teamList.setEnabled(false);
 
         // Renderer personalizzato per la lista
-        teamList.setCellRenderer(new TeamListCellRenderer(teamController, userLogged));
+        teamList.setCellRenderer(new TeamListCellRenderer(hackathonController, userLogged));
 
         // ScrollPane per la lista
         JScrollPane listScrollPane = new JScrollPane(teamList);
@@ -147,7 +141,7 @@ public class ScegliTeam {
             }
 
             // Ottieni tutti i team per l'hackathon selezionato
-            List<Team> teamDisponibili = teamController.getTeamsByHackathon(hackathonSelezionato.getTitoloIdentificativo());
+            List<Team> teamDisponibili = hackathonController.getTeamsByHackathon(hackathonSelezionato.getTitoloIdentificativo());
             
             if (teamDisponibili == null || teamDisponibili.isEmpty()) {
                 listModel.clear();
@@ -172,13 +166,13 @@ public class ScegliTeam {
                         // Callback per quando la selezione cambia
                         Team teamSelezionato = teamList.getSelectedValue();
                         if (teamSelezionato != null) {
-                            int numMembri = teamController.contaMembriTeam(
+                            int numMembri = hackathonController.contaMembriTeam(
                                 teamSelezionato.getNomeTeam(),
                                 teamSelezionato.getHackathon().getTitoloIdentificativo()
                             );
 
                             // Controlla se l'utente può unirsi al team
-                            boolean puo_unirsi = teamController.puoUtenterUnirsiAlTeam(teamSelezionato, userLogged);
+                            boolean puo_unirsi = hackathonController.puoUtenterUnirsiAlTeam(teamSelezionato, userLogged);
 
                             infoLabel.setText(String.format(
                                 "<html><b>Team selezionato:</b> %s<br><b>Membri attuali:</b> %d<br><b>Stato:</b> %s</html>",
@@ -212,8 +206,8 @@ public class ScegliTeam {
                 }
 
                 try {
-                    // Aggiunge l'utente al team utilizzando il TeamController
-                    teamController.aggiungiUtenteATeam(userLogged, teamSelezionato);
+                    // Aggiunge l'utente al team utilizzando hackathonController
+                    hackathonController.aggiungiUtenteATeam(userLogged, teamSelezionato);
 
                     // Notifica successo
                     JOptionPane.showMessageDialog(dialog,
@@ -258,11 +252,11 @@ public class ScegliTeam {
  * Renderer personalizzato per la lista dei team
  */
 class TeamListCellRenderer extends DefaultListCellRenderer {
-    private TeamController teamController;
+    private HackathonController hackathonController;
     private Utente utente;
 
-    public TeamListCellRenderer(TeamController teamController, Utente utente) {
-        this.teamController = teamController;
+    public TeamListCellRenderer(HackathonController hackathonController, Utente utente) {
+        this.hackathonController = hackathonController;
         this.utente = utente;
     }
 
@@ -274,7 +268,7 @@ class TeamListCellRenderer extends DefaultListCellRenderer {
         if (value instanceof Team) {
             Team team = (Team) value;
 
-            int membri = teamController.contaMembriTeam(
+            int membri = hackathonController.contaMembriTeam(
                 team.getNomeTeam(),
                 team.getHackathon().getTitoloIdentificativo()
             );
@@ -285,7 +279,7 @@ class TeamListCellRenderer extends DefaultListCellRenderer {
                 team.getNomeTeam(), membri, maxMembri));
 
             // Verifica lo stato del team usando il metodo sicuro del controller
-            boolean puo_unirsi = teamController.puoUtenterUnirsiAlTeam(team, utente);
+            boolean puo_unirsi = hackathonController.puoUtenterUnirsiAlTeam(team, utente);
             String motivazione = "";
 
             // Verifica se il periodo di registrazione è ancora aperto
@@ -296,7 +290,7 @@ class TeamListCellRenderer extends DefaultListCellRenderer {
             }
 
             // Verifica se l'utente è già in un team per questo hackathon
-            String teamCorrente = teamController.getTeamCorrenteUtente(utente.getName(), team.getHackathon().getTitoloIdentificativo());
+            String teamCorrente = hackathonController.getTeamCorrenteUtente(utente.getName(), team.getHackathon().getTitoloIdentificativo());
 
             if (teamCorrente != null) {
                 puo_unirsi = false;

@@ -1,6 +1,5 @@
 package gui;
 
-import controller.UserController;
 import controller.HackathonController;
 import model.*;
 
@@ -22,8 +21,7 @@ public class Home {
     private JButton stampaOrganizzatoriBtn; // Pulsante per stampare la lista degli organizzatori.
 
     public static JFrame frame; // Finestra principale dell'applicazione.
-    private final UserController userController; // Controller per la gestione degli utenti.
-    private final HackathonController orgController; // Controller per la gestione degli organizzatori.
+    private final HackathonController hackathonController; // Controller principale dell'applicazione.
 
     /**
      * Metodo principale dell'applicazione.
@@ -47,11 +45,10 @@ public class Home {
 
     /**
      * Costruttore della classe Home.
-     * Inizializza i controller e configura i listener per i pulsanti.
+     * Inizializza il controller principale e configura i listener per i pulsanti.
      */
     public Home() {
-        userController = new UserController();
-        orgController = new HackathonController();
+        hackathonController = new HackathonController();
 
         // Ensure homeTextArea is not null before using it
         if (homeTextArea != null) {
@@ -65,10 +62,10 @@ public class Home {
                 public void actionPerformed(ActionEvent e) {
                     if (homeTextArea != null) {
                         homeTextArea.setText("");
-                        if(userController.getListaUtenti().isEmpty()) {
+                        if(hackathonController.getListaUtenti().isEmpty()) {
                             homeTextArea.append("Lista Utenti vuota.");
                         } else {
-                            for (Utente u : userController.getListaUtenti()) {
+                            for (Utente u : hackathonController.getListaUtenti()) {
                                 homeTextArea.append("Utente: " + u.getName() + "\n");
                             }
                         }
@@ -86,7 +83,7 @@ public class Home {
                         homeTextArea.setText("");
                     }
                     frame.setVisible(false);
-                    new Login(orgController, userController, frame);
+                    new Login(hackathonController, frame);
                 }
             });
         }
@@ -98,10 +95,10 @@ public class Home {
                 public void actionPerformed(ActionEvent e) {
                     if (homeTextArea != null) {
                         homeTextArea.setText("");
-                        if(orgController.getListaOrganizzatori().isEmpty()) {
+                        if(hackathonController.getListaOrganizzatori().isEmpty()) {
                             homeTextArea.append("Lista Organizzatori vuota.");
                         } else {
-                            for (Organizzatore org : orgController.getListaOrganizzatori()) {
+                            for (Organizzatore org : hackathonController.getListaOrganizzatori()) {
                                 homeTextArea.append("Organizzatore: " + org.getName() + "\n");
                             }
                         }

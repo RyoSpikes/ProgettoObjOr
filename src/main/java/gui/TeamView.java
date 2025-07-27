@@ -1,6 +1,5 @@
 package gui;
 
-import controller.TeamController;
 import controller.HackathonController;
 import model.Team;
 import model.Utente;
@@ -30,7 +29,6 @@ public class TeamView {
     private JFrame parentFrame;
     
     // Controller per gestire la logica di business
-    private TeamController teamController;
     private HackathonController hackathonController;
 
     /**
@@ -39,18 +37,19 @@ public class TeamView {
      * @param team Il team da visualizzare/gestire
      * @param userLogged L'utente attualmente loggato
      * @param parentFrame Il frame genitore
-     * @param teamController Il controller per la gestione dei team
+     * @param hackathonController Il controller principale per la gestione
      */
-    public TeamView(Team team, Utente userLogged, JFrame parentFrame, TeamController teamController) {
+    public TeamView(Team team, Utente userLogged, JFrame parentFrame, HackathonController hackathonController) {
         this.team = team;
         this.userLogged = userLogged;
         this.parentFrame = parentFrame;
-        this.teamController = teamController;
+        this.hackathonController = hackathonController;
         
         // Inizializza i DAO
         try {
-            this.teamController = new TeamController();
-            this.hackathonController = new HackathonController();
+            if (this.hackathonController == null) {
+                this.hackathonController = new HackathonController();
+            }
         } catch (Exception e) {
             System.err.println("Errore nell'inizializzazione dei DAO: " + e.getMessage());
         }
@@ -96,7 +95,7 @@ public class TeamView {
             
             try {
                 // Carica i membri del team
-                var membri = teamController.getMembershipDAO().getTeamMembers(
+                var membri = hackathonController.getMembriTeam(
                     team.getNomeTeam(), 
                     team.getHackathon().getTitoloIdentificativo()
                 );
@@ -180,7 +179,7 @@ public class TeamView {
                     
                     if (result == JOptionPane.YES_OPTION) {
                         try {
-                            boolean success = teamController.getMembershipDAO().removeUserFromTeam(
+                            boolean success = hackathonController.rimuoviUtenteDaTeam(
                                 userLogged.getName(),
                                 team.getNomeTeam(),
                                 team.getHackathon().getTitoloIdentificativo()

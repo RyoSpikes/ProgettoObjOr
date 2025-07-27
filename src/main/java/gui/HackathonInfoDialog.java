@@ -1,7 +1,6 @@
 package gui;
 
 import controller.HackathonController;
-import controller.TeamController;
 import model.*;
 import utilities.DynamicSearchHelper;
 
@@ -20,11 +19,10 @@ public class HackathonInfoDialog {
      * 
      * @param parentFrame Frame genitore
      * @param hackathon L'hackathon da visualizzare
-     * @param hackathonController Controller per operazioni sugli hackathon
-     * @param teamController Controller per operazioni sui team
+     * @param hackathonController Controller principale per tutte le operazioni
      */
     public static void mostraDialog(JFrame parentFrame, Hackathon hackathon, 
-                                   HackathonController hackathonController, TeamController teamController) {
+                                   HackathonController hackathonController) {
         
         // Crea il dialog modale
         JDialog dialog = new JDialog(parentFrame, "Dettagli Hackathon - " + hackathon.getTitoloIdentificativo(), true);
@@ -39,7 +37,7 @@ public class HackathonInfoDialog {
         tabbedPane.addTab("📋 Informazioni", infoPanel);
         
         // === SCHEDA 2: TEAM PARTECIPANTI ===
-        JPanel teamPanel = creaSchemaTeam(hackathon, hackathonController, teamController, dialog);
+        JPanel teamPanel = creaSchemaTeam(hackathon, hackathonController, dialog);
         tabbedPane.addTab("👥 Team Partecipanti", teamPanel);
         
         // Pannello inferiore con pulsante di chiusura
@@ -92,14 +90,14 @@ public class HackathonInfoDialog {
      * Crea il pannello con i team partecipanti e ricerca dinamica.
      */
     private static JPanel creaSchemaTeam(Hackathon hackathon, HackathonController hackathonController, 
-                                        TeamController teamController, JDialog parentDialog) {
+                                        JDialog parentDialog) {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         
         // Recupera i team partecipanti
         List<Team> teamList;
         try {
-            teamList = teamController.getTeamsByHackathon(hackathon.getTitoloIdentificativo());
+            teamList = hackathonController.getTeamsByHackathon(hackathon.getTitoloIdentificativo());
         } catch (Exception e) {
             teamList = List.of();
         }
@@ -130,7 +128,7 @@ public class HackathonInfoDialog {
                 if (value instanceof Team) {
                     Team team = (Team) value;
                     // Ottieni il numero di membri direttamente dal database
-                    int numMembri = getNumeroMembriTeam(team.getNomeTeam(), hackathon.getTitoloIdentificativo());
+                    int numMembri = hackathonController.getNumeroMembriTeam(team.getNomeTeam(), hackathon.getTitoloIdentificativo());
                     
                     // Ottieni il punteggio finale
                     String punteggio;
@@ -174,7 +172,7 @@ public class HackathonInfoDialog {
                 // Callback per quando la selezione cambia
                 Team selectedTeam = teamJList.getSelectedValue();
                 if (selectedTeam != null) {
-                    int numMembri = getNumeroMembriTeam(selectedTeam.getNomeTeam(), hackathon.getTitoloIdentificativo());
+                    int numMembri = hackathonController.getNumeroMembriTeam(selectedTeam.getNomeTeam(), hackathon.getTitoloIdentificativo());
                     infoLabel.setText(String.format(
                         "Team selezionato: %s (%d membri)",
                         selectedTeam.getNomeTeam(),
@@ -192,7 +190,7 @@ public class HackathonInfoDialog {
         btnDettagliTeam.addActionListener(e -> {
             Team selectedTeam = searchHelper.getSelectedItem();
             if (selectedTeam != null) {
-                mostraDettagliTeam(parentDialog, selectedTeam);
+                mostraDettagliTeam(parentDialog, selectedTeam, hackathonController);
             }
         });
         
@@ -207,7 +205,7 @@ public class HackathonInfoDialog {
     /**
      * Mostra un dialog con i dettagli di un team specifico.
      */
-    private static void mostraDettagliTeam(JDialog parentDialog, Team team) {
+    private static void mostraDettagliTeam(JDialog parentDialog, Team team, HackathonController hackathonController) {
         JDialog teamDialog = new JDialog(parentDialog, "Dettagli Team - " + team.getNomeTeam(), true);
         teamDialog.setSize(450, 350);
         teamDialog.setLocationRelativeTo(parentDialog);
@@ -230,7 +228,7 @@ public class HackathonInfoDialog {
                   team.getHackathon() != null ? team.getHackathon().getTitoloIdentificativo() : "N/A");
         
         // Ottieni il numero di membri direttamente dal database
-        int numMembri = getNumeroMembriTeam(team.getNomeTeam(), 
+        int numMembri = hackathonController.getNumeroMembriTeam(team.getNomeTeam(), 
             team.getHackathon() != null ? team.getHackathon().getTitoloIdentificativo() : "");
         addInfoRow(infoPanel, gbc, 1, "👥 Numero Membri:", String.valueOf(numMembri));
         
@@ -250,8 +248,7 @@ public class HackathonInfoDialog {
         DefaultListModel<String> memberListModel = new DefaultListModel<>();
         try {
             // Carica i membri dal database usando il controller
-            TeamController teamController = new TeamController();
-            java.util.List<Utente> membri = teamController.getMembershipDAO().getTeamMembers(
+            java.util.List<Utente> membri = hackathonController.getMembriTeam(
                 team.getNomeTeam(), 
                 team.getHackathon() != null ? team.getHackathon().getTitoloIdentificativo() : ""
             );
@@ -322,23 +319,5 @@ public class HackathonInfoDialog {
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(valueComponent, gbc);
-    }
-    
-    /**
-     * Ottiene il numero di membri di un team direttamente dal database.
-     * 
-     * @param nomeTeam Nome del team
-     * @param titoloHackathon Titolo dell'hackathon
-     * @return Numero di membri del team
-     */
-    private static int getNumeroMembriTeam(String nomeTeam, String titoloHackathon) {
-        try {
-            // Usa il controller per ottenere il numero di membri
-            TeamController teamController = new TeamController();
-            return teamController.getNumeroMembriTeam(nomeTeam, titoloHackathon);
-        } catch (Exception e) {
-            System.err.println("Errore nel recupero del numero di membri per il team " + nomeTeam + ": " + e.getMessage());
-            return 0;
-        }
     }
 }

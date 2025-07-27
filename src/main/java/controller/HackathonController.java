@@ -22,8 +22,17 @@ import Database.DAO.Impl.ValutazioneDAOImpl;
  * Gestisce tutte le operazioni relative a hackathon, organizzatori, utenti, team,
  * inviti, voti e valutazioni. Fornisce un'interfaccia unificata per l'accesso
  * ai dati e coordina le operazioni tra le diverse entità del sistema.
+ * 
+ * Questo controller centralizza l'accesso agli altri controller specializzati:
+ * - TeamController per la gestione dei team
+ * - UserController per la gestione degli utenti (ereditato)
  */
 public class HackathonController extends UserController {
+
+    /**
+     * Controller specializzato per la gestione dei team.
+     */
+    private TeamController teamController;
 
     /**
      * Lista degli organizzatori gestiti dal controller.
@@ -74,10 +83,14 @@ public class HackathonController extends UserController {
 
     /**
      * Costruttore della classe HackathonController.
-     * Inizializza la lista degli organizzatori e le DAO.
+     * Inizializza la lista degli organizzatori, le DAO e i controller specializzati.
      */
     public HackathonController() {
         listaOrganizzatori = new ArrayList<>();
+        
+        // Inizializza il controller per i team
+        teamController = new TeamController();
+        
         try {
             organizzatoreDAO = new OrganizzatoreDAOImpl();
             hackathonDAO = new HackathonDAOImpl();
@@ -746,5 +759,150 @@ public class HackathonController extends UserController {
             System.err.println("Errore nella verifica del voto: " + e.getMessage());
             return false;
         }
+    }
+
+    // ===== METODI DELEGATI AL TEAM CONTROLLER =====
+
+    /**
+     * Crea un nuovo team per un hackathon delegando al TeamController.
+     * 
+     * @param utente L'utente che crea il team
+     * @param hackathon L'hackathon per cui creare il team
+     * @param nomeTeam Il nome del team da creare
+     * @return Il team appena creato
+     * @throws IllegalArgumentException Se la creazione non è possibile
+     * @throws IllegalStateException Se l'utente è già in un team per questo hackathon
+     */
+    public Team creaTeam(Utente utente, Hackathon hackathon, String nomeTeam) 
+            throws IllegalArgumentException, IllegalStateException {
+        return teamController.creaTeam(utente, hackathon, nomeTeam);
+    }
+
+    /**
+     * Aggiunge un utente a un team esistente delegando al TeamController.
+     * 
+     * @param utente L'utente da aggiungere
+     * @param team Il team a cui aggiungere l'utente
+     * @throws IllegalArgumentException Se l'aggiunta non è possibile
+     * @throws IllegalStateException Se ci sono problemi di stato (team pieno, registrazioni chiuse, etc.)
+     */
+    public void aggiungiUtenteATeam(Utente utente, Team team) 
+            throws IllegalArgumentException, IllegalStateException {
+        teamController.aggiungiUtenteATeam(utente, team);
+    }
+
+    /**
+     * Ottiene tutti i team per un hackathon specifico delegando al TeamController.
+     * 
+     * @param titoloHackathon Il titolo dell'hackathon
+     * @return Lista di team per l'hackathon o null in caso di errore
+     */
+    public List<Team> getTeamsByHackathon(String titoloHackathon) {
+        return teamController.getTeamsByHackathon(titoloHackathon);
+    }
+
+    /**
+     * Ottiene il numero di membri di un team delegando al TeamController.
+     * 
+     * @param nomeTeam Nome del team
+     * @param titoloHackathon Titolo dell'hackathon
+     * @return Numero di membri del team
+     */
+    public int getNumeroMembriTeam(String nomeTeam, String titoloHackathon) {
+        return teamController.getNumeroMembriTeam(nomeTeam, titoloHackathon);
+    }
+
+    /**
+     * Conta il numero di membri di un team delegando al TeamController.
+     *
+     * @param nomeTeam Il nome del team
+     * @param titoloHackathon Il titolo dell'hackathon
+     * @return Il numero di membri del team, 0 in caso di errore
+     */
+    public int contaMembriTeam(String nomeTeam, String titoloHackathon) {
+        return teamController.contaMembriTeam(nomeTeam, titoloHackathon);
+    }
+
+    /**
+     * Verifica se un utente può unirsi a un team specifico delegando al TeamController.
+     *
+     * @param team Il team da verificare
+     * @param utente L'utente che vuole unirsi
+     * @return true se l'utente può unirsi al team, false altrimenti
+     */
+    public boolean puoUtenterUnirsiAlTeam(Team team, Utente utente) {
+        return teamController.puoUtenterUnirsiAlTeam(team, utente);
+    }
+
+    /**
+     * Restituisce il nome del team corrente dell'utente per un hackathon specifico
+     * delegando al TeamController.
+     */
+    public String getTeamCorrenteUtente(String nomeUtente, String titoloHackathon) {
+        return teamController.getTeamCorrenteUtente(nomeUtente, titoloHackathon);
+    }
+
+    /**
+     * Metodo per ottenere tutti i team in modo sicuro delegando al TeamController.
+     */
+    public List<Team> getAllTeamsSafe() {
+        return teamController.getAllTeamsSafe();
+    }
+
+    /**
+     * Ottiene tutti i team di un utente specifico delegando al TeamController.
+     *
+     * @param nomeUtente Il nome dell'utente
+     * @return Lista dei team dell'utente
+     */
+    public List<Team> getTeamsByUser(String nomeUtente) {
+        try {
+            return membershipDAO.getTeamsByUser(nomeUtente);
+        } catch (SQLException e) {
+            System.err.println("Errore nel recupero dei team dell'utente: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Verifica se un utente è già in un team per un hackathon specifico.
+     *
+     * @param nomeUtente Il nome dell'utente da verificare
+     * @param titoloHackathon Il titolo dell'hackathon
+     * @return true se l'utente è già in un team, false altrimenti
+     */
+    public boolean isUserInTeamForHackathon(String nomeUtente, String titoloHackathon) {
+        try {
+            return membershipDAO.isUserInTeamForHackathon(nomeUtente, titoloHackathon);
+        } catch (SQLException e) {
+            System.err.println("Errore nella verifica membership utente: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Rimuove un utente da un team delegando al DAO delle membership.
+     *
+     * @param nomeUtente Il nome dell'utente da rimuovere
+     * @param nomeTeam Il nome del team
+     * @param titoloHackathon Il titolo dell'hackathon
+     * @return true se la rimozione è riuscita, false altrimenti
+     */
+    public boolean rimuoviUtenteDaTeam(String nomeUtente, String nomeTeam, String titoloHackathon) {
+        try {
+            return membershipDAO.removeUserFromTeam(nomeUtente, nomeTeam, titoloHackathon);
+        } catch (SQLException e) {
+            System.err.println("Errore nella rimozione dell'utente dal team: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Ottiene l'istanza del TeamController per operazioni avanzate.
+     * 
+     * @return L'istanza del TeamController
+     */
+    public TeamController getTeamController() {
+        return teamController;
     }
 }

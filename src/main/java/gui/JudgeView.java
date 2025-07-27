@@ -1,7 +1,6 @@
 package gui;
 
 import controller.HackathonController;
-import controller.TeamController;
 import model.Utente;
 import model.Documento;
 
@@ -30,7 +29,6 @@ public class JudgeView {
     
     // Controller per gestire la logica di business
     private HackathonController hackathonController;
-    private TeamController teamController;
 
     /**
      * Costruttore della classe JudgeView.
@@ -49,7 +47,6 @@ public class JudgeView {
         // Inizializza i DAO
         try {
             this.hackathonController = new HackathonController();
-            this.teamController = new TeamController();
         } catch (Exception e) {
             System.err.println("Errore nell'inizializzazione dei DAO: " + e.getMessage());
         }
@@ -163,7 +160,7 @@ public class JudgeView {
                         MENUGIUDICETextArea.append("🔸 Team " + teamNumber + ": " + teamName + "\n");
 
                         // Ottieni i membri del team
-                        List<Utente> membri = teamController.getMembershipDAO().getTeamMembers(teamName, titoloHackathon);
+                        List<Utente> membri = hackathonController.getMembriTeam(teamName, titoloHackathon);
                         if (membri != null && !membri.isEmpty()) {
                             MENUGIUDICETextArea.append("   👥 Membri:\n");
                             for (Utente membro : membri) {

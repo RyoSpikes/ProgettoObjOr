@@ -4,7 +4,6 @@ import model.Hackathon;
 import model.Organizzatore;
 import model.Utente;
 import controller.HackathonController;
-import controller.TeamController;
 import utilities.DynamicSearchHelper;
 
 import javax.swing.*;
@@ -31,6 +30,10 @@ public class AdminView {
     private JTextArea textArea1; // Campo richiesto dal form binding.
     private JScrollPane scrollPane; // ScrollPane per l'area di testo delle hackathon.
     private JPanel hackathonContentPanel; // Pannello per la visualizzazione dinamica degli hackathon.
+    
+    // Timer per gestire il tooltip con ritardo personalizzato
+    private Timer tooltipTimer;
+    private JComponent currentTooltipComponent;
 
     /**
      * Costruttore della classe AdminView.
@@ -53,6 +56,8 @@ public class AdminView {
         frameAdminView.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                // Pulisce le risorse prima di chiudere
+                cleanup();
                 frameCalling.setVisible(true);
                 frameAdminView.dispose();
             }
@@ -428,16 +433,20 @@ public class AdminView {
                 final Color hoverColor = new Color(240, 240, 240);
                 final Color clickColor = new Color(220, 220, 220);
                 
-                // Effetti hover e click
+                // Effetti hover e click con tooltip personalizzato
                 hackathonButton.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseEntered(MouseEvent e) {
                         hackathonButton.setBackground(hoverColor);
+                        // Mostra il tooltip con ritardo personalizzato
+                        showTooltipWithDelay(hackathonButton, "Clicca per vedere i dettagli di " + hackathon.getTitoloIdentificativo());
                     }
                     
                     @Override
                     public void mouseExited(MouseEvent e) {
                         hackathonButton.setBackground(defaultColor);
+                        // Nasconde immediatamente il tooltip quando si esce
+                        hideTooltipImmediately();
                     }
                     
                     @Override
@@ -451,18 +460,16 @@ public class AdminView {
                     }
                 });
                 
-                // Tooltip semplificato
-                hackathonButton.setToolTipText("Clicca per vedere i dettagli di " + hackathon.getTitoloIdentificativo());
+                // Non impostare il tooltip standard, usiamo quello personalizzato
+                // hackathonButton.setToolTipText("Clicca per vedere i dettagli di " + hackathon.getTitoloIdentificativo());
                 
                 // Listener per aprire il dialog dei dettagli
-                final Hackathon currentHackathon = hackathon; // Per il closure
                 hackathonButton.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         // Apri il dialog con i dettagli dell'hackathon
-                        TeamController teamController = new TeamController();
-                        HackathonInfoDialog.mostraDialog(frameAdminView, currentHackathon, 
-                                                       hackathonController, teamController);
+                        HackathonInfoDialog.mostraDialog(frameAdminView, hackathon, 
+                                                       hackathonController);
                     }
                 });
                 
@@ -497,6 +504,69 @@ public class AdminView {
         }
         
         System.out.println("DEBUG: Creati " + hackathonList.size() + " pulsanti per gli hackathon");
+    }
+
+    /**
+     * Nasconde immediatamente il tooltip corrente e ferma il timer.
+     */
+    private void hideTooltipImmediately() {
+        if (tooltipTimer != null && tooltipTimer.isRunning()) {
+            tooltipTimer.stop();
+        }
+        
+        // Forza la chiusura del tooltip corrente
+        ToolTipManager.sharedInstance().setEnabled(false);
+        ToolTipManager.sharedInstance().setEnabled(true);
+        
+        currentTooltipComponent = null;
+    }
+    
+    /**
+     * Mostra il tooltip con un ritardo personalizzato.
+     * 
+     * @param component Il componente per cui mostrare il tooltip
+     * @param tooltipText Il testo del tooltip
+     */
+    private void showTooltipWithDelay(JComponent component, String tooltipText) {
+        // Ferma il timer precedente se in esecuzione
+        if (tooltipTimer != null && tooltipTimer.isRunning()) {
+            tooltipTimer.stop();
+        }
+        
+        currentTooltipComponent = component;
+        
+        // Imposta immediatamente il testo del tooltip ma non lo mostrare ancora
+        component.setToolTipText(tooltipText);
+        
+        // Crea un nuovo timer con ritardo di 800ms
+        tooltipTimer = new Timer(800, actionEvent -> {
+            if (currentTooltipComponent == component) {
+                // Mostra il tooltip solo se il mouse è ancora sullo stesso componente
+                Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+                SwingUtilities.convertPointFromScreen(mouseLocation, component);
+                
+                if (component.contains(mouseLocation)) {
+                    // Forza la visualizzazione del tooltip simulando un movimento del mouse
+                    ToolTipManager.sharedInstance().mouseMoved(
+                        new MouseEvent(component, MouseEvent.MOUSE_MOVED, 
+                                     System.currentTimeMillis(), 0, 
+                                     mouseLocation.x, mouseLocation.y, 0, false));
+                }
+            }
+        });
+        
+        tooltipTimer.setRepeats(false);
+        tooltipTimer.start();
+    }
+    
+    /**
+     * Pulisce le risorse prima della chiusura della finestra.
+     */
+    private void cleanup() {
+        if (tooltipTimer != null && tooltipTimer.isRunning()) {
+            tooltipTimer.stop();
+        }
+        currentTooltipComponent = null;
     }
 
     /**

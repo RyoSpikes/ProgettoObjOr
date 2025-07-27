@@ -1,8 +1,6 @@
 package gui;
 
-import controller.UserController;
 import controller.HackathonController;
-import controller.TeamController;
 import model.Utente;
 import model.Team;
 
@@ -27,7 +25,6 @@ public class UserView {
     private JButton visualizzaTeamButton; // Pulsante per visualizzare il team attuale.
     private JButton gestisciTeamButton; // Pulsante per gestire il team (aprire TeamView).
     private JButton menuGiudiceButton;
-    private TeamController teamController; // Controller per la gestione dei team.
 
     /**
      * Costruttore della classe UserView.
@@ -35,20 +32,9 @@ public class UserView {
      *
      * @param userLogged L'utente attualmente loggato.
      * @param frameHome Il frame principale dell'applicazione.
-     * @param hackathonController Il controller per la gestione degli organizzatori.
-     * @param controllerUtente Il controller per la gestione degli utenti.
-    /**
-     * Costruttore della classe UserView.
-     * Inizializza l'interfaccia grafica e gestisce le azioni dei pulsanti.
-     *
-     * @param userLogged L'utente attualmente loggato
-     * @param frameHome Il frame principale dell'applicazione
-     * @param hackathonController Il controller per la gestione degli organizzatori
-     * @param controllerUtente Il controller per la gestione degli utenti
+     * @param hackathonController Il controller principale dell'applicazione.
      */
-    public UserView(Utente userLogged, JFrame frameHome, HackathonController hackathonController, UserController controllerUtente) {
-        // Inizializza il TeamController
-        this.teamController = new TeamController();
+    public UserView(Utente userLogged, JFrame frameHome, HackathonController hackathonController) {
         
         userViewFrame = new JFrame("User View");
         userViewFrame.setContentPane(userPanel);
@@ -150,7 +136,7 @@ public class UserView {
         scegliTeamButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ScegliTeam(userLogged, userViewFrame, hackathonController, controllerUtente);
+                new ScegliTeam(userLogged, userViewFrame, hackathonController);
                 // Rimosso userViewFrame.setVisible(false); - UserView deve rimanere visibile
             }
         });
@@ -160,8 +146,8 @@ public class UserView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    // Ottiene tutti i team dell'utente usando la DAO
-                    List<Team> teamsUtente = teamController.getMembershipDAO().getTeamsByUser(userLogged.getName());
+                    // Ottiene tutti i team dell'utente usando hackathonController
+                    List<Team> teamsUtente = hackathonController.getTeamsByUser(userLogged.getName());
                     
                     if (teamsUtente != null && !teamsUtente.isEmpty()) {
                         // Crea una lista cliccabile dei team
@@ -198,7 +184,7 @@ public class UserView {
                             
                             if (teamSelezionato != null) {
                                 // Apri TeamView form invece di InfoTeam
-                                new TeamView(teamSelezionato, userLogged, userViewFrame, teamController);
+                                new TeamView(teamSelezionato, userLogged, userViewFrame, hackathonController);
                             }
                         }
                     } else {
@@ -222,8 +208,8 @@ public class UserView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    // Ottiene tutti i team dell'utente usando la DAO
-                    List<Team> teamsUtente = teamController.getMembershipDAO().getTeamsByUser(userLogged.getName());
+                    // Ottiene tutti i team dell'utente usando hackathonController
+                    List<Team> teamsUtente = hackathonController.getTeamsByUser(userLogged.getName());
                     
                     if (teamsUtente != null && !teamsUtente.isEmpty()) {
                         // Crea una lista cliccabile dei team
@@ -261,7 +247,7 @@ public class UserView {
                             if (teamSelezionato != null) {
                                 // Apri TeamView per gestire il team
                                 userViewFrame.setVisible(false);
-                                new TeamView(teamSelezionato, userLogged, userViewFrame, teamController);
+                                new TeamView(teamSelezionato, userLogged, userViewFrame, hackathonController);
                             }
                         }
                     } else {

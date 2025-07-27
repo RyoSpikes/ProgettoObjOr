@@ -3,7 +3,6 @@ package gui;
 import javax.swing.*;
 import model.*;
 import controller.HackathonController;
-import controller.UserController;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,11 +26,10 @@ public class Login {
      * Costruttore della classe Login.
      * Inizializza l'interfaccia grafica e gestisce le azioni per il login degli utenti.
      *
-     * @param hackathonController Il controller per la gestione degli organizzatori.
-     * @param controller Il controller per la gestione degli utenti.
+     * @param hackathonController Il controller principale per la gestione di tutti i componenti.
      * @param frameCalling Il frame chiamante che ha aperto questa finestra.
      */
-    public Login(HackathonController hackathonController, UserController controller, JFrame frameCalling) {
+    public Login(HackathonController hackathonController, JFrame frameCalling) {
         logFrame = new JFrame("Login");
         logFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         logFrame.setContentPane(loginPanel);
@@ -90,11 +88,11 @@ public class Login {
                         }
                     } else {
                         // Login come utente normale
-                        Utente utenteLoggato = controller.loginUtente(username, password);
+                        Utente utenteLoggato = hackathonController.loginUtente(username, password);
 
                         if (utenteLoggato != null) {
                             System.out.println("Login riuscito per utente: " + username);
-                            new UserView(utenteLoggato, frameCalling, hackathonController, controller);
+                            new UserView(utenteLoggato, frameCalling, hackathonController);
                             logFrame.dispose();
                         } else {
                             JOptionPane.showMessageDialog(null,
@@ -147,7 +145,7 @@ public class Login {
                         return;
                     } else {
                         // Registrazione come utente normale
-                        controller.aggiungiUtente(username, password);
+                        hackathonController.aggiungiUtente(username, password);
                         JOptionPane.showMessageDialog(null,
                                 "Registrazione utente completata con successo!",
                                 "Successo",

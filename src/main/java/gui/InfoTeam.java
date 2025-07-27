@@ -1,6 +1,6 @@
 package gui;
 
-import controller.TeamController;
+import controller.HackathonController;
 import model.Team;
 import model.Utente;
 
@@ -25,7 +25,7 @@ public class InfoTeam {
     private Team team;
     private Utente userLogged;
     private JFrame parentFrame;
-    private TeamController teamController;
+    private HackathonController hackathonController;
 
     /**
      * Costruttore della classe InfoTeam.
@@ -33,13 +33,13 @@ public class InfoTeam {
      * @param team Il team di cui mostrare le informazioni
      * @param userLogged L'utente attualmente loggato
      * @param parentFrame Il frame genitore
-     * @param teamController Il controller per la gestione dei team
+     * @param hackathonController Il controller principale per la gestione
      */
-    public InfoTeam(Team team, Utente userLogged, JFrame parentFrame, TeamController teamController) {
+    public InfoTeam(Team team, Utente userLogged, JFrame parentFrame, HackathonController hackathonController) {
         this.team = team;
         this.userLogged = userLogged;
         this.parentFrame = parentFrame;
-        this.teamController = teamController;
+        this.hackathonController = hackathonController;
         
         // Inizializza i componenti GUI se non sono stati inizializzati automaticamente
         if (mainPanel == null) {
@@ -90,7 +90,7 @@ public class InfoTeam {
             
             try {
                 // Carica i membri del team
-                var membri = teamController.getMembershipDAO().getTeamMembers(
+                var membri = hackathonController.getMembriTeam(
                     team.getNomeTeam(), 
                     team.getHackathon().getTitoloIdentificativo()
                 );
@@ -120,7 +120,7 @@ public class InfoTeam {
      */
     private void verificaStatoUtente() {
         try {
-            boolean isUserInTeam = teamController.getMembershipDAO().isUserInTeamForHackathon(
+            boolean isUserInTeam = hackathonController.isUserInTeamForHackathon(
                 userLogged.getName(),
                 team.getHackathon().getTitoloIdentificativo()
             );
@@ -149,7 +149,7 @@ public class InfoTeam {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        teamController.aggiungiUtenteATeam(userLogged, team);
+                        hackathonController.aggiungiUtenteATeam(userLogged, team);
                         
                         JOptionPane.showMessageDialog(infoTeamFrame,
                             "Ti sei unito al team '" + team.getNomeTeam() + "' con successo!",
@@ -185,7 +185,7 @@ public class InfoTeam {
                     
                     if (result == JOptionPane.YES_OPTION) {
                         try {
-                            boolean success = teamController.getMembershipDAO().removeUserFromTeam(
+                            boolean success = hackathonController.rimuoviUtenteDaTeam(
                                 userLogged.getName(),
                                 team.getNomeTeam(),
                                 team.getHackathon().getTitoloIdentificativo()
