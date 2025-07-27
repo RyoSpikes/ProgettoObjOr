@@ -11,6 +11,13 @@ public class ModernButton extends JButton {
     private Color hoverColor;
     private Color pressedColor;
     
+    /**
+     * Costruttore di default per compatibilità con i file .form
+     */
+    public ModernButton() {
+        this("Button", new Color(70, 130, 180)); // Colore blu di default
+    }
+    
     public ModernButton(String text, Color backgroundColor) {
         super(text);
         this.backgroundColor = backgroundColor;
