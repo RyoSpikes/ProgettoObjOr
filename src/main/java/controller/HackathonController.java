@@ -637,18 +637,159 @@ public class HackathonController extends UserController {
     // ===== METODI AGGIUNTIVI PER GESTIONE INVITI =====
 
     /**
-     * Accetta un invito per un hackathon.
+     * Risultato dell'operazione di accettazione invito.
+     */
+    public enum AccettazioneInvitoRisultato {
+        SUCCESSO,
+        ERRORE_DATE_SOVRAPPOSTE,
+        ERRORE_INVITO_NON_ESISTENTE,
+        ERRORE_GENERICO
+    }
+
+    /**
+     * Accetta un invito per un hackathon con gestione dettagliata degli errori.
+     *
+     * @param username Il nome utente che accetta l'invito
+     * @param titoloHackathon Il titolo dell'hackathon
+     * @return Risultato dell'operazione
+     */
+    public AccettazioneInvitoRisultato accettaInvitoDettagliato(String username, String titoloHackathon) {
+        try {
+            boolean risultato = invitoGiudiceDAO.accettaInvito(username, titoloHackathon);
+            return risultato ? AccettazioneInvitoRisultato.SUCCESSO : AccettazioneInvitoRisultato.ERRORE_GENERICO;
+        } catch (SQLException e) {
+            String errorMessage = e.getMessage();
+            
+            // Controlla se l'errore è relativo alle date sovrapposte
+            if (errorMessage.contains("date sovrapposte") || 
+                errorMessage.contains("verifica_giudice_sovrapposizione")) {
+                System.err.println("⚠️ Conflitto date: L'utente " + username + 
+                                 " è già giudice per un hackathon con date sovrapposte");
+                return AccettazioneInvitoRisultato.ERRORE_DATE_SOVRAPPOSTE;
+            }
+            
+            // Controlla se l'invito non esiste
+            if (errorMessage.contains("invito non trovato") || 
+                errorMessage.contains("invito non esistente")) {
+                System.err.println("⚠️ Invito non trovato per l'utente " + username + 
+                                 " per l'hackathon " + titoloHackathon);
+                return AccettazioneInvitoRisultato.ERRORE_INVITO_NON_ESISTENTE;
+            }
+            
+            // Errore generico
+            System.err.println("Errore nell'accettazione dell'invito: " + e.getMessage());
+            return AccettazioneInvitoRisultato.ERRORE_GENERICO;
+        }
+    }
+
+    /**
+     * Verifica se un utente può accettare un invito come giudice senza conflitti di date.
+     *
+     * @param username Il nome utente del potenziale giudice
+     * @param titoloHackathon Il titolo dell'hackathon per cui verificare
+     * @return true se può accettare senza conflitti, false altrimenti
+     */
+    public boolean puoAccettareInvito(String username, String titoloHackathon) {
+        try {
+            // Ottieni le date dell'hackathon corrente
+            Hackathon hackathonCorrente = getHackathonPerTitolo(titoloHackathon);
+            if (hackathonCorrente == null) {
+                return false;
+            }
+            
+            // Ottieni tutti gli hackathon per cui l'utente è già giudice
+            List<String> hackathonAsGiudice = getHackathonAsGiudice(username);
+            
+            // Verifica sovrapposizioni con gli hackathon esistenti
+            for (String hackathonTitolo : hackathonAsGiudice) {
+                Hackathon hackathonEsistente = getHackathonPerTitolo(hackathonTitolo);
+                if (hackathonEsistente != null) {
+                    // Controlla sovrapposizione date
+                    if (dateSiSovrappongono(hackathonCorrente, hackathonEsistente)) {
+                        System.out.println("⚠️ Conflitto rilevato: " + username + 
+                                         " è già giudice per '" + hackathonTitolo + 
+                                         "' con date sovrapposte a '" + titoloHackathon + "'");
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        } catch (Exception e) {
+            System.err.println("Errore nella verifica dell'invito: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Verifica se due hackathon hanno date sovrapposte.
+     *
+     * @param hackathon1 Primo hackathon
+     * @param hackathon2 Secondo hackathon
+     * @return true se le date si sovrappongono, false altrimenti
+     */
+    private boolean dateSiSovrappongono(Hackathon hackathon1, Hackathon hackathon2) {
+        // Un hackathon inizia prima che l'altro finisca E finisce dopo che l'altro inizia
+        return hackathon1.getDataInizio().isBefore(hackathon2.getDataFine()) &&
+               hackathon1.getDataFine().isAfter(hackathon2.getDataInizio());
+    }
+
+    /**
+     * Accetta un invito per un hackathon (versione legacy).
      *
      * @param username Il nome utente che accetta l'invito
      * @param titoloHackathon Il titolo dell'hackathon
      * @return true se l'invito è stato accettato con successo, false altrimenti
      */
     public boolean accettaInvito(String username, String titoloHackathon) {
-        try {
-            return invitoGiudiceDAO.accettaInvito(username, titoloHackathon);
-        } catch (SQLException e) {
-            System.err.println("Errore nell'accettazione dell'invito: " + e.getMessage());
-            return false;
+        AccettazioneInvitoRisultato risultato = accettaInvitoDettagliato(username, titoloHackathon);
+        return risultato == AccettazioneInvitoRisultato.SUCCESSO;
+    }
+
+    /**
+     * Ottiene un messaggio user-friendly per il risultato dell'accettazione invito.
+     *
+     * @param risultato Il risultato dell'operazione
+     * @param titoloHackathon Il titolo dell'hackathon (per messaggi personalizzati)
+     * @return Array con [titolo, messaggio] per la finestra di dialogo
+     */
+    public String[] getMessaggioAccettazioneInvito(AccettazioneInvitoRisultato risultato, String titoloHackathon) {
+        switch (risultato) {
+            case SUCCESSO:
+                return new String[]{
+                    "🎉 Invito Accettato",
+                    "✅ Invito accettato con successo!\n\n" +
+                    "Ora sei un giudice per l'hackathon '" + titoloHackathon + "'.\n" +
+                    "Potrai valutare i progetti e assegnare i voti finali."
+                };
+                
+            case ERRORE_DATE_SOVRAPPOSTE:
+                return new String[]{
+                    "❌ Conflitto Date",
+                    "⚠️ Impossibile accettare l'invito!\n\n" +
+                    "Sei già giudice per un altro hackathon con date sovrapposte.\n" +
+                    "Un giudice non può valutare hackathon simultanei.\n\n" +
+                    "Controlla le date degli hackathon per cui sei già giudice."
+                };
+                
+            case ERRORE_INVITO_NON_ESISTENTE:
+                return new String[]{
+                    "🔍 Invito Non Trovato",
+                    "❌ Invito non trovato!\n\n" +
+                    "L'invito per l'hackathon '" + titoloHackathon + "' non esiste più\n" +
+                    "o potrebbe essere stato già processato.\n\n" +
+                    "Ricarica la lista degli inviti."
+                };
+                
+            case ERRORE_GENERICO:
+            default:
+                return new String[]{
+                    "🚨 Errore Sistema",
+                    "❌ Errore nell'accettazione dell'invito!\n\n" +
+                    "Si è verificato un errore imprevisto durante\n" +
+                    "l'accettazione dell'invito.\n\n" +
+                    "Riprova più tardi o contatta l'amministratore."
+                };
         }
     }
 

@@ -87,26 +87,51 @@ public class UserView {
                             // Estrai il titolo dell'hackathon dall'invito
                             String titoloHackathon = selectedInvito.split("'")[1]; // Estrae il titolo tra apici
                             
+                            // Controllo preventivo per conflitti di date
+                            boolean puoAccettare = hackathonController.puoAccettareInvito(userLogged.getName(), titoloHackathon);
+                            String messaggioConferma = "Vuoi accettare l'invito a giudicare l'hackathon '" + titoloHackathon + "'?";
+                            
+                            if (!puoAccettare) {
+                                messaggioConferma += "\n\n⚠️ ATTENZIONE: Potresti avere conflitti di date con altri hackathon per cui sei già giudice.";
+                            }
+                            
                             int result = JOptionPane.showConfirmDialog(
                                 userViewFrame,
-                                "Vuoi accettare l'invito a giudicare l'hackathon '" + titoloHackathon + "'?",
-                                "Conferma invito",
-                                JOptionPane.YES_NO_OPTION
+                                messaggioConferma,
+                                puoAccettare ? "Conferma invito" : "⚠️ Conferma invito (Conflitto rilevato)",
+                                JOptionPane.YES_NO_OPTION,
+                                puoAccettare ? JOptionPane.QUESTION_MESSAGE : JOptionPane.WARNING_MESSAGE
                             );
                             
                             if (result == JOptionPane.YES_OPTION) {
-                                boolean success = hackathonController.accettaInvito(userLogged.getName(), titoloHackathon);
-                                if (success) {
-                                    JOptionPane.showMessageDialog(userViewFrame,
-                                        "Invito accettato! Ora sei un giudice per l'hackathon '" + titoloHackathon + "'",
-                                        "Invito accettato",
-                                        JOptionPane.INFORMATION_MESSAGE);
-                                } else {
-                                    JOptionPane.showMessageDialog(userViewFrame,
-                                        "Errore nell'accettazione dell'invito.",
-                                        "Errore",
-                                        JOptionPane.ERROR_MESSAGE);
+                                // Usa il metodo dettagliato per gestire gli errori specifici
+                                HackathonController.AccettazioneInvitoRisultato risultato = 
+                                    hackathonController.accettaInvitoDettagliato(userLogged.getName(), titoloHackathon);
+                                
+                                // Ottieni il messaggio appropriato per il risultato
+                                String[] messaggio = hackathonController.getMessaggioAccettazioneInvito(risultato, titoloHackathon);
+                                
+                                // Determina il tipo di messaggio
+                                int messageType;
+                                switch (risultato) {
+                                    case SUCCESSO:
+                                        messageType = JOptionPane.INFORMATION_MESSAGE;
+                                        break;
+                                    case ERRORE_DATE_SOVRAPPOSTE:
+                                        messageType = JOptionPane.WARNING_MESSAGE;
+                                        break;
+                                    case ERRORE_INVITO_NON_ESISTENTE:
+                                    case ERRORE_GENERICO:
+                                    default:
+                                        messageType = JOptionPane.ERROR_MESSAGE;
+                                        break;
                                 }
+                                
+                                // Mostra la finestra di dialogo con il messaggio appropriato
+                                JOptionPane.showMessageDialog(userViewFrame,
+                                    messaggio[1], // messaggio
+                                    messaggio[0], // titolo
+                                    messageType);
                             } else {
                                 boolean success = hackathonController.rifiutaInvito(userLogged.getName(), titoloHackathon);
                                 if (success) {
