@@ -381,8 +381,9 @@ public class Home {
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         titleLabel.setForeground(new Color(70, 130, 180));
         
-        JButton backButton = new JButton("← Torna agli Organizzatori");
+        ModernButton backButton = ModernButton.createSecondaryButton("← Torna agli Organizzatori");
         backButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        backButton.setPreferredSize(new Dimension(200, 30)); // Imposta dimensione minima per evitare il taglio del testo
         backButton.addActionListener(e -> showOrganizersList());
         
         headerPanel.add(titleLabel);

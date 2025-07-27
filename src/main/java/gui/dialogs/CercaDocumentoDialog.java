@@ -1,6 +1,7 @@
 package gui.dialogs;
 
 import controller.HackathonController;
+import gui.components.ModernButton;
 import model.*;
 import utilities.DynamicSearchHelper;
 
@@ -18,7 +19,7 @@ public class CercaDocumentoDialog {
     private JTextField titoloDocumentoField; // Campo di testo per inserire il titolo del documento.
     private JList<Documento> documentoList; // Lista per mostrare i documenti trovati.
     private DefaultListModel<Documento> listModel; // Modello per la lista dei documenti.
-    private JButton btnSeleziona; // Pulsante per confermare la selezione del documento.
+    private ModernButton btnSeleziona; // Pulsante per confermare la selezione del documento.
     private JLabel infoLabel; // Label per mostrare informazioni sui risultati.
     private DynamicSearchHelper<Documento> searchHelper; // Helper per la ricerca dinamica.
 
@@ -95,9 +96,9 @@ public class CercaDocumentoDialog {
 
         // Pannello inferiore per i pulsanti
         JPanel bottomPanel = new JPanel(new FlowLayout());
-        btnSeleziona = new JButton("Seleziona Documento");
+        btnSeleziona = ModernButton.createPrimaryButton("Seleziona Documento");
         btnSeleziona.setEnabled(false);
-        JButton btnChiudi = new JButton("Chiudi");
+        ModernButton btnChiudi = ModernButton.createSecondaryButton("Chiudi");
         bottomPanel.add(btnSeleziona);
         bottomPanel.add(btnChiudi);
 

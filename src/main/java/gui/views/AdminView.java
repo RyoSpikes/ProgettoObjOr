@@ -74,6 +74,10 @@ public class AdminView {
         invitaGiudiceButton.setToolTipText("Invita un giudice per uno dei tuoi hackathon (solo organizzatore)");
         creaHackathonButton.setToolTipText("Crea un nuovo hackathon di cui sarai l'organizzatore");
         
+        // Applica lo stile moderno ai pulsanti principali
+        applyModernButtonStyle(creaHackathonButton, "primary");
+        applyModernButtonStyle(invitaGiudiceButton, "success");
+        
         // Nascondi l'area di testo se non è necessaria e inizializza i pulsanti dinamici
         if (adminTextArea != null) {
             adminTextArea.setVisible(false);
@@ -307,6 +311,11 @@ public class AdminView {
         JButton btnSeleziona = new JButton("Seleziona Utente");
         btnSeleziona.setEnabled(false);
         JButton btnAnnulla = new JButton("Annulla");
+        
+        // Applica lo stile moderno ai pulsanti
+        applyModernButtonStyle(btnSeleziona, "primary");
+        applyModernButtonStyle(btnAnnulla, "secondary");
+        
         bottomPanel.add(btnSeleziona);
         bottomPanel.add(btnAnnulla);
         
@@ -409,6 +418,9 @@ public class AdminView {
                 hackathonButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
                 hackathonButton.setPreferredSize(new Dimension(600, 50));
                 hackathonButton.setHorizontalAlignment(SwingConstants.LEFT);
+                
+                // Applica lo stile moderno
+                applyModernButtonStyle(hackathonButton, "special");
                 
                 // Contenuto del pulsante - design minimalista
                 String buttonText = "<html><div style='padding: 6px;'>" +
@@ -657,6 +669,10 @@ public class AdminView {
         
         btnSeleziona.setEnabled(false); // Inizialmente disabilitato
         
+        // Applica lo stile moderno ai pulsanti
+        applyModernButtonStyle(btnSeleziona, "primary");
+        applyModernButtonStyle(btnAnnulla, "secondary");
+        
         buttonPanel.add(btnSeleziona);
         buttonPanel.add(btnAnnulla);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -700,5 +716,82 @@ public class AdminView {
         dialog.setVisible(true);
         
         return hackathonSelezionato[0];
+    }
+    
+    /**
+     * Applica lo stile ModernButton a un JButton esistente.
+     * 
+     * @param button Il JButton da modernizzare
+     * @param type Il tipo di stile: "primary", "success", "danger", "warning", "secondary", "special"
+     */
+    private void applyModernButtonStyle(JButton button, String type) {
+        // Rimuove il border di default
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setContentAreaFilled(false);
+        button.setOpaque(true);
+        
+        // Font moderno
+        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        
+        // Colori in base al tipo
+        Color backgroundColor, textColor, hoverColor;
+        switch (type.toLowerCase()) {
+            case "primary":
+                backgroundColor = new Color(0, 123, 255);
+                textColor = Color.WHITE;
+                hoverColor = new Color(0, 86, 179);
+                break;
+            case "success":
+                backgroundColor = new Color(40, 167, 69);
+                textColor = Color.WHITE;
+                hoverColor = new Color(34, 142, 58);
+                break;
+            case "danger":
+                backgroundColor = new Color(220, 53, 69);
+                textColor = Color.WHITE;
+                hoverColor = new Color(200, 35, 51);
+                break;
+            case "warning":
+                backgroundColor = new Color(255, 193, 7);
+                textColor = new Color(33, 37, 41);
+                hoverColor = new Color(227, 172, 6);
+                break;
+            case "secondary":
+                backgroundColor = new Color(108, 117, 125);
+                textColor = Color.WHITE;
+                hoverColor = new Color(90, 98, 104);
+                break;
+            case "special":
+                backgroundColor = new Color(102, 16, 242);
+                textColor = Color.WHITE;
+                hoverColor = new Color(81, 13, 193);
+                break;
+            default:
+                backgroundColor = new Color(0, 123, 255);
+                textColor = Color.WHITE;
+                hoverColor = new Color(0, 86, 179);
+        }
+        
+        button.setBackground(backgroundColor);
+        button.setForeground(textColor);
+        
+        // Padding e dimensioni
+        button.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        
+        // Effetto hover
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(hoverColor);
+                button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+            
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(backgroundColor);
+                button.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
     }
 }

@@ -1,6 +1,7 @@
 package gui.dialogs;
 
 import controller.HackathonController;
+import gui.components.ModernButton;
 import model.Documento;
 import model.Giudice;
 
@@ -19,8 +20,8 @@ public class ValutazioneDialog extends JDialog {
     private final Giudice giudice;
     private final HackathonController hackathonController;
     private JTextArea textAreaGiudizio;
-    private JButton buttonSalva;
-    private JButton buttonAnnulla;
+    private ModernButton buttonSalva;
+    private ModernButton buttonAnnulla;
     
     /**
      * Costruttore del dialog di valutazione.
@@ -54,8 +55,8 @@ public class ValutazioneDialog extends JDialog {
         textAreaGiudizio.setWrapStyleWord(true);
         textAreaGiudizio.setBorder(BorderFactory.createTitledBorder("Inserisci la tua valutazione"));
         
-        buttonSalva = new JButton("Salva Valutazione");
-        buttonAnnulla = new JButton("Annulla");
+        buttonSalva = ModernButton.createSuccessButton("Salva Valutazione");
+        buttonAnnulla = ModernButton.createSecondaryButton("Annulla");
     }
     
     /**

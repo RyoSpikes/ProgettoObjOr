@@ -139,4 +139,11 @@ public class ModernButton extends JButton {
     public static ModernButton createSpecialButton(String text) {
         return new ModernButton(text, new Color(255, 215, 0), new Color(25, 25, 112));
     }
+    
+    /**
+     * Crea un pulsante secondario/neutrale (grigio).
+     */
+    public static ModernButton createSecondaryButton(String text) {
+        return new ModernButton(text, new Color(108, 117, 125), Color.WHITE);
+    }
 }

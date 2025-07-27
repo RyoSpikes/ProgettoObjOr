@@ -1,6 +1,7 @@
 package gui.views;
 
 import controller.HackathonController;
+import gui.components.ModernButton;
 import model.*;
 import utilities.DynamicSearchHelper;
 
@@ -20,7 +21,7 @@ public class ScegliTeam {
     private JTextField nomeTeamField; // Campo di testo per inserire il nome del team.
     private JList<Team> teamList; // Lista per mostrare i team trovati.
     private DefaultListModel<Team> listModel; // Modello per la lista dei team.
-    private JButton btnInvio; // Pulsante per confermare la selezione del team.
+    private ModernButton btnInvio; // Pulsante per confermare la selezione del team.
     private JLabel infoLabel; // Label per mostrare informazioni sui risultati.
     private DynamicSearchHelper<Team> searchHelper; // Helper per la ricerca dinamica.
 
@@ -84,9 +85,9 @@ public class ScegliTeam {
 
         // Pannello inferiore per i pulsanti
         JPanel bottomPanel = new JPanel(new FlowLayout());
-        btnInvio = new JButton("Entra nel Team");
+        btnInvio = ModernButton.createSuccessButton("Entra nel Team");
         btnInvio.setEnabled(false);
-        JButton btnAnnulla = new JButton("Annulla");
+        ModernButton btnAnnulla = ModernButton.createSecondaryButton("Annulla");
         bottomPanel.add(btnInvio);
         bottomPanel.add(btnAnnulla);
 

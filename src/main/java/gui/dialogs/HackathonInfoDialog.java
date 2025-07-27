@@ -1,6 +1,7 @@
 package gui.dialogs;
 
 import controller.HackathonController;
+import gui.components.ModernButton;
 import model.*;
 import utilities.DynamicSearchHelper;
 
@@ -42,7 +43,7 @@ public class HackathonInfoDialog {
         
         // Pannello inferiore con pulsante di chiusura
         JPanel bottomPanel = new JPanel(new FlowLayout());
-        JButton btnChiudi = new JButton("Chiudi");
+        ModernButton btnChiudi = ModernButton.createSecondaryButton("Chiudi");
         btnChiudi.addActionListener(e -> dialog.dispose());
         bottomPanel.add(btnChiudi);
         
@@ -156,7 +157,7 @@ public class HackathonInfoDialog {
         
         // Pannello per i pulsanti
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton btnDettagliTeam = new JButton("Dettagli Team");
+        ModernButton btnDettagliTeam = ModernButton.createPrimaryButton("Dettagli Team");
         btnDettagliTeam.setEnabled(false);
         buttonPanel.add(btnDettagliTeam);
         
@@ -279,7 +280,7 @@ public class HackathonInfoDialog {
         
         // Pulsante chiudi
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton btnChiudi = new JButton("Chiudi");
+        ModernButton btnChiudi = ModernButton.createSecondaryButton("Chiudi");
         btnChiudi.addActionListener(e -> teamDialog.dispose());
         buttonPanel.add(btnChiudi);
         
