@@ -15,21 +15,7 @@ import java.util.List;
 
 /**
  * Vista moderna per la schermata Home dell'applicazione.
- * Interfaccia completamente rinnovata con componenti moderni e des                if(hackathonController.getListaUtenti().isEmpty()) {
-                    informationArea.append("Lista Utenti vuota.\n\n");
-                    informationArea.append("Nessun utente è attualmente registrato nel sistema.");
-                } else {
-                    informationArea.append("LISTA UTENTI REGISTRATI:\n");
-                    informationArea.append("-".repeat(40) + "\n\n");
-                    
-                    int count = 1;
-                    for (Utente user : hackathonController.getListaUtenti()) {
-                        informationArea.append(String.format("%d. %s\n", count++, user.getName()));
-                    }
-                    
-                    informationArea.append("\n" + "-".repeat(40));
-                    informationArea.append(String.format("\nTotale utenti: %d", hackathonController.getListaUtenti().size()));
-                }
+ * Interfaccia completamente rinnovata con componenti moderni e design.
  * Segue lo stesso pattern di design utilizzato in ModernTeamView.
  */
 public class Home {
