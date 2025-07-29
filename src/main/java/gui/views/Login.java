@@ -401,32 +401,15 @@ public class Login {
                     if (adminCheckBox.isSelected()) {
                         // Registrazione come organizzatore - usa hackathonController.aggiungiUtente (che crea organizzatori)
                         hackathonController.aggiungiUtente(username, password);
-                        JOptionPane.showMessageDialog(logFrame,
-                                "✅ Registrazione organizzatore completata con successo!\n" +
-                                "Ora puoi effettuare il login come organizzatore.",
-                                "Registrazione Riuscita", 
-                                JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         // Registrazione come utente normale - usa UserController per creare utenti
                         UserController userController = new UserController();
                         userController.aggiungiUtente(username, password);
-                        JOptionPane.showMessageDialog(logFrame,
-                                "✅ Registrazione utente completata con successo!\n" +
-                                "Ora puoi effettuare il login come utente.",
-                                "Registrazione Riuscita",
-                                JOptionPane.INFORMATION_MESSAGE);
                     }
                     fieldUsername.setText("");
                     fieldPassword.setText("");
                     adminCheckBox.setSelected(false);
-                } catch (IllegalArgumentException ex) {
-                    String userFriendlyMessage = ErrorMessageTranslator.translateError(ex.getMessage());
-                    JOptionPane.showMessageDialog(logFrame,
-                            userFriendlyMessage,
-                            "Errore di Registrazione",
-                            JOptionPane.ERROR_MESSAGE);
                 } catch (Exception ex) {
-                    // Cattura errori di database e altri errori generici
                     String userFriendlyMessage = ErrorMessageTranslator.translateError(ex.getMessage());
                     JOptionPane.showMessageDialog(logFrame,
                             userFriendlyMessage,

@@ -162,9 +162,35 @@ public class HackathonController extends UserController {
     @Override
     public void aggiungiUtente(String username, String password) throws IllegalArgumentException {
         try {
-            listaOrganizzatori.add(new Organizzatore(username, password));
+            Organizzatore nuovoOrganizzatore = new Organizzatore(username, password);
+            
+            // Salva nel database se disponibile
+            if (organizzatoreDAO != null) {
+                boolean salvato = organizzatoreDAO.save(nuovoOrganizzatore);
+                if (salvato) {
+                    listaOrganizzatori.add(nuovoOrganizzatore);
+                    System.out.println("Organizzatore salvato nel database: " + username);
+                    javax.swing.JOptionPane.showMessageDialog(null, 
+                        "Organizzatore creato e salvato con successo nel database!", 
+                        "Successo", 
+                        javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    throw new IllegalArgumentException("Errore durante il salvataggio dell'organizzatore nel database");
+                }
+            } else {
+                // Modalità offline - salva solo in memoria
+                listaOrganizzatori.add(nuovoOrganizzatore);
+                System.out.println("Organizzatore salvato solo in memoria (modalità offline): " + username);
+                javax.swing.JOptionPane.showMessageDialog(null, 
+                    "Organizzatore creato in modalità offline (database non disponibile)", 
+                    "Avviso", 
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+            }
         } catch (IllegalArgumentException ex) {
             throw ex;
+        } catch (Exception ex) {
+            System.err.println("Errore durante il salvataggio dell'organizzatore: " + ex.getMessage());
+            throw new IllegalArgumentException("Errore durante la registrazione: " + ex.getMessage());
         }
     }
 
